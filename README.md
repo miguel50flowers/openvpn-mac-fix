@@ -35,8 +35,6 @@ chmod +x install.sh
 El instalador automáticamente:
 - Copia los scripts a tu directorio home (`~/`)
 - Instala y carga el LaunchDaemon
-- Configura OpenVPN Connect (`tun_persist`, `allow_lan_access`) si está instalado
-- Elimina `block-outside-dns` de perfiles `.ovpn`
 
 ## Instalación manual
 
@@ -61,21 +59,6 @@ sudo chown root:wheel /Library/LaunchDaemons/com.vpnmonitor.plist
 sudo chmod 644 /Library/LaunchDaemons/com.vpnmonitor.plist
 sudo launchctl load /Library/LaunchDaemons/com.vpnmonitor.plist
 ```
-
-### 3. Configurar OpenVPN Connect
-
-Edita `~/Library/Application Support/OpenVPN Connect/config.json` y asegúrate de tener:
-
-```json
-{
-  "tun_persist": true,
-  "allow_lan_access": true
-}
-```
-
-### 4. Eliminar block-outside-dns
-
-Si tus perfiles `.ovpn` contienen la línea `block-outside-dns`, elimínala. Esta directiva es para Windows y causa problemas en macOS.
 
 ## Configurar notificaciones
 
