@@ -1,44 +1,43 @@
 # OpenVPN Mac Fix
 
-Solución automática para el problema de **pérdida de internet al desconectar OpenVPN** en macOS.
+Automatic fix for **internet loss after disconnecting OpenVPN** on macOS.
 
-## El problema
+## The Problem
 
-Al desconectar OpenVPN Connect en macOS, el sistema pierde conectividad a internet. Esto ocurre porque:
+When disconnecting OpenVPN Connect on macOS, the system loses internet connectivity. This happens because:
 
-1. OpenVPN crea rutas de red (`0/1` y `128.0/1`) que redirigen todo el tráfico por el túnel VPN
-2. Al desconectar, estas rutas **no se eliminan correctamente**
-3. La ruta default al gateway local desaparece
-4. El DNS queda apuntando a servidores del VPN que ya no son accesibles
+1. OpenVPN creates network routes (`0/1` and `128.0/1`) that redirect all traffic through the VPN tunnel
+2. On disconnect, these routes **are not properly removed**
+3. The default route to the local gateway disappears
+4. DNS is left pointing to VPN servers that are no longer reachable
 
-## Cómo funciona esta solución
+## How It Works
 
-- **`vpn-monitor.sh`** — Un monitor que se activa automáticamente cuando detecta cambios en la configuración de red (via `WatchPaths` de launchd). Detecta si la VPN se desconectó y ejecuta la recuperación.
-- **`fix-vpn-disconnect.sh`** — Script que restaura la conectividad: elimina rutas residuales del VPN, limpia DNS, renueva DHCP y restaura la ruta default.
-- **LaunchDaemon** — Mantiene el monitor activo en segundo plano observando cambios en `/var/run/resolv.conf` y `/etc/resolv.conf`.
+- **`vpn-monitor.sh`** — A monitor that triggers automatically when it detects network configuration changes (via launchd `WatchPaths`). Detects VPN disconnection and runs the recovery script.
+- **`fix-vpn-disconnect.sh`** — Restores connectivity: removes residual VPN routes, flushes DNS, renews DHCP, and restores the default route.
+- **LaunchDaemon** — Keeps the monitor running in the background, watching for changes in `/var/run/resolv.conf` and `/etc/resolv.conf`.
 
-## Requisitos
+## Requirements
 
-- macOS 12+ (Monterey o superior)
-- OpenVPN Connect instalado
-- Acceso `sudo`
+- macOS 12+ (Monterey or later)
+- OpenVPN Connect installed
+- `sudo` access
 
-## Instalación rápida
+## Quick Install
 
 ```bash
 git clone https://github.com/miguel50flowers/openvpn-mac-fix.git
 cd openvpn-mac-fix
-chmod +x install.sh
-./install.sh
+make install
 ```
 
-El instalador automáticamente:
-- Copia los scripts a tu directorio home (`~/`)
-- Instala y carga el LaunchDaemon
+The installer automatically:
+- Copies scripts to your home directory (`~/`)
+- Installs and loads the LaunchDaemon
 
-## Instalación manual
+## Manual Installation
 
-### 1. Copiar scripts
+### 1. Copy scripts
 
 ```bash
 cp scripts/fix-vpn-disconnect.sh ~/fix-vpn-disconnect.sh
@@ -46,12 +45,12 @@ cp scripts/vpn-monitor.sh ~/vpn-monitor.sh
 chmod +x ~/fix-vpn-disconnect.sh ~/vpn-monitor.sh
 ```
 
-Edita ambos archivos y reemplaza `__USER_HOME__` con tu directorio home (ej: `/Users/tu_usuario`) y `__USERNAME__` con tu nombre de usuario.
+Edit both files and replace `__USER_HOME__` with your home directory (e.g., `/Users/your_username`) and `__USERNAME__` with your username.
 
-### 2. Instalar LaunchDaemon
+### 2. Install LaunchDaemon
 
 ```bash
-# Editar el plist reemplazando __USER_HOME__
+# Edit the plist replacing __USER_HOME__
 sed "s|__USER_HOME__|$HOME|g" scripts/com.vpnmonitor.plist > /tmp/com.vpnmonitor.plist
 
 sudo cp /tmp/com.vpnmonitor.plist /Library/LaunchDaemons/
@@ -60,36 +59,35 @@ sudo chmod 644 /Library/LaunchDaemons/com.vpnmonitor.plist
 sudo launchctl load /Library/LaunchDaemons/com.vpnmonitor.plist
 ```
 
-## Configurar notificaciones
+## Configure Notifications
 
-Para recibir alertas cuando el monitor detecta conexión/desconexión:
+To receive alerts when the monitor detects connection/disconnection:
 
-1. Abre **System Settings** → **Notifications**
-2. Busca **Script Editor**
-3. Cambia el estilo de notificación a **Alerts**
+1. Open **System Settings** → **Notifications**
+2. Find **Script Editor**
+3. Set notification style to **Alerts**
 
-## Verificación
+## Verification
 
 ```bash
-# Verificar que el daemon está cargado
+# Check that the daemon is loaded
 sudo launchctl list | grep vpnmonitor
 
-# Ver logs del monitor
+# View monitor logs
 cat /tmp/vpn-monitor.log
 
-# Probar manualmente el fix (con sudo)
+# Manually test the fix (requires sudo)
 sudo ~/fix-vpn-disconnect.sh
 ```
 
-## Desinstalación
+## Uninstall
 
 ```bash
 cd openvpn-mac-fix
-chmod +x uninstall.sh
-./uninstall.sh
+make uninstall
 ```
 
-O manualmente:
+Or manually:
 
 ```bash
 sudo launchctl unload /Library/LaunchDaemons/com.vpnmonitor.plist
@@ -99,37 +97,41 @@ rm ~/fix-vpn-disconnect.sh ~/vpn-monitor.sh
 
 ## Troubleshooting
 
-### El monitor no se activa
+### Monitor doesn't trigger
 ```bash
-# Verificar que el daemon está cargado
+# Check if the daemon is loaded
 sudo launchctl list | grep vpnmonitor
 
-# Si no aparece, recargarlo
+# If not listed, reload it
 sudo launchctl load /Library/LaunchDaemons/com.vpnmonitor.plist
 ```
 
-### No recibo notificaciones
-- Verifica que **Script Editor** tiene notificaciones tipo **Alerts** en System Settings
-- Verifica los logs: `cat /tmp/vpn-monitor.log`
+### Not receiving notifications
+- Verify that **Script Editor** has **Alerts** notification style in System Settings
+- Check the logs: `cat /tmp/vpn-monitor.log`
 
-### Internet sigue sin funcionar después del fix
+### Internet still not working after the fix
 ```bash
-# Ejecutar manualmente con logs
+# Run manually with logs
 sudo ~/fix-vpn-disconnect.sh
 
-# Verificar rutas de red
+# Check network routes
 netstat -rn | head -20
 
-# Verificar DNS
+# Check DNS
 scutil --dns | head -20
 ```
 
-### Permisos
-Si ves errores de permisos, asegúrate de que los scripts son ejecutables:
+### Permissions
+If you see permission errors, make sure the scripts are executable:
 ```bash
 chmod +x ~/fix-vpn-disconnect.sh ~/vpn-monitor.sh
 ```
 
-## Licencia
+## Contributing
 
-MIT
+Contributions are welcome! Feel free to open issues and pull requests.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).

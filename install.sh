@@ -1,6 +1,6 @@
 #!/bin/bash
-# install.sh — Instala VPN Monitor para macOS
-# Uso: ./install.sh (pedirá sudo cuando sea necesario)
+# install.sh — Installs VPN Monitor for macOS
+# Usage: ./install.sh (will prompt for sudo when needed)
 
 set -euo pipefail
 
@@ -10,13 +10,13 @@ USERNAME="$(whoami)"
 DAEMON_LABEL="com.vpnmonitor"
 PLIST_DEST="/Library/LaunchDaemons/${DAEMON_LABEL}.plist"
 
-echo "=== OpenVPN Mac Fix - Instalador ==="
-echo "Usuario: $USERNAME"
-echo "Home:    $USER_HOME"
+echo "=== OpenVPN Mac Fix - Installer ==="
+echo "User: $USERNAME"
+echo "Home: $USER_HOME"
 echo ""
 
-# 1. Copiar scripts reemplazando placeholders
-echo "[1/3] Copiando scripts..."
+# 1. Copy scripts replacing placeholders
+echo "[1/3] Copying scripts..."
 for script in fix-vpn-disconnect.sh vpn-monitor.sh; do
     sed -e "s|__USER_HOME__|${USER_HOME}|g" \
         -e "s|__USERNAME__|${USERNAME}|g" \
@@ -25,12 +25,12 @@ for script in fix-vpn-disconnect.sh vpn-monitor.sh; do
     echo "  ✓ $USER_HOME/$script"
 done
 
-# 2. Generar e instalar LaunchDaemon
-echo "[2/3] Instalando LaunchDaemon..."
+# 2. Generate and install LaunchDaemon
+echo "[2/3] Installing LaunchDaemon..."
 PLIST_TMP="/tmp/${DAEMON_LABEL}.plist"
 sed "s|__USER_HOME__|${USER_HOME}|g" "$SCRIPT_DIR/scripts/com.vpnmonitor.plist" > "$PLIST_TMP"
 
-# Descargar daemon previo si existe
+# Unload previous daemon if exists
 sudo launchctl unload "$PLIST_DEST" 2>/dev/null || true
 
 sudo cp "$PLIST_TMP" "$PLIST_DEST"
@@ -38,20 +38,20 @@ sudo chown root:wheel "$PLIST_DEST"
 sudo chmod 644 "$PLIST_DEST"
 sudo launchctl load "$PLIST_DEST"
 rm -f "$PLIST_TMP"
-echo "  ✓ LaunchDaemon instalado y cargado"
+echo "  ✓ LaunchDaemon installed and loaded"
 
-# 3. Recordatorio de notificaciones
-echo "[3/3] Configuración de notificaciones"
+# 3. Notification reminder
+echo "[3/3] Notification setup"
 echo ""
-echo "=== INSTALACIÓN COMPLETADA ==="
+echo "=== INSTALLATION COMPLETE ==="
 echo ""
-echo "⚠  PASO MANUAL REQUERIDO:"
-echo "   Para recibir notificaciones del monitor VPN:"
-echo "   1. Abre System Settings → Notifications"
-echo "   2. Busca 'Script Editor'"
-echo "   3. Cambia el estilo de notificación a 'Alerts'"
+echo "⚠  MANUAL STEP REQUIRED:"
+echo "   To receive VPN monitor notifications:"
+echo "   1. Open System Settings → Notifications"
+echo "   2. Find 'Script Editor'"
+echo "   3. Set notification style to 'Alerts'"
 echo ""
-echo "Verifica que funciona:"
+echo "Verify it works:"
 echo "   sudo launchctl list | grep vpnmonitor"
 echo "   cat /tmp/vpn-monitor.log"
 echo ""

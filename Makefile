@@ -10,17 +10,17 @@ uninstall:
 
 status:
 	@echo "=== LaunchDaemon ==="
-	@sudo launchctl list | grep vpnmonitor || echo "No cargado"
+	@sudo launchctl list | grep vpnmonitor || echo "Not loaded"
 	@echo ""
 	@echo "=== Scripts ==="
-	@ls -la ~/fix-vpn-disconnect.sh ~/vpn-monitor.sh 2>/dev/null || echo "No instalados"
+	@ls -la ~/fix-vpn-disconnect.sh ~/vpn-monitor.sh 2>/dev/null || echo "Not installed"
 	@echo ""
 	@echo "=== Plist ==="
-	@ls -la /Library/LaunchDaemons/com.vpnmonitor.plist 2>/dev/null || echo "No instalado"
+	@ls -la /Library/LaunchDaemons/com.vpnmonitor.plist 2>/dev/null || echo "Not installed"
 
 logs:
-	@cat /tmp/vpn-monitor.log 2>/dev/null || echo "No hay logs aún"
+	@cat /tmp/vpn-monitor.log 2>/dev/null || echo "No logs yet"
 
 test:
-	@echo "Ejecutando fix manualmente..."
+	@echo "Running fix manually..."
 	@sudo ~/fix-vpn-disconnect.sh
