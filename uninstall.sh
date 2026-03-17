@@ -35,7 +35,7 @@ done
 # 3. Clean up temporary files
 echo "[3/3] Cleaning up temporary files..."
 rm -f /tmp/vpn-was-connected
-rm -f /tmp/vpn-monitor.log
+rm -f /tmp/vpn-monitor.log*
 echo "  ✓ Temporary files removed"
 
 echo ""

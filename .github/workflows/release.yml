@@ -1,0 +1,57 @@
+name: Build and Release .pkg
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-pkg:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Read version
+        id: version
+        run: echo "version=$(cat VERSION)" >> "$GITHUB_OUTPUT"
+
+      - name: Build .pkg
+        run: |
+          chmod +x build-pkg.sh
+          ./build-pkg.sh
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "v${{ steps.version.outputs.version }}"
+          body: |
+            ## OpenVPN Mac Fix v${{ steps.version.outputs.version }}
+
+            ### Install
+
+            **Option 1: Download the .pkg** (recommended)
+            1. Download `openvpn-mac-fix-${{ steps.version.outputs.version }}.pkg` below
+            2. Double-click to install
+            3. Open System Settings → Notifications → Script Editor → set to Alerts
+
+            **Option 2: Terminal**
+            ```bash
+            sudo installer -pkg openvpn-mac-fix-${{ steps.version.outputs.version }}.pkg -target /
+            ```
+
+            **Option 3: Git clone**
+            ```bash
+            git clone https://github.com/miguel50flowers/openvpn-mac-fix.git
+            cd openvpn-mac-fix
+            make install
+            ```
+
+            > Works on both Apple Silicon (M1/M2/M3/M4) and Intel Macs.
+          files: |
+            build/openvpn-mac-fix-${{ steps.version.outputs.version }}.pkg
+          draft: false
+          prerelease: false

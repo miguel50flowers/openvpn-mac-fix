@@ -2,10 +2,10 @@
 
 ## Phase 1 — Improve current solution (quick wins)
 
-- [ ] Create a `.pkg` installer (macOS native) for one-click install without terminal
-- [ ] Add versioning (git tags, version variable in scripts)
-- [ ] Add Homebrew tap formula (`brew install openvpn-mac-fix`)
-- [ ] Improve logging (log rotation, configurable verbosity)
+- [x] Create a `.pkg` installer (macOS native) for one-click install without terminal
+- [x] Add versioning (git tags, version variable in scripts)
+- [x] Add Homebrew tap formula (`brew install openvpn-mac-fix`)
+- [x] Improve logging (log rotation, configurable verbosity)
 
 ## Phase 2 — Native macOS menu bar app (Swift/SwiftUI)
 

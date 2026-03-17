@@ -1,0 +1,11 @@
+#!/bin/bash
+# preinstall — Unload existing daemon before installing new version
+
+DAEMON_LABEL="com.vpnmonitor"
+PLIST_PATH="/Library/LaunchDaemons/${DAEMON_LABEL}.plist"
+
+if [ -f "$PLIST_PATH" ]; then
+    launchctl unload "$PLIST_PATH" 2>/dev/null || true
+fi
+
+exit 0

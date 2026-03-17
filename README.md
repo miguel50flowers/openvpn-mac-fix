@@ -25,6 +25,24 @@ When disconnecting OpenVPN Connect on macOS, the system loses internet connectiv
 
 ## Quick Install
 
+### Option 1: .pkg Installer (recommended for non-technical users)
+
+Download the latest `.pkg` from [Releases](https://github.com/miguel50flowers/openvpn-mac-fix/releases) and double-click to install. Or from the terminal:
+
+```bash
+sudo installer -pkg openvpn-mac-fix-1.1.0.pkg -target /
+```
+
+### Option 2: Homebrew
+
+```bash
+brew tap miguel50flowers/openvpn-mac-fix
+brew install openvpn-mac-fix
+cd $(brew --prefix)/Cellar/openvpn-mac-fix/*/libexec && sudo ./install.sh
+```
+
+### Option 3: Git clone
+
 ```bash
 git clone https://github.com/miguel50flowers/openvpn-mac-fix.git
 cd openvpn-mac-fix
@@ -34,6 +52,13 @@ make install
 The installer automatically:
 - Copies scripts to your home directory (`~/`)
 - Installs and loads the LaunchDaemon
+
+### Build .pkg from source
+
+```bash
+make pkg
+# Output: build/openvpn-mac-fix-<version>.pkg
+```
 
 ## Manual Installation
 

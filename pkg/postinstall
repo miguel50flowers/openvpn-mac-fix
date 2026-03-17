@@ -1,0 +1,47 @@
+#!/bin/bash
+# postinstall — Runs as root after .pkg install
+# Detects the console user, copies scripts to their home, installs LaunchDaemon
+
+set -euo pipefail
+
+DAEMON_LABEL="com.vpnmonitor"
+PLIST_DEST="/Library/LaunchDaemons/${DAEMON_LABEL}.plist"
+SHARE_DIR="/usr/local/share/openvpn-mac-fix"
+
+# Detect the real console user (not root)
+CONSOLE_USER=$(stat -f '%Su' /dev/console 2>/dev/null)
+if [ -z "$CONSOLE_USER" ] || [ "$CONSOLE_USER" = "root" ]; then
+    echo "ERROR: Could not detect console user. Please run install.sh manually."
+    exit 1
+fi
+USER_HOME=$(dscl . -read /Users/"$CONSOLE_USER" NFSHomeDirectory 2>/dev/null | awk '{print $2}')
+if [ -z "$USER_HOME" ]; then
+    USER_HOME="/Users/$CONSOLE_USER"
+fi
+
+echo "Installing for user: $CONSOLE_USER ($USER_HOME)"
+
+# Copy scripts to user home, replacing placeholders
+for script in vpn-monitor.sh fix-vpn-disconnect.sh; do
+    sed -e "s|__USER_HOME__|${USER_HOME}|g" \
+        -e "s|__USERNAME__|${CONSOLE_USER}|g" \
+        "$SHARE_DIR/$script" > "$USER_HOME/$script"
+    chmod +x "$USER_HOME/$script"
+    chown "$CONSOLE_USER" "$USER_HOME/$script"
+    echo "  Installed: $USER_HOME/$script"
+done
+
+# Install LaunchDaemon plist with placeholder replacement
+sed "s|__USER_HOME__|${USER_HOME}|g" "$SHARE_DIR/com.vpnmonitor.plist" > "$PLIST_DEST"
+chown root:wheel "$PLIST_DEST"
+chmod 644 "$PLIST_DEST"
+
+# Load the daemon
+launchctl load "$PLIST_DEST"
+echo "  LaunchDaemon loaded"
+
+echo ""
+echo "=== Installation complete ==="
+echo "To receive notifications: System Settings → Notifications → Script Editor → Alerts"
+
+exit 0

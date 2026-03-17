@@ -5,12 +5,13 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+VERSION=$(cat "$SCRIPT_DIR/VERSION" 2>/dev/null || echo "unknown")
 USER_HOME="$HOME"
 USERNAME="$(whoami)"
 DAEMON_LABEL="com.vpnmonitor"
 PLIST_DEST="/Library/LaunchDaemons/${DAEMON_LABEL}.plist"
 
-echo "=== OpenVPN Mac Fix - Installer ==="
+echo "=== OpenVPN Mac Fix v${VERSION} - Installer ==="
 echo "User: $USERNAME"
 echo "Home: $USER_HOME"
 echo ""
@@ -20,6 +21,7 @@ echo "[1/3] Copying scripts..."
 for script in fix-vpn-disconnect.sh vpn-monitor.sh; do
     sed -e "s|__USER_HOME__|${USER_HOME}|g" \
         -e "s|__USERNAME__|${USERNAME}|g" \
+        -e "s|__VERSION__|${VERSION}|g" \
         "$SCRIPT_DIR/scripts/$script" > "$USER_HOME/$script"
     chmod +x "$USER_HOME/$script"
     echo "  ✓ $USER_HOME/$script"

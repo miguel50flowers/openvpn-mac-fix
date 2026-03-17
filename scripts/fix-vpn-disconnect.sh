@@ -4,13 +4,19 @@
 
 set -euo pipefail
 
-LOG="/tmp/vpn-monitor.log"
-log() { echo "$(date '+%Y-%m-%d %H:%M:%S') [fix] $*" | tee -a "$LOG"; }
+VERSION="__VERSION__"
 
-log "Starting network recovery..."
+LOG="/tmp/vpn-monitor.log"
+LOG_LEVEL="${VPN_MONITOR_LOG_LEVEL:-INFO}"
+
+log() { echo "$(date '+%Y-%m-%d %H:%M:%S') [fix] $*" | tee -a "$LOG"; }
+debug() { [ "$LOG_LEVEL" = "DEBUG" ] && log "[DEBUG] $*"; }
+
+log "Starting network recovery (v${VERSION})..."
 
 # 1. Remove residual VPN routes (0/1 and 128.0/1 via utun)
 for route in "0/1" "128.0/1"; do
+    debug "Checking route: $route"
     if netstat -rn | grep -q "^${route}.*utun"; then
         gw=$(netstat -rn | grep "^${route}.*utun" | awk '{print $2}')
         iface=$(netstat -rn | grep "^${route}.*utun" | awk '{print $NF}')
@@ -25,9 +31,11 @@ log "DNS cache flushed"
 
 # 3. Detect all active network interfaces (excluding lo0 and utun)
 ACTIVE_IFACES=$(ifconfig -lu 2>/dev/null | tr ' ' '\n' | grep -v -E '^(lo|utun|awdl|llw|anpi|bridge|ap|ipsec|gif|stf|XHC)' | sort -u)
+debug "Active interfaces: $ACTIVE_IFACES"
 
 # 4. Renew DHCP on each active interface
 for iface in $ACTIVE_IFACES; do
+    debug "Checking interface: $iface"
     if ifconfig "$iface" 2>/dev/null | grep -q "inet "; then
         SERVICE_NAME=$(networksetup -listallhardwareports 2>/dev/null | grep -B1 "Device: $iface" | head -1 | sed 's/Hardware Port: //')
         if [ -n "$SERVICE_NAME" ]; then

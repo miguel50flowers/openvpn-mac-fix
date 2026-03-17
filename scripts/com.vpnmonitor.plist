@@ -18,6 +18,11 @@
     <string>/tmp/vpn-monitor.log</string>
     <key>StandardErrorPath</key>
     <string>/tmp/vpn-monitor.log</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>VPN_MONITOR_LOG_LEVEL</key>
+        <string>INFO</string>
+    </dict>
     <key>RunAtLoad</key>
     <false/>
 </dict>
