@@ -1,0 +1,46 @@
+import Foundation
+
+// Sparkle is added as an SPM dependency.
+// When Sparkle is available, this wraps SPUStandardUpdaterController.
+// When building without Sparkle (e.g., initial dev), this is a no-op stub.
+
+#if canImport(Sparkle)
+import Sparkle
+
+final class SparkleUpdater {
+    static let shared = SparkleUpdater()
+
+    private let controller: SPUStandardUpdaterController
+
+    private init() {
+        controller = SPUStandardUpdaterController(
+            startingUpdater: true,
+            updaterDelegate: nil,
+            userDriverDelegate: nil
+        )
+    }
+
+    func checkForUpdates() {
+        controller.checkForUpdates(nil)
+    }
+
+    var canCheckForUpdates: Bool {
+        controller.updater.canCheckForUpdates
+    }
+}
+
+#else
+
+/// Stub when Sparkle is not linked (dev builds without SPM dependency).
+final class SparkleUpdater {
+    static let shared = SparkleUpdater()
+    private init() {}
+
+    func checkForUpdates() {
+        NSLog("[VPNFix] Sparkle not available — skipping update check")
+    }
+
+    var canCheckForUpdates: Bool { false }
+}
+
+#endif

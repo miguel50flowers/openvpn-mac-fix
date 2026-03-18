@@ -1,4 +1,4 @@
-name: Build and Release .pkg
+name: Build and Release
 
 on:
   push:
@@ -9,49 +9,135 @@ permissions:
   contents: write
 
 jobs:
-  build-pkg:
+  build:
     runs-on: macos-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for CURRENT_PROJECT_VERSION
 
       - name: Read version
         id: version
-        run: echo "version=$(cat VERSION)" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "version=$(cat VERSION)" >> "$GITHUB_OUTPUT"
+          echo "build_number=$(git rev-list --count HEAD)" >> "$GITHUB_OUTPUT"
 
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      # ---- Build .app (unsigned) ----
+      - name: Build VPN Fix.app
+        run: |
+          xcodebuild build \
+            -project app/VPNFix.xcodeproj \
+            -scheme VPNFix \
+            -configuration Release \
+            -derivedDataPath build/DerivedData \
+            MARKETING_VERSION="${{ steps.version.outputs.version }}" \
+            CURRENT_PROJECT_VERSION="${{ steps.version.outputs.build_number }}" \
+            ARCHS="arm64 x86_64" \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGN_STYLE=Manual
+
+      # ---- Code Signing & Notarization (when Developer ID is available) ----
+      # Uncomment these steps once APPLE_CERTIFICATE_P12 and other secrets are configured:
+      #
+      # - name: Import Apple Certificate
+      #   env:
+      #     APPLE_CERTIFICATE_P12: ${{ secrets.APPLE_CERTIFICATE_P12 }}
+      #     APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+      #     KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+      #   run: |
+      #     CERT_PATH=$RUNNER_TEMP/certificate.p12
+      #     KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+      #     echo -n "$APPLE_CERTIFICATE_P12" | base64 --decode -o $CERT_PATH
+      #     security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+      #     security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+      #     security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+      #     security import $CERT_PATH -P "$APPLE_CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+      #     security list-keychain -d user -s $KEYCHAIN_PATH
+      #
+      # - name: Archive and Export (Signed)
+      #   run: |
+      #     xcodebuild archive \
+      #       -project app/VPNFix.xcodeproj \
+      #       -scheme VPNFix \
+      #       -archivePath build/VPNFix.xcarchive \
+      #       MARKETING_VERSION="${{ steps.version.outputs.version }}" \
+      #       CURRENT_PROJECT_VERSION="${{ steps.version.outputs.build_number }}" \
+      #       ARCHS="arm64 x86_64"
+      #     xcodebuild -exportArchive \
+      #       -archivePath build/VPNFix.xcarchive \
+      #       -exportOptionsPlist app/ExportOptions.plist \
+      #       -exportPath build/export
+      #
+      # - name: Notarize
+      #   env:
+      #     APPLE_ID: ${{ secrets.APPLE_ID }}
+      #     APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+      #     APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      #   run: |
+      #     ditto -c -k --keepParent "build/export/VPN Fix.app" build/VPNFix-notarize.zip
+      #     xcrun notarytool submit build/VPNFix-notarize.zip \
+      #       --apple-id "$APPLE_ID" \
+      #       --password "$APPLE_ID_PASSWORD" \
+      #       --team-id "$APPLE_TEAM_ID" \
+      #       --wait
+      #     xcrun stapler staple "build/export/VPN Fix.app"
+
+      # ---- Build DMG ----
+      - name: Install create-dmg
+        run: brew install create-dmg
+
+      - name: Build DMG
+        run: |
+          chmod +x build-dmg.sh
+          ./build-dmg.sh --app-path "build/DerivedData/Build/Products/Release/VPN Fix.app"
+
+      # ---- Build .pkg (legacy) ----
       - name: Build .pkg
         run: |
           chmod +x build-pkg.sh
           ./build-pkg.sh
 
+      # ---- Create Release ----
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           name: "v${{ steps.version.outputs.version }}"
           body: |
-            ## OpenVPN Mac Fix v${{ steps.version.outputs.version }}
+            ## VPN Fix v${{ steps.version.outputs.version }}
 
             ### Install
 
-            **Option 1: Download the .pkg** (recommended)
-            1. Download `openvpn-mac-fix-${{ steps.version.outputs.version }}.pkg` below
-            2. Double-click to install
-            3. Open System Settings → Notifications → Script Editor → set to Alerts
+            **Option 1: Download the .dmg** (recommended)
+            1. Download `VPNFix-${{ steps.version.outputs.version }}.dmg` below
+            2. Open the DMG and drag **VPN Fix** to Applications
+            3. Launch from Applications (right-click → Open on first launch)
 
-            **Option 2: Terminal**
+            **Option 2: Homebrew Cask**
+            ```bash
+            brew install --cask vpn-fix
+            ```
+
+            **Option 3: Download the .pkg** (shell scripts only)
             ```bash
             sudo installer -pkg openvpn-mac-fix-${{ steps.version.outputs.version }}.pkg -target /
             ```
 
-            **Option 3: Git clone**
+            **Option 4: Git clone** (shell scripts only)
             ```bash
             git clone https://github.com/miguel50flowers/openvpn-mac-fix.git
             cd openvpn-mac-fix
             make install
             ```
 
-            > Works on both Apple Silicon (M1/M2/M3/M4) and Intel Macs.
+            > Requires macOS 13 (Ventura) or later. Universal binary (Apple Silicon + Intel).
           files: |
+            build/VPNFix-${{ steps.version.outputs.version }}.dmg
             build/openvpn-mac-fix-${{ steps.version.outputs.version }}.pkg
           draft: false
           prerelease: false

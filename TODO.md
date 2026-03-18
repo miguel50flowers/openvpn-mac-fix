@@ -9,15 +9,20 @@
 
 ## Phase 2 — Native macOS app with `.dmg` installer (Swift/SwiftUI)
 
-- [ ] Create `.app` bundle (Swift/SwiftUI) wrapping the existing shell scripts
-- [ ] Package as `.dmg` for drag-to-Applications install (standard macOS distribution)
-- [ ] Menu bar icon showing VPN status (connected / disconnected / fixing)
-- [ ] Real-time notifications through the app (replace `osascript`)
-- [ ] One-click install/uninstall of the daemon from the app
-- [ ] View logs from the app
-- [ ] Auto-update mechanism (Sparkle framework)
-- [ ] Preferences panel (enable/disable, notification settings)
-- [ ] Code-sign and notarize the `.app`/`.dmg` for Gatekeeper
+- [x] Create `.app` bundle (Swift/SwiftUI) wrapping the existing shell scripts
+- [x] Package as `.dmg` for drag-to-Applications install (standard macOS distribution)
+- [x] Menu bar icon showing VPN status (connected / disconnected / fixing)
+- [x] Real-time notifications through the app (replace `osascript`)
+- [x] One-click install/uninstall of the daemon from the app
+- [x] View logs from the app
+- [x] Auto-update mechanism (Sparkle framework)
+- [x] Preferences panel (enable/disable, notification settings)
+- [ ] Code-sign and notarize the `.app`/`.dmg` for Gatekeeper (pending Apple Developer ID)
+- [x] Homebrew Cask for `.dmg` distribution
+- [x] Phase 1 migration dialog (detect and remove old installation)
+- [x] Privileged helper daemon with XPC communication
+- [x] Native VPN detection (Swift, replaces shell-based utun check)
+- [x] CI/CD pipeline for `.dmg` + `.pkg` releases
 
 ## Phase 3 — Advanced features
 
@@ -31,14 +36,5 @@
 ## Notes
 
 - **GitHub Packages** does not apply here — it's for code packages (npm, Docker, etc.), not macOS installers. The `.pkg` in GitHub Releases is the correct approach.
-- **`.pkg` vs `.dmg`**: The current `.pkg` works well for the shell-script-based solution. Phase 2's `.dmg` + `.app` is the next evolution for a fully native experience.
-
-## Recommendation
-
-The **recommended next step is Phase 2** — a native Swift/SwiftUI `.app` with `.dmg` installer.
-
-**Why:**
-
-- Phase 1 is complete (`.pkg`, versioning, Homebrew, logging)
-- A `.dmg` with drag-to-Applications is the most familiar install experience for macOS users
-- The menu bar app provides real-time status without checking logs manually
+- **`.pkg` vs `.dmg`**: The `.pkg` remains available for shell-script-only users. Phase 2's `.dmg` + `.app` is the primary distribution for the native app experience.
+- **Code signing**: Pipeline is scaffolded. Once an Apple Developer ID certificate is obtained, uncomment the signing/notarization steps in `.github/workflows/release.yml`.

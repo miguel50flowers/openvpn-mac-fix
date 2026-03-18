@@ -1,0 +1,78 @@
+name: VPNFix
+options:
+  bundleIdPrefix: com.miguel50flowers
+  deploymentTarget:
+    macOS: "13.0"
+  xcodeVersion: "15.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    MACOSX_DEPLOYMENT_TARGET: "13.0"
+    SWIFT_VERSION: "5.9"
+    CODE_SIGN_STYLE: Manual
+    CODE_SIGN_IDENTITY: "-"
+
+packages:
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: 2.0.0
+
+targets:
+  VPNFix:
+    type: application
+    platform: macOS
+    sources:
+      - path: VPNFix
+        excludes:
+          - "**/*.entitlements"
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.miguel50flowers.VPNFix
+        PRODUCT_NAME: "VPN Fix"
+        INFOPLIST_FILE: VPNFix/Info.plist
+        CODE_SIGN_ENTITLEMENTS: VPNFix/VPNFix.entitlements
+        ARCHS: "$(ARCHS_STANDARD)"
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    dependencies:
+      - target: VPNFixHelper
+        embed: true
+        codeSign: false
+        copy:
+          destination: executables
+    preBuildScripts:
+      - script: |
+          # Create LaunchDaemons directory in app bundle
+          mkdir -p "${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/Library/LaunchDaemons"
+          # Copy launchd plist
+          cp "${SRCROOT}/VPNFixHelper/launchd.plist" "${BUILT_PRODUCTS_DIR}/${CONTENTS_FOLDER_PATH}/Library/LaunchDaemons/com.miguel50flowers.VPNFix.helper.plist"
+          # Copy shell scripts to Resources
+          cp "${SRCROOT}/../scripts/fix-vpn-disconnect.sh" "${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/"
+          cp "${SRCROOT}/../scripts/vpn-monitor.sh" "${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/"
+          cp "${SRCROOT}/../VERSION" "${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/"
+          # Replace __VERSION__ placeholder
+          VERSION=$(cat "${SRCROOT}/../VERSION")
+          sed -i '' "s/__VERSION__/${VERSION}/g" "${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/fix-vpn-disconnect.sh"
+          sed -i '' "s/__VERSION__/${VERSION}/g" "${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/vpn-monitor.sh"
+          chmod +x "${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/fix-vpn-disconnect.sh"
+          chmod +x "${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/vpn-monitor.sh"
+        name: Copy Scripts & Resources
+
+  VPNFixHelper:
+    type: tool
+    platform: macOS
+    sources:
+      - path: VPNFixHelper
+        excludes:
+          - "**/*.plist"
+          - "**/*.entitlements"
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.miguel50flowers.VPNFix.helper
+        PRODUCT_NAME: VPNFixHelper
+        INFOPLIST_FILE: VPNFixHelper/Info.plist
+        CODE_SIGN_ENTITLEMENTS: VPNFixHelper/VPNFixHelper.entitlements
+        SKIP_INSTALL: YES

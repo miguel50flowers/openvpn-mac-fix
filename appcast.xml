@@ -1,0 +1,39 @@
+<?xml version="1.0" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
+    <channel>
+        <title>VPN Fix Updates</title>
+        <description>Most recent changes with links to updates.</description>
+        <language>en</language>
+        <!--
+            Add new items here when releasing updates.
+            Use Sparkle's generate_appcast tool to update signatures:
+              ./bin/generate_appcast /path/to/releases/
+        -->
+        <item>
+            <title>Version 2.0.0</title>
+            <description><![CDATA[
+                <h2>VPN Fix 2.0.0 — Native macOS App</h2>
+                <ul>
+                    <li>Native SwiftUI menu bar app</li>
+                    <li>Real-time VPN status monitoring</li>
+                    <li>One-click VPN fix</li>
+                    <li>Native macOS notifications</li>
+                    <li>Log viewer</li>
+                    <li>Preferences panel</li>
+                    <li>Auto-update support</li>
+                    <li>Migration from Phase 1 shell scripts</li>
+                </ul>
+            ]]></description>
+            <pubDate>Wed, 18 Mar 2026 12:00:00 +0000</pubDate>
+            <sparkle:version>1</sparkle:version>
+            <sparkle:shortVersionString>2.0.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <enclosure
+                url="https://github.com/miguel50flowers/openvpn-mac-fix/releases/download/v2.0.0/VPNFix-2.0.0.dmg"
+                type="application/octet-stream"
+                sparkle:edSignature=""
+                length="0"
+            />
+        </item>
+    </channel>
+</rss>

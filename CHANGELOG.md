@@ -4,6 +4,38 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.0.0] - 2026-03-18
+
+### Added
+
+- Native SwiftUI menu bar app ("VPN Fix") with real-time VPN status
+- Privileged helper daemon (`VPNFixHelper`) with XPC communication
+- Swift-native VPN detection via utun interface monitoring
+- `DispatchSource` file watcher on resolv.conf (replaces LaunchDaemon WatchPaths)
+- Native macOS notifications via `UNUserNotificationCenter`
+- Log viewer window with live tailing and auto-scroll
+- Preferences panel (monitoring toggle, notifications, log level, launch at login)
+- Sparkle 2.x auto-update integration with EdDSA signing
+- Phase 1 migration dialog (detects and removes old shell-based installation)
+- `.dmg` installer with drag-to-Applications (`build-dmg.sh`)
+- Homebrew Cask (`Casks/vpn-fix.rb`) for `brew install --cask vpn-fix`
+- Sparkle appcast feed (`appcast.xml`)
+- XcodeGen `project.yml` for reproducible Xcode project generation
+- CI/CD pipeline builds both `.dmg` and `.pkg` on tagged releases
+- `make app` and `make dmg` targets
+- Code signing pipeline scaffolded (deferred until Apple Developer ID obtained)
+- Xcode project with two targets: VPNFix (app) and VPNFixHelper (tool)
+- Universal binary support (arm64 + x86_64)
+
+### Changed
+
+- Minimum macOS version raised to 13 (Ventura) for `SMAppService` and `MenuBarExtra`
+- VPN detection reimplemented in Swift (no longer spawns bash)
+- Notifications use native `UNUserNotificationCenter` instead of `osascript`
+- `.github/workflows/release.yml` extended with Xcode build, DMG creation
+- `Makefile` extended with `app`, `dmg`, and `clean` targets
+- `.gitignore` updated for Xcode artifacts
+
 ## [Unreleased]
 
 ### Added

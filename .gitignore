@@ -1,1 +1,9 @@
 build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcscmblueprint
+app/VPNFix.xcodeproj/xcuserdata/
+app/VPNFix.xcodeproj/project.xcworkspace/xcuserdata/
+.swiftpm/
+.build/
