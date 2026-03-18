@@ -77,10 +77,13 @@ endif
 	@echo "$(v)" > VERSION
 	@sed -i '' 's|openvpn-mac-fix-[0-9]*\.[0-9]*\.[0-9]*\.pkg|openvpn-mac-fix-$(v).pkg|g' README.md
 	@sed -i '' 's|/tags/v[0-9]*\.[0-9]*\.[0-9]*\.tar\.gz|/tags/v$(v).tar.gz|g' Formula/openvpn-mac-fix.rb
+	@sed -i '' 's|<title>Version [0-9]*\.[0-9]*\.[0-9]*</title>|<title>Version $(v)</title>|g' appcast.xml
+	@sed -i '' 's|<sparkle:shortVersionString>[0-9]*\.[0-9]*\.[0-9]*</sparkle:shortVersionString>|<sparkle:shortVersionString>$(v)</sparkle:shortVersionString>|g' appcast.xml
+	@sed -i '' 's|/v[0-9]*\.[0-9]*\.[0-9]*/VPNFix-[0-9]*\.[0-9]*\.[0-9]*\.dmg|/v$(v)/VPNFix-$(v).dmg|g' appcast.xml
 	@echo "Version updated to $(v)"
 	@echo ""
-	@git add VERSION README.md Formula/openvpn-mac-fix.rb
-	@git commit -m "Bump version to $(v)"
+	@git add VERSION README.md Formula/openvpn-mac-fix.rb appcast.xml
+	@git diff --cached --quiet || git commit -m "Bump version to $(v)"
 	@git tag "v$(v)"
 	@echo ""
 	@echo "Pushing to origin..."

@@ -19,7 +19,7 @@ When disconnecting OpenVPN Connect on macOS, the system loses internet connectiv
 
 ## Requirements
 
-- macOS 12+ (Monterey or later)
+- macOS 13+ (Ventura or later)
 - OpenVPN Connect installed
 - `sudo` access
 

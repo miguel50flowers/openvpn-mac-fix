@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
 ## [2.0.0] - 2026-03-18
 
 ### Added
@@ -26,6 +28,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Code signing pipeline scaffolded (deferred until Apple Developer ID obtained)
 - Xcode project with two targets: VPNFix (app) and VPNFixHelper (tool)
 - Universal binary support (arm64 + x86_64)
+- New app icons (Connection Bridge design)
+- `make release v=X.Y.Z` target for automated version bumps, tagging, and push
 
 ### Changed
 
@@ -35,8 +39,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `.github/workflows/release.yml` extended with Xcode build, DMG creation
 - `Makefile` extended with `app`, `dmg`, and `clean` targets
 - `.gitignore` updated for Xcode artifacts
+- `README.md` pkg example updated to v2.0.0
 
-## [Unreleased]
+## [1.1.0] - 2026-03-17
 
 ### Added
 
