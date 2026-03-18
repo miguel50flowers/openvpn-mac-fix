@@ -30,7 +30,7 @@ When disconnecting OpenVPN Connect on macOS, the system loses internet connectiv
 Download the latest `.pkg` from [Releases](https://github.com/miguel50flowers/openvpn-mac-fix/releases) and double-click to install. Or from the terminal:
 
 ```bash
-sudo installer -pkg openvpn-mac-fix-2.0.0.pkg -target /
+sudo installer -pkg openvpn-mac-fix-2.0.1.pkg -target /
 ```
 
 ### Option 2: Homebrew
