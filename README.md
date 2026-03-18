@@ -1,6 +1,19 @@
-# OpenVPN Mac Fix
+<p align="center">
+  <img src=".github/assets/icon.png" width="128" height="128" alt="VPN Fix">
+</p>
+<h3 align="center">VPN Fix</h3>
+<p align="center">
+  Automatic fix for internet loss after disconnecting OpenVPN on macOS.
+</p>
+<p align="center">
+  <a href="https://github.com/miguel50flowers/openvpn-mac-fix/releases/latest"><img src="https://img.shields.io/github/v/release/miguel50flowers/openvpn-mac-fix?style=flat-square" alt="Release"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/miguel50flowers/openvpn-mac-fix?style=flat-square" alt="License"></a>
+  <img src="https://img.shields.io/badge/macOS-13%2B-000000?style=flat-square&logo=apple&logoColor=white" alt="macOS 13+">
+  <a href="https://github.com/miguel50flowers/openvpn-mac-fix/actions/workflows/release.yml"><img src="https://img.shields.io/github/actions/workflow/status/miguel50flowers/openvpn-mac-fix/release.yml?style=flat-square" alt="Build"></a>
+  <a href="https://github.com/miguel50flowers/openvpn-mac-fix/releases"><img src="https://img.shields.io/github/downloads/miguel50flowers/openvpn-mac-fix/total?style=flat-square" alt="Downloads"></a>
+</p>
 
-Automatic fix for **internet loss after disconnecting OpenVPN** on macOS.
+---
 
 ## The Problem
 
@@ -11,27 +24,20 @@ When disconnecting OpenVPN Connect on macOS, the system loses internet connectiv
 3. The default route to the local gateway disappears
 4. DNS is left pointing to VPN servers that are no longer reachable
 
-## How It Works
+## Features
 
-- **`vpn-monitor.sh`** — A monitor that triggers automatically when it detects network configuration changes (via launchd `WatchPaths`). Detects VPN disconnection and runs the recovery script.
-- **`fix-vpn-disconnect.sh`** — Restores connectivity: removes residual VPN routes, flushes DNS, renews DHCP, and restores the default route.
-- **LaunchDaemon** — Keeps the monitor running in the background, watching for changes in `/var/run/resolv.conf` and `/etc/resolv.conf`.
+- **Menu bar app** — Lives in your menu bar, always ready
+- **Automatic fix** — Detects VPN disconnection and restores connectivity instantly
+- **Notifications** — Get alerts when the fix is applied
+- **Log viewer** — Built-in log viewer to see what happened
+- **Auto-update** — Sparkle-powered updates, always stay current
+- **Universal binary** — Runs natively on Apple Silicon and Intel
 
-## Requirements
+## Installation
 
-- macOS 13+ (Ventura or later)
-- OpenVPN Connect installed
-- `sudo` access
+### Option 1: DMG (recommended)
 
-## Quick Install
-
-### Option 1: .pkg Installer (recommended for non-technical users)
-
-Download the latest `.pkg` from [Releases](https://github.com/miguel50flowers/openvpn-mac-fix/releases) and double-click to install. Or from the terminal:
-
-```bash
-sudo installer -pkg openvpn-mac-fix-2.0.1.pkg -target /
-```
+Download the latest `.dmg` from [Releases](https://github.com/miguel50flowers/openvpn-mac-fix/releases/latest), open it, and drag **VPN Fix** to your Applications folder.
 
 ### Option 2: Homebrew
 
@@ -41,7 +47,15 @@ brew install openvpn-mac-fix
 cd $(brew --prefix)/Cellar/openvpn-mac-fix/*/libexec && sudo ./install.sh
 ```
 
-### Option 3: Git clone
+### Option 3: .pkg Installer
+
+Download the latest `.pkg` from [Releases](https://github.com/miguel50flowers/openvpn-mac-fix/releases/latest) and double-click to install. Or from the terminal:
+
+```bash
+sudo installer -pkg openvpn-mac-fix-2.0.1.pkg -target /
+```
+
+### Option 4: Git clone
 
 ```bash
 git clone https://github.com/miguel50flowers/openvpn-mac-fix.git
@@ -53,11 +67,12 @@ The installer automatically:
 - Copies scripts to your home directory (`~/`)
 - Installs and loads the LaunchDaemon
 
-### Build .pkg from source
+## Build from Source
 
 ```bash
-make pkg
-# Output: build/openvpn-mac-fix-<version>.pkg
+make app    # Build VPN Fix.app
+make dmg    # Build .dmg installer (includes app build)
+make pkg    # Build .pkg installer
 ```
 
 ## Manual Installation
@@ -83,6 +98,12 @@ sudo chown root:wheel /Library/LaunchDaemons/com.vpnmonitor.plist
 sudo chmod 644 /Library/LaunchDaemons/com.vpnmonitor.plist
 sudo launchctl load /Library/LaunchDaemons/com.vpnmonitor.plist
 ```
+
+## Requirements
+
+- macOS 13+ (Ventura or later)
+- OpenVPN Connect installed
+- `sudo` access (for legacy shell script installation)
 
 ## Configure Notifications
 
@@ -152,6 +173,12 @@ If you see permission errors, make sure the scripts are executable:
 ```bash
 chmod +x ~/fix-vpn-disconnect.sh ~/vpn-monitor.sh
 ```
+
+## How It Works
+
+- **`vpn-monitor.sh`** — A monitor that triggers automatically when it detects network configuration changes (via launchd `WatchPaths`). Detects VPN disconnection and runs the recovery script.
+- **`fix-vpn-disconnect.sh`** — Restores connectivity: removes residual VPN routes, flushes DNS, renews DHCP, and restores the default route.
+- **LaunchDaemon** — Keeps the monitor running in the background, watching for changes in `/var/run/resolv.conf` and `/etc/resolv.conf`.
 
 ## Contributing
 
