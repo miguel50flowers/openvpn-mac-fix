@@ -1,4 +1,4 @@
-.PHONY: install uninstall status logs test version pkg app dmg clean
+.PHONY: install uninstall status logs test version pkg app dmg clean release
 
 VERSION := $(shell cat VERSION)
 XCODE_PROJECT := app/VPNFix.xcodeproj
@@ -68,6 +68,25 @@ dmg: app
 	@echo "=== Building DMG ==="
 	@chmod +x build-dmg.sh
 	./build-dmg.sh --app-path "$(BUILD_DIR)/DerivedData/Build/Products/Release/VPN Fix.app"
+
+release:
+ifndef v
+	$(error Usage: make release v=2.0.0)
+endif
+	@echo "=== Release v$(v) ==="
+	@echo "$(v)" > VERSION
+	@sed -i '' 's|openvpn-mac-fix-[0-9]*\.[0-9]*\.[0-9]*\.pkg|openvpn-mac-fix-$(v).pkg|g' README.md
+	@sed -i '' 's|/tags/v[0-9]*\.[0-9]*\.[0-9]*\.tar\.gz|/tags/v$(v).tar.gz|g' Formula/openvpn-mac-fix.rb
+	@echo "Version updated to $(v)"
+	@echo ""
+	@git add VERSION README.md Formula/openvpn-mac-fix.rb
+	@git commit -m "Bump version to $(v)"
+	@git tag "v$(v)"
+	@echo ""
+	@echo "Pushing to origin..."
+	@git push origin main --tags
+	@echo ""
+	@echo "=== Release v$(v) pushed — CI workflow triggered ==="
 
 clean:
 	rm -rf $(BUILD_DIR)/DerivedData
