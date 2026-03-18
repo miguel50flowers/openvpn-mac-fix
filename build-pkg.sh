@@ -11,8 +11,8 @@ PKG_NAME="openvpn-mac-fix-${VERSION}.pkg"
 
 echo "=== Building openvpn-mac-fix v${VERSION} .pkg ==="
 
-# Clean previous build
-rm -rf "$BUILD_DIR"
+# Clean previous pkg artifacts (preserve other build outputs like DMGs)
+rm -rf "$BUILD_DIR/payload" "$BUILD_DIR/scripts" "$BUILD_DIR/$PKG_NAME"
 mkdir -p "$PAYLOAD_DIR" "$SCRIPTS_DIR"
 
 # Copy scripts into payload, replacing __VERSION__ but leaving user placeholders
