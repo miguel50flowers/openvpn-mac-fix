@@ -45,6 +45,17 @@ struct PreferencesView: View {
                     setLaunchAtLogin(newValue)
                 }
 
+            Picker("Update Check Frequency", selection: $prefs.updateCheckFrequency) {
+                Text("Automatic").tag("automatic")
+                Text("Daily").tag("daily")
+                Text("Weekly").tag("weekly")
+                Text("Monthly").tag("monthly")
+                Text("Manual").tag("manual")
+            }
+            .onChange(of: prefs.updateCheckFrequency) { newValue in
+                SparkleUpdater.shared.applyCheckFrequency(newValue)
+            }
+
             LabeledContent("Helper Status") {
                 HStack {
                     Circle()

@@ -12,4 +12,5 @@ final class AppPreferences: ObservableObject {
     @AppStorage("launchAtLogin") var launchAtLogin: Bool = false
     @AppStorage("hasCompletedOnboarding") var hasCompletedOnboarding: Bool = false
     @AppStorage("hasOfferedMigration") var hasOfferedMigration: Bool = false
+    @AppStorage("updateCheckFrequency") var updateCheckFrequency: String = "automatic"
 }

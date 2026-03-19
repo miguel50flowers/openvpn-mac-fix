@@ -18,6 +18,26 @@ final class SparkleUpdater {
             updaterDelegate: nil,
             userDriverDelegate: nil
         )
+        applyCheckFrequency(AppPreferences.shared.updateCheckFrequency)
+    }
+
+    func applyCheckFrequency(_ frequency: String) {
+        switch frequency {
+        case "manual":
+            controller.updater.automaticallyChecksForUpdates = false
+        case "daily":
+            controller.updater.automaticallyChecksForUpdates = true
+            controller.updater.updateCheckInterval = 86400
+        case "weekly":
+            controller.updater.automaticallyChecksForUpdates = true
+            controller.updater.updateCheckInterval = 604800
+        case "monthly":
+            controller.updater.automaticallyChecksForUpdates = true
+            controller.updater.updateCheckInterval = 2592000
+        default: // "automatic"
+            controller.updater.automaticallyChecksForUpdates = true
+            controller.updater.updateCheckInterval = 86400
+        }
     }
 
     func checkForUpdates() {
@@ -39,6 +59,8 @@ final class SparkleUpdater {
     func checkForUpdates() {
         NSLog("[VPNFix] Sparkle not available — skipping update check")
     }
+
+    func applyCheckFrequency(_ frequency: String) {}
 
     var canCheckForUpdates: Bool { false }
 }
