@@ -17,19 +17,59 @@
 - [x] View logs from the app
 - [x] Auto-update mechanism (Sparkle framework)
 - [x] Preferences panel (enable/disable, notification settings)
-- [ ] Code-sign and notarize the `.app`/`.dmg` for Gatekeeper (pending Apple Developer ID)
 - [x] Homebrew Cask for `.dmg` distribution
 - [x] Phase 1 migration dialog (detect and remove old installation)
 - [x] Privileged helper daemon with XPC communication
 - [x] Native VPN detection (Swift, replaces shell-based utun check)
 - [x] CI/CD pipeline for `.dmg` + `.pkg` releases
+- [x] Dock icon toggle (Show in Dock preference) — v2.0.8
+- [x] Configurable update check frequency — v2.0.4
+- [x] AppLogger structured logging — v2.0.2
+- [x] Multi-item appcast with per-version release notes — v2.0.8
+- [ ] Code-sign and notarize the `.app`/`.dmg` for Gatekeeper (pending Apple Developer ID)
+- [ ] Unit tests (VPNDetector, LogViewModel, AppPreferences, HelperInstaller)
+- [ ] Homebrew formula/cask SHA256 integrity (currently empty/`:no_check`)
 
-## Phase 3 — Advanced features
+## Phase 2.5 — Production polish
 
-- [ ] Support for other VPN clients (WireGuard, Tunnelblick, built-in macOS VPN)
-- [ ] Network diagnostics dashboard
+- [x] Keyboard shortcuts for menu bar actions (⌘F Fix Now, ⌘L View Logs, ⌘, Preferences, ⌘Q Quit)
+- [ ] Accessibility labels for VoiceOver (status indicators, buttons, log viewer)
+- [ ] Onboarding flow for first launch (permission requests, helper install explanation)
+- [ ] XPC reconnection with exponential backoff on helper crash (basic reconnect-on-next-call exists)
+
+## Phase 3 — Multi-VPN Support & Network Diagnostics
+
+- [ ] VPN client auto-detection (detect installed VPNs: OpenVPN, WireGuard, NordVPN, ExpressVPN, Surfshark, Cisco AnyConnect, GlobalProtect, FortiClient, Tunnelblick, Mullvad, Proton VPN, etc.)
+- [ ] Fix engine per VPN client (modular fix modules specific to each VPN's failure patterns)
+- [ ] DNS leak detection and auto-fix (verify DNS queries don't leak outside tunnel)
+- [ ] Kill switch cleanup (detect and clean stale pf rules from any VPN client)
+- [ ] Orphaned interface cleanup (detect and destroy stale utun/ipsec interfaces)
+- [ ] Stale proxy settings fix (clean SOCKS/HTTP/PAC proxy configs left by VPN disconnect)
+- [ ] Network diagnostics dashboard (DNS status, route table, active interfaces, latency, public IP)
+- [ ] CLI companion tool (`vpnfix status`, `vpnfix diagnose`, `vpnfix fix --all`)
+
+## Phase 4 — Network Repair Toolkit (non-VPN)
+
+- [ ] DNS flush one-click (`dscacheutil -flushcache` + `killall -HUP mDNSResponder`)
+- [ ] DHCP release/renew (`ipconfig set en0 BOOTP` → `ipconfig set en0 DHCP`)
+- [ ] Network interface reset (down/up on stuck interfaces)
+- [ ] mDNSResponder restart (fix Bonjour/local DNS issues)
+- [ ] Network preferences reset (backup + delete SystemConfiguration plists)
+- [ ] IPv6 toggle (enable/disable per interface)
+- [ ] MTU auto-detection and fix (detect MTU issues, reset to 1500 or optimal value)
+- [ ] Firewall rules audit (show active pf rules, identify stale VPN anchors)
+- [ ] "Fix Everything" one-click button (run full repair chain: routes → DNS → pf → interfaces → proxy → DHCP)
 - [ ] Automatic reconnection option
-- [ ] CLI companion tool (`vpnfix status`, `vpnfix logs`, etc.)
+
+## Phase 5 — Advanced Features & Polish
+
+- [ ] Widgets (macOS 14+ WidgetKit for VPN/network status on desktop)
+- [ ] Menu bar expandable status (connection time, IP, latency, DNS server)
+- [ ] Export diagnostics report (generate PDF/text report for IT support)
+- [ ] SMAppService migration (replace AppleScript privilege elevation with modern macOS API)
+- [ ] Localization (Spanish first, then community translations)
+- [ ] VPN-specific error code database (lookup table of known errors → causes → fixes)
+- [ ] macOS version compatibility advisor (alert if VPN has known issues on current macOS version)
 
 ---
 
@@ -37,4 +77,9 @@
 
 - **GitHub Packages** does not apply here — it's for code packages (npm, Docker, etc.), not macOS installers. The `.pkg` in GitHub Releases is the correct approach.
 - **`.pkg` vs `.dmg`**: The `.pkg` remains available for shell-script-only users. Phase 2's `.dmg` + `.app` is the primary distribution for the native app experience.
-- **Code signing**: Pipeline is scaffolded. Once an Apple Developer ID certificate is obtained, uncomment the signing/notarization steps in `.github/workflows/release.yml`.
+- **Code signing**: Pipeline is scaffolded in `.github/workflows/release.yml`. Once an Apple Developer ID certificate is obtained, uncomment the signing/notarization steps. Testing and accessibility are recommended prerequisites before pursuing notarization.
+- **Testing**: 0% test coverage currently. Adding XCTest targets for VPNDetector, LogViewModel, and AppPreferences is the highest-priority quality improvement.
+- **Accessibility**: No `accessibilityLabel` usage in the codebase. Color-only status indicators (green/red dots) need text alternatives for VoiceOver support.
+- **Re-branding**: As the tool expands beyond OpenVPN, consider renaming from "openvpn-mac-fix" to something broader like **"NetFix"**, **"VPN Fix Pro"**, or **"MacNetRepair"**. The current name limits discoverability for users with non-OpenVPN issues.
+- **Market gap**: As of March 2026, there is **no direct competitor** in the "VPN fixer" category on macOS. See `docs/COMPETITIVE-ANALYSIS.md` for details. Existing tools are VPN clients, network monitors, or general utilities — none specialize in repairing VPN-caused network damage.
+- **Localization**: Moved from Phase 2.5 to Phase 5 to consolidate all localization work after features stabilize.
