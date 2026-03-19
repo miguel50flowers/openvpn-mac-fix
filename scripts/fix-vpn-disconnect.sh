@@ -9,8 +9,8 @@ VERSION="__VERSION__"
 LOG="/tmp/vpn-monitor.log"
 LOG_LEVEL="${VPN_MONITOR_LOG_LEVEL:-INFO}"
 
-log() { echo "$(date '+%Y-%m-%d %H:%M:%S') [fix] $*" | tee -a "$LOG"; }
-debug() { [ "$LOG_LEVEL" = "DEBUG" ] && log "[DEBUG] $*"; }
+log() { echo "$(date '+%Y-%m-%d %H:%M:%S') [FIX] $*" | tee -a "$LOG"; }
+debug() { [ "$LOG_LEVEL" = "DEBUG" ] && echo "$(date '+%Y-%m-%d %H:%M:%S') [DEBUG] $*" | tee -a "$LOG"; }
 
 log "Starting network recovery (v${VERSION})..."
 

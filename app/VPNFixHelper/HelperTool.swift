@@ -7,7 +7,7 @@ final class HelperToolDelegate: NSObject, NSXPCListenerDelegate {
         #if !DEBUG
         // Verify the calling app's code signature
         guard verifyCallerSignature(connection: newConnection) else {
-            NSLog("[VPNFixHelper] Rejected connection: invalid code signature")
+            HelperLogger.shared.info("[VPNFixHelper] Rejected connection: invalid code signature")
             return false
         }
         #endif
@@ -19,11 +19,11 @@ final class HelperToolDelegate: NSObject, NSXPCListenerDelegate {
         newConnection.remoteObjectInterface = NSXPCInterface(with: VPNAppProtocol.self)
 
         newConnection.invalidationHandler = {
-            NSLog("[VPNFixHelper] Connection invalidated")
+            HelperLogger.shared.info("[VPNFixHelper] Connection invalidated")
         }
 
         newConnection.resume()
-        NSLog("[VPNFixHelper] Accepted new connection")
+        HelperLogger.shared.info("[VPNFixHelper] Accepted new connection")
         return true
     }
 
@@ -38,8 +38,8 @@ final class HelperToolDelegate: NSObject, NSXPCListenerDelegate {
             return false
         }
 
-        // Require the app's bundle identifier
-        let requirement = "anchor apple generic and identifier \"\(XPCConstants.appBundleID)\""
+        // Require the app's bundle identifier (ad-hoc signing compatible)
+        let requirement = "identifier \"\(XPCConstants.appBundleID)\""
         var secRequirement: SecRequirement?
         guard SecRequirementCreateWithString(requirement as CFString, [], &secRequirement) == errSecSuccess,
               let req = secRequirement else {
@@ -69,9 +69,9 @@ final class HelperTool: NSObject, VPNHelperProtocol {
     }
 
     func runFix(reply: @escaping (Bool, String) -> Void) {
-        NSLog("[VPNFixHelper] Running VPN fix...")
+        HelperLogger.shared.info("[VPNFixHelper] Running VPN fix...")
         scriptRunner.runFixScript { success, output in
-            NSLog("[VPNFixHelper] Fix completed: success=\(success)")
+            HelperLogger.shared.info("[VPNFixHelper] Fix completed: success=\(success)")
             // Notify the app of the new state
             self.notifyAppOfStateChange()
             reply(success, output)
@@ -89,18 +89,26 @@ final class HelperTool: NSObject, VPNHelperProtocol {
         }
         fileWatcher?.start()
         reply(true, "Watcher installed")
-        NSLog("[VPNFixHelper] File watcher installed")
+        HelperLogger.shared.info("[VPNFixHelper] File watcher installed")
     }
 
     func uninstallWatcher(reply: @escaping (Bool, String) -> Void) {
         fileWatcher?.stop()
         fileWatcher = nil
         reply(true, "Watcher removed")
-        NSLog("[VPNFixHelper] File watcher removed")
+        HelperLogger.shared.info("[VPNFixHelper] File watcher removed")
     }
 
     func getVersion(reply: @escaping (String) -> Void) {
-        // Read VERSION from the app bundle
+        // Try installed resources path first, then bundle-relative
+        let installedVersionPath = "/Library/PrivilegedHelperTools/VPNFixResources/VERSION"
+
+        if let version = try? String(contentsOfFile: installedVersionPath, encoding: .utf8).trimmingCharacters(in: .whitespacesAndNewlines) {
+            reply(version)
+            return
+        }
+
+        // Fallback: bundle-relative path
         let helperPath = ProcessInfo.processInfo.arguments[0]
         let contentsURL = URL(fileURLWithPath: helperPath)
             .deletingLastPathComponent() // MacOS/
@@ -115,7 +123,7 @@ final class HelperTool: NSObject, VPNHelperProtocol {
     }
 
     func removePhase1Artifacts(reply: @escaping (Bool, String) -> Void) {
-        NSLog("[VPNFixHelper] Removing Phase 1 artifacts...")
+        HelperLogger.shared.info("[VPNFixHelper] Removing Phase 1 artifacts...")
         var removed: [String] = []
         var errors: [String] = []
 
@@ -180,14 +188,14 @@ final class HelperTool: NSObject, VPNHelperProtocol {
             guard let self else { return }
             let newState = self.vpnDetector.currentState()
 
-            NSLog("[VPNFixHelper] resolv.conf changed: \(previousState.rawValue) -> \(newState.rawValue)")
+            HelperLogger.shared.info("[VPNFixHelper] resolv.conf changed: \(previousState.rawValue) -> \(newState.rawValue)")
             self.notifyAppOfStateChange()
 
             // If VPN just disconnected, run the fix
             if previousState == .connected && newState == .disconnected {
-                NSLog("[VPNFixHelper] VPN disconnection detected, running fix...")
+                HelperLogger.shared.info("[VPNFixHelper] VPN disconnection detected, running fix...")
                 self.scriptRunner.runFixScript { success, output in
-                    NSLog("[VPNFixHelper] Auto-fix result: success=\(success), output=\(output)")
+                    HelperLogger.shared.info("[VPNFixHelper] Auto-fix result: success=\(success), output=\(output)")
                     self.notifyAppOfStateChange()
                 }
             }

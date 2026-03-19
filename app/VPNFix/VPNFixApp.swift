@@ -1,5 +1,4 @@
 import SwiftUI
-import ServiceManagement
 
 @main
 struct VPNFixApp: App {
@@ -10,8 +9,7 @@ struct VPNFixApp: App {
         MenuBarExtra {
             MenuBarView(viewModel: vpnStatus)
         } label: {
-            Label(vpnStatus.state.label, systemImage: vpnStatus.state.sfSymbol)
-                .symbolRenderingMode(.hierarchical)
+            Image(systemName: vpnStatus.state.sfSymbol)
         }
 
         Window("Log Viewer", id: "log-viewer") {
@@ -30,22 +28,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         notificationService.requestPermission()
-        registerHelperIfNeeded()
+        HelperInstaller.shared.installIfNeeded()
         checkForPhase1Migration()
-    }
-
-    private func registerHelperIfNeeded() {
-        if #available(macOS 13.0, *) {
-            let service = SMAppService.daemon(plistName: "com.miguel50flowers.VPNFix.helper.plist")
-            if service.status != .enabled {
-                do {
-                    try service.register()
-                    NSLog("[VPNFix] Helper daemon registered successfully")
-                } catch {
-                    NSLog("[VPNFix] Failed to register helper daemon: \(error.localizedDescription)")
-                }
-            }
-        }
     }
 
     private func checkForPhase1Migration() {
@@ -68,28 +52,45 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             let alert = NSAlert()
             alert.messageText = "Previous Installation Detected"
             alert.informativeText = "Found Phase 1 VPN Fix files. Remove old installation?\n\nFiles found:\n" +
-                existingArtifacts.map { "  • \($0)" }.joined(separator: "\n")
+                existingArtifacts.map { "  \u{2022} \($0)" }.joined(separator: "\n")
             alert.alertStyle = .informational
             alert.addButton(withTitle: "Remove")
-            alert.addButton(withTitle: "Keep Both")
             alert.addButton(withTitle: "Later")
 
             let response = alert.runModal()
-            switch response {
-            case .alertFirstButtonReturn:
-                XPCClient.shared.removePhase1Artifacts { success, message in
-                    if success {
-                        prefs.hasOfferedMigration = true
-                        NSLog("[VPNFix] Phase 1 artifacts removed: \(message)")
-                    } else {
-                        NSLog("[VPNFix] Failed to remove Phase 1 artifacts: \(message)")
-                    }
-                }
-            case .alertSecondButtonReturn:
+            if response == .alertFirstButtonReturn {
+                self.removePhase1ArtifactsWithAdmin(existingArtifacts)
                 prefs.hasOfferedMigration = true
-            default:
-                break
             }
+        }
+    }
+
+    private func removePhase1ArtifactsWithAdmin(_ artifacts: [String]) {
+        var commands: [String] = []
+
+        for artifact in artifacts {
+            if artifact.hasSuffix(".plist") {
+                commands.append("launchctl unload '\(artifact)' 2>/dev/null || true")
+            }
+            commands.append("rm -f '\(artifact)'")
+        }
+
+        // Also clean up temp files
+        commands.append("rm -f /tmp/vpn-was-connected")
+
+        let fullCommand = commands.joined(separator: " && ")
+        let escapedCommand = fullCommand.replacingOccurrences(of: "'", with: "'\\''")
+        let script = "do shell script \"\(escapedCommand)\" with administrator privileges"
+
+        guard let appleScript = NSAppleScript(source: script) else { return }
+
+        var error: NSDictionary?
+        appleScript.executeAndReturnError(&error)
+
+        if let error {
+            NSLog("[VPNFix] Failed to remove Phase 1 artifacts: \(error)")
+        } else {
+            NSLog("[VPNFix] Phase 1 artifacts removed successfully")
         }
     }
 }

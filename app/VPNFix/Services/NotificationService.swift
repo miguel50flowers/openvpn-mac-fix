@@ -1,13 +1,16 @@
 import UserNotifications
 
 /// Manages native macOS notifications via UNUserNotificationCenter.
-final class NotificationService {
+final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
     static let shared = NotificationService()
 
     private let center = UNUserNotificationCenter.current()
     private let prefs = AppPreferences.shared
 
-    private init() {}
+    private override init() {
+        super.init()
+        center.delegate = self
+    }
 
     func requestPermission() {
         center.requestAuthorization(options: [.alert, .sound]) { granted, error in
@@ -43,6 +46,24 @@ final class NotificationService {
             body: message.isEmpty ? "Network connectivity restored." : message,
             identifier: "vpn-fix-applied"
         )
+    }
+
+    func postTestNotification() {
+        post(
+            title: "VPN Fix - Test",
+            body: "Notifications are working correctly!",
+            identifier: "vpn-test-\(UUID().uuidString)"
+        )
+    }
+
+    // MARK: - UNUserNotificationCenterDelegate
+
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        completionHandler([.banner, .sound])
     }
 
     // MARK: - Private

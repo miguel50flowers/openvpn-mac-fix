@@ -1,47 +1,51 @@
 import Foundation
-import SystemConfiguration
 
-/// Detects VPN connection state by checking for active utun interfaces.
-/// Swift reimplementation of the utun check from vpn-monitor.sh.
+/// Detects VPN connection state by checking for OpenVPN's characteristic routes.
+/// OpenVPN pushes routes 0/1 and 128.0/1 via a utun interface to override the default route.
 final class VPNDetector {
-    /// Returns the current VPN state by checking network interfaces.
+    /// Returns the current VPN state by checking the routing table.
     func currentState() -> VPNState {
-        let utunInterfaces = getActiveUtunInterfaces()
-        if utunInterfaces.isEmpty {
-            return .disconnected
-        }
-        return .connected
+        return isOpenVPNConnected() ? .connected : .disconnected
     }
 
-    /// Returns a list of utun interfaces that have an IPv4 address assigned.
-    func getActiveUtunInterfaces() -> [String] {
-        var result: [String] = []
+    /// Checks for OpenVPN's signature routes: 0/1 and 128.0/1 via utun.
+    private func isOpenVPNConnected() -> Bool {
+        let output = runNetstat()
+        let lines = output.components(separatedBy: .newlines)
 
-        var ifaddr: UnsafeMutablePointer<ifaddrs>?
-        guard getifaddrs(&ifaddr) == 0, let firstAddr = ifaddr else {
-            return result
-        }
-        defer { freeifaddrs(ifaddr) }
+        var has0slash1 = false
+        var has128slash1 = false
 
-        var ptr = firstAddr
-        while true {
-            let name = String(cString: ptr.pointee.ifa_name)
-
-            // Check for utun interfaces with IPv4 addresses
-            if name.hasPrefix("utun") && ptr.pointee.ifa_addr?.pointee.sa_family == UInt8(AF_INET) {
-                // Verify the interface is up
-                let flags = Int32(ptr.pointee.ifa_flags)
-                if flags & IFF_UP != 0 && flags & IFF_RUNNING != 0 {
-                    if !result.contains(name) {
-                        result.append(name)
-                    }
+        for line in lines {
+            if line.contains("utun") {
+                if line.hasPrefix("0/1") || line.contains(" 0/1 ") {
+                    has0slash1 = true
+                }
+                if line.hasPrefix("128.0/1") || line.contains(" 128.0/1 ") {
+                    has128slash1 = true
                 }
             }
-
-            guard let next = ptr.pointee.ifa_next else { break }
-            ptr = next
         }
 
-        return result
+        return has0slash1 && has128slash1
+    }
+
+    private func runNetstat() -> String {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/sbin/netstat")
+        process.arguments = ["-rn"]
+
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = Pipe()
+
+        do {
+            try process.run()
+            process.waitUntilExit()
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            return String(data: data, encoding: .utf8) ?? ""
+        } catch {
+            return ""
+        }
     }
 }

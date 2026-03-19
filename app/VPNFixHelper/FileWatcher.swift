@@ -17,7 +17,7 @@ final class FileWatcher {
         for path in watchPaths {
             watchFile(at: path)
         }
-        NSLog("[VPNFixHelper] FileWatcher started for: \(watchPaths.joined(separator: ", "))")
+        HelperLogger.shared.info("[VPNFixHelper] FileWatcher started for: \(watchPaths.joined(separator: ", "))")
     }
 
     func stop() {
@@ -27,7 +27,7 @@ final class FileWatcher {
         sources.removeAll()
         retryTimer?.cancel()
         retryTimer = nil
-        NSLog("[VPNFixHelper] FileWatcher stopped")
+        HelperLogger.shared.info("[VPNFixHelper] FileWatcher stopped")
     }
 
     // MARK: - Private
@@ -35,7 +35,7 @@ final class FileWatcher {
     private func watchFile(at path: String) {
         let fd = open(path, O_RDONLY | O_EVTONLY)
         guard fd >= 0 else {
-            NSLog("[VPNFixHelper] Cannot open \(path) for watching, will retry...")
+            HelperLogger.shared.info("[VPNFixHelper] Cannot open \(path) for watching, will retry...")
             scheduleRetry(for: path)
             return
         }
@@ -52,7 +52,7 @@ final class FileWatcher {
 
             if flags.contains(.delete) || flags.contains(.rename) {
                 // File was replaced — re-create the watcher
-                NSLog("[VPNFixHelper] \(path) was replaced, re-watching...")
+                HelperLogger.shared.info("[VPNFixHelper] \(path) was replaced, re-watching...")
                 source.cancel()
                 self.sources.removeAll { $0 === source as AnyObject }
 

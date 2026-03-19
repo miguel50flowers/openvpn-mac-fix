@@ -3,12 +3,13 @@ import Foundation
 /// Executes the bundled shell scripts via Process.
 final class ScriptRunner {
     private let queue = DispatchQueue(label: "com.vpnfix.scriptrunner")
+    private let installedResourcesPath = "/Library/PrivilegedHelperTools/VPNFixResources"
 
     /// Runs the fix-vpn-disconnect.sh script.
     func runFixScript(completion: @escaping (Bool, String) -> Void) {
         queue.async {
-            guard let scriptPath = self.bundledScriptPath(named: "fix-vpn-disconnect.sh") else {
-                completion(false, "Script not found in bundle")
+            guard let scriptPath = self.findScript(named: "fix-vpn-disconnect.sh") else {
+                completion(false, "Script not found")
                 return
             }
 
@@ -19,8 +20,8 @@ final class ScriptRunner {
     /// Runs the vpn-monitor.sh script.
     func runMonitorScript(completion: @escaping (Bool, String) -> Void) {
         queue.async {
-            guard let scriptPath = self.bundledScriptPath(named: "vpn-monitor.sh") else {
-                completion(false, "Script not found in bundle")
+            guard let scriptPath = self.findScript(named: "vpn-monitor.sh") else {
+                completion(false, "Script not found")
                 return
             }
 
@@ -30,9 +31,15 @@ final class ScriptRunner {
 
     // MARK: - Private
 
-    /// Locates a script in the app bundle's Resources directory.
-    /// The helper binary is at Contents/MacOS/VPNFixHelper, scripts at Contents/Resources/.
-    private func bundledScriptPath(named name: String) -> String? {
+    /// Locates a script: tries installed path first, then bundle-relative.
+    private func findScript(named name: String) -> String? {
+        // Try installed resources path first
+        let installedPath = "\(installedResourcesPath)/\(name)"
+        if FileManager.default.fileExists(atPath: installedPath) {
+            return installedPath
+        }
+
+        // Fallback: bundle-relative path
         let helperPath = ProcessInfo.processInfo.arguments[0]
         let contentsURL = URL(fileURLWithPath: helperPath)
             .deletingLastPathComponent() // MacOS/
@@ -43,7 +50,7 @@ final class ScriptRunner {
             return scriptURL.path
         }
 
-        NSLog("[VPNFixHelper] Script not found at: \(scriptURL.path)")
+        HelperLogger.shared.error("[VPNFixHelper] Script not found: \(name)")
         return nil
     }
 
@@ -74,12 +81,12 @@ final class ScriptRunner {
             let success = process.terminationStatus == 0
 
             if !success {
-                NSLog("[VPNFixHelper] Script failed (exit \(process.terminationStatus)): \(errorOutput)")
+                HelperLogger.shared.error("[VPNFixHelper] Script failed (exit \(process.terminationStatus)): \(errorOutput)")
             }
 
             completion(success, success ? output : errorOutput)
         } catch {
-            NSLog("[VPNFixHelper] Failed to execute script: \(error.localizedDescription)")
+            HelperLogger.shared.error("[VPNFixHelper] Failed to execute script: \(error.localizedDescription)")
             completion(false, error.localizedDescription)
         }
     }

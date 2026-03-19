@@ -18,9 +18,9 @@ enum VPNState: String, Codable, Sendable {
 
     var sfSymbol: String {
         switch self {
-        case .connected: return "shield.checkered"
+        case .connected: return "shield.lefthalf.filled"
         case .disconnected: return "shield.slash"
-        case .fixing: return "arrow.trianglehead.2.clockwise"
+        case .fixing: return "arrow.triangle.2.circlepath"
         case .unknown: return "questionmark.diamond"
         }
     }

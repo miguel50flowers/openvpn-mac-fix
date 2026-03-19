@@ -8,7 +8,7 @@ let listener = NSXPCListener(machServiceName: XPCConstants.machServiceName)
 listener.delegate = delegate
 listener.resume()
 
-NSLog("[VPNFixHelper] Helper daemon started, listening on \(XPCConstants.machServiceName)")
+HelperLogger.shared.info("[VPNFixHelper] Helper daemon started, listening on \(XPCConstants.machServiceName)")
 
 // Keep the run loop alive
 RunLoop.current.run()

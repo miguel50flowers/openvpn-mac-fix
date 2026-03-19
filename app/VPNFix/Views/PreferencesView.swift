@@ -4,6 +4,7 @@ import ServiceManagement
 struct PreferencesView: View {
     @ObservedObject private var prefs = AppPreferences.shared
     @State private var helperStatus: String = "Checking..."
+    @State private var helperActive: Bool = false
 
     var body: some View {
         TabView {
@@ -21,8 +22,13 @@ struct PreferencesView: View {
                 .tabItem {
                     Label("Advanced", systemImage: "wrench")
                 }
+
+            aboutTab
+                .tabItem {
+                    Label("About", systemImage: "info.circle")
+                }
         }
-        .frame(width: 450, height: 300)
+        .frame(width: 450, height: 320)
         .onAppear {
             updateHelperStatus()
         }
@@ -42,7 +48,7 @@ struct PreferencesView: View {
             LabeledContent("Helper Status") {
                 HStack {
                     Circle()
-                        .fill(helperStatus == "Enabled" ? .green : .orange)
+                        .fill(helperActive ? .green : .orange)
                         .frame(width: 8, height: 8)
                     Text(helperStatus)
                 }
@@ -62,6 +68,12 @@ struct PreferencesView: View {
             Toggle("Notify on VPN connect", isOn: $prefs.notifyOnConnect)
             Toggle("Notify on VPN disconnect", isOn: $prefs.notifyOnDisconnect)
             Toggle("Notify when fix is applied", isOn: $prefs.notifyOnFix)
+
+            Divider()
+
+            Button("Send Test Notification") {
+                NotificationService.shared.postTestNotification()
+            }
         }
         .formStyle(.grouped)
     }
@@ -76,16 +88,49 @@ struct PreferencesView: View {
                 Text("Warning").tag("WARN")
                 Text("Error").tag("ERROR")
             }
-
-            LabeledContent("Version") {
-                Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "Unknown")
-            }
-
-            LabeledContent("Build") {
-                Text(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "Unknown")
-            }
         }
         .formStyle(.grouped)
+    }
+
+    // MARK: - About
+
+    private var aboutTab: some View {
+        VStack(spacing: 12) {
+            Spacer()
+
+            if let appIcon = NSApp.applicationIconImage {
+                Image(nsImage: appIcon)
+                    .resizable()
+                    .frame(width: 64, height: 64)
+            }
+
+            Text("VPN Fix")
+                .font(.title2)
+                .fontWeight(.bold)
+
+            let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "Unknown"
+            let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "Unknown"
+            Text("Version \(version) (\(build))")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+
+            Text("Detects and fixes network issues after OpenVPN disconnects on macOS.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 40)
+
+            Link("GitHub Repository", destination: URL(string: "https://github.com/miguel50flowers/openvpn-mac-fix")!)
+                .font(.caption)
+
+            Spacer()
+
+            Text("\u{00A9} 2025 miguel50flowers")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+                .padding(.bottom, 8)
+        }
+        .frame(maxWidth: .infinity)
     }
 
     // MARK: - Actions
@@ -106,31 +151,17 @@ struct PreferencesView: View {
     }
 
     private func updateHelperStatus() {
-        if #available(macOS 13.0, *) {
-            let service = SMAppService.daemon(plistName: "com.miguel50flowers.VPNFix.helper.plist")
-            switch service.status {
-            case .enabled: helperStatus = "Enabled"
-            case .requiresApproval: helperStatus = "Requires Approval"
-            case .notRegistered: helperStatus = "Not Registered"
-            case .notFound: helperStatus = "Not Found"
-            @unknown default: helperStatus = "Unknown"
-            }
-        }
+        let status = HelperInstaller.shared.checkStatus()
+        helperActive = status.isActive
+        helperStatus = status.label
     }
 
     private func reinstallHelper() {
-        if #available(macOS 13.0, *) {
-            let service = SMAppService.daemon(plistName: "com.miguel50flowers.VPNFix.helper.plist")
-            do {
-                try service.unregister()
-            } catch {
-                // Ignore unregister errors
-            }
-            do {
-                try service.register()
-                helperStatus = "Enabled"
-            } catch {
-                helperStatus = "Failed: \(error.localizedDescription)"
+        helperStatus = "Reinstalling..."
+        DispatchQueue.global(qos: .userInitiated).async {
+            HelperInstaller.shared.reinstall()
+            DispatchQueue.main.async {
+                updateHelperStatus()
             }
         }
     }

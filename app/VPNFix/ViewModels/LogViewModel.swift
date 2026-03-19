@@ -18,6 +18,7 @@ final class LogViewModel: ObservableObject {
     private var source: DispatchSourceFileSystemObject?
 
     func startTailing() {
+        ensureLogFileExists()
         loadExistingContent()
         watchForChanges()
     }
@@ -38,6 +39,12 @@ final class LogViewModel: ObservableObject {
     }
 
     // MARK: - Private
+
+    private func ensureLogFileExists() {
+        if !FileManager.default.fileExists(atPath: logPath) {
+            FileManager.default.createFile(atPath: logPath, contents: nil)
+        }
+    }
 
     private func loadExistingContent() {
         guard let data = FileManager.default.contents(atPath: logPath),
@@ -92,15 +99,12 @@ final class LogViewModel: ObservableObject {
         source?.resume()
     }
 
-    /// Parse a log line like: "[2026-03-17 10:30:45] [INFO] Some message"
+    /// Parse a log line like: "2026-03-17 10:30:45 [INFO] Some message"
     private func parseLine(_ raw: String) -> LogLine {
-        // Pattern: [timestamp] [LEVEL] message
-        let pattern = #"^\[([^\]]+)\]\s*\[([^\]]+)\]\s*(.*)$"#
-        if let match = raw.range(of: pattern, options: .regularExpression) {
-            let groups = raw.captureGroups(pattern: pattern)
-            if groups.count >= 3 {
-                return LogLine(timestamp: groups[0], level: groups[1], message: groups[2], raw: raw)
-            }
+        let pattern = #"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\s+\[([^\]]+)\]\s+(.*)$"#
+        let groups = raw.captureGroups(pattern: pattern)
+        if groups.count >= 3 {
+            return LogLine(timestamp: groups[0], level: groups[1], message: groups[2], raw: raw)
         }
         return LogLine(timestamp: nil, level: nil, message: raw, raw: raw)
     }
