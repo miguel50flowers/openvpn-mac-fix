@@ -17,6 +17,12 @@ struct LogViewerView: View {
                 Toggle("Auto-scroll", isOn: $autoScroll)
                     .toggleStyle(.checkbox)
 
+                Button("Copy All") {
+                    let allText = viewModel.logLines.map(\.raw).joined(separator: "\n")
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(allText, forType: .string)
+                }
+
                 Button("Clear Logs") {
                     viewModel.clearLogs()
                 }
@@ -26,21 +32,30 @@ struct LogViewerView: View {
             Divider()
 
             // Log content
-            ScrollViewReader { proxy in
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 1) {
-                        ForEach(Array(viewModel.logLines.enumerated()), id: \.offset) { index, line in
-                            LogLineView(line: line)
-                                .id(index)
+            if viewModel.logLines.isEmpty {
+                Spacer()
+                Text("No log entries yet")
+                    .font(.title3)
+                    .foregroundStyle(.secondary)
+                Spacer()
+            } else {
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        LazyVStack(alignment: .leading, spacing: 1) {
+                            ForEach(Array(viewModel.logLines.enumerated()), id: \.offset) { index, line in
+                                LogLineView(line: line)
+                                    .id(index)
+                            }
                         }
+                        .padding(8)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .textSelection(.enabled)
                     }
-                    .padding(8)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .onChange(of: viewModel.logLines.count) { _ in
-                    if autoScroll, let lastIndex = viewModel.logLines.indices.last {
-                        withAnimation {
-                            proxy.scrollTo(lastIndex, anchor: .bottom)
+                    .onChange(of: viewModel.logLines.count) { _ in
+                        if autoScroll, let lastIndex = viewModel.logLines.indices.last {
+                            withAnimation {
+                                proxy.scrollTo(lastIndex, anchor: .bottom)
+                            }
                         }
                     }
                 }

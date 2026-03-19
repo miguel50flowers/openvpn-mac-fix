@@ -6,10 +6,8 @@ struct VPNFixApp: App {
     @StateObject private var vpnStatus = VPNStatusViewModel()
 
     var body: some Scene {
-        MenuBarExtra {
+        MenuBarExtra("VPN Fix", systemImage: vpnStatus.state.sfSymbol) {
             MenuBarView(viewModel: vpnStatus)
-        } label: {
-            Image(systemName: vpnStatus.state.sfSymbol)
         }
 
         Window("Log Viewer", id: "log-viewer") {
@@ -27,6 +25,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let notificationService = NotificationService.shared
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        AppLogger.shared.info("VPN Fix app launched")
         notificationService.requestPermission()
         HelperInstaller.shared.installIfNeeded()
         checkForPhase1Migration()
@@ -88,9 +87,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         appleScript.executeAndReturnError(&error)
 
         if let error {
-            NSLog("[VPNFix] Failed to remove Phase 1 artifacts: \(error)")
+            AppLogger.shared.error("Failed to remove Phase 1 artifacts: \(error)")
         } else {
-            NSLog("[VPNFix] Phase 1 artifacts removed successfully")
+            AppLogger.shared.info("Phase 1 artifacts removed successfully")
         }
     }
 }

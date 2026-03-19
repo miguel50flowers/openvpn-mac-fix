@@ -9,6 +9,7 @@ final class HelperInstaller {
     private let installPath = "/Library/PrivilegedHelperTools/VPNFixHelper"
     private let resourcesPath = "/Library/PrivilegedHelperTools/VPNFixResources"
     private let plistPath = "/Library/LaunchDaemons/com.miguel50flowers.VPNFix.helper.plist"
+    private let tmpPlistPath = "/tmp/com.miguel50flowers.VPNFix.helper.plist"
 
     private init() {}
 
@@ -58,39 +59,38 @@ final class HelperInstaller {
 
     func install() {
         guard let helperSource = Bundle.main.path(forAuxiliaryExecutable: "VPNFixHelper") else {
-            NSLog("[VPNFix] Helper binary not found in app bundle")
+            AppLogger.shared.error("Helper binary not found in app bundle")
             return
         }
 
         guard let resourcesSource = Bundle.main.resourcePath else {
-            NSLog("[VPNFix] Resources path not found in app bundle")
+            AppLogger.shared.error("Resources path not found in app bundle")
             return
         }
 
+        // Write plist to temp file (no admin privileges needed for /tmp)
         let plistContent = generatePlist()
-        let escapedPlist = plistContent.replacingOccurrences(of: "\\", with: "\\\\")
-            .replacingOccurrences(of: "\"", with: "\\\"")
+        do {
+            try plistContent.write(toFile: tmpPlistPath, atomically: true, encoding: .utf8)
+        } catch {
+            AppLogger.shared.error("Failed to write temp plist: \(error)")
+            return
+        }
 
         let commands = [
-            // Create directories
-            "mkdir -p '\(resourcesPath)'",
-            // Copy helper binary
-            "cp '\(helperSource)' '\(installPath)'",
-            // Copy scripts and VERSION
-            "cp '\(resourcesSource)/'*.sh '\(resourcesPath)/' 2>/dev/null || true",
-            "cp '\(resourcesSource)/VERSION' '\(resourcesPath)/VERSION' 2>/dev/null || true",
-            // Set permissions
-            "chown root:wheel '\(installPath)'",
-            "chmod 755 '\(installPath)'",
-            "chown -R root:wheel '\(resourcesPath)'",
-            "chmod -R 755 '\(resourcesPath)'",
-            // Write launchd plist
-            "echo \"\(escapedPlist)\" > '\(plistPath)'",
-            "chown root:wheel '\(plistPath)'",
-            "chmod 644 '\(plistPath)'",
-            // Load daemon
+            "mkdir -p \"\(resourcesPath)\"",
+            "cp \"\(helperSource)\" \"\(installPath)\"",
+            "cp \"\(resourcesSource)/\"*.sh \"\(resourcesPath)/\" 2>/dev/null || true",
+            "cp \"\(resourcesSource)/VERSION\" \"\(resourcesPath)/VERSION\" 2>/dev/null || true",
+            "chown root:wheel \"\(installPath)\"",
+            "chmod 755 \"\(installPath)\"",
+            "chown -R root:wheel \"\(resourcesPath)\"",
+            "chmod -R 755 \"\(resourcesPath)\"",
+            "cp \"\(tmpPlistPath)\" \"\(plistPath)\"",
+            "chown root:wheel \"\(plistPath)\"",
+            "chmod 644 \"\(plistPath)\"",
             "launchctl bootout system/\(helperLabel) 2>/dev/null || true",
-            "launchctl bootstrap system '\(plistPath)'"
+            "launchctl bootstrap system \"\(plistPath)\""
         ]
 
         let fullCommand = commands.joined(separator: " && ")
@@ -102,9 +102,9 @@ final class HelperInstaller {
     func uninstall() {
         let commands = [
             "launchctl bootout system/\(helperLabel) 2>/dev/null || true",
-            "rm -f '\(installPath)'",
-            "rm -rf '\(resourcesPath)'",
-            "rm -f '\(plistPath)'"
+            "rm -f \"\(installPath)\"",
+            "rm -rf \"\(resourcesPath)\"",
+            "rm -f \"\(plistPath)\""
         ]
 
         let fullCommand = commands.joined(separator: " && ")
@@ -115,38 +115,41 @@ final class HelperInstaller {
 
     func reinstall() {
         guard let helperSource = Bundle.main.path(forAuxiliaryExecutable: "VPNFixHelper") else {
-            NSLog("[VPNFix] Helper binary not found in app bundle")
+            AppLogger.shared.error("Helper binary not found in app bundle")
             return
         }
 
         guard let resourcesSource = Bundle.main.resourcePath else {
-            NSLog("[VPNFix] Resources path not found in app bundle")
+            AppLogger.shared.error("Resources path not found in app bundle")
             return
         }
 
+        // Write plist to temp file (no admin privileges needed for /tmp)
         let plistContent = generatePlist()
-        let escapedPlist = plistContent.replacingOccurrences(of: "\\", with: "\\\\")
-            .replacingOccurrences(of: "\"", with: "\\\"")
+        do {
+            try plistContent.write(toFile: tmpPlistPath, atomically: true, encoding: .utf8)
+        } catch {
+            AppLogger.shared.error("Failed to write temp plist: \(error)")
+            return
+        }
 
         let commands = [
-            // Uninstall
             "launchctl bootout system/\(helperLabel) 2>/dev/null || true",
-            "rm -f '\(installPath)'",
-            "rm -rf '\(resourcesPath)'",
-            "rm -f '\(plistPath)'",
-            // Install
-            "mkdir -p '\(resourcesPath)'",
-            "cp '\(helperSource)' '\(installPath)'",
-            "cp '\(resourcesSource)/'*.sh '\(resourcesPath)/' 2>/dev/null || true",
-            "cp '\(resourcesSource)/VERSION' '\(resourcesPath)/VERSION' 2>/dev/null || true",
-            "chown root:wheel '\(installPath)'",
-            "chmod 755 '\(installPath)'",
-            "chown -R root:wheel '\(resourcesPath)'",
-            "chmod -R 755 '\(resourcesPath)'",
-            "echo \"\(escapedPlist)\" > '\(plistPath)'",
-            "chown root:wheel '\(plistPath)'",
-            "chmod 644 '\(plistPath)'",
-            "launchctl bootstrap system '\(plistPath)'"
+            "rm -f \"\(installPath)\"",
+            "rm -rf \"\(resourcesPath)\"",
+            "rm -f \"\(plistPath)\"",
+            "mkdir -p \"\(resourcesPath)\"",
+            "cp \"\(helperSource)\" \"\(installPath)\"",
+            "cp \"\(resourcesSource)/\"*.sh \"\(resourcesPath)/\" 2>/dev/null || true",
+            "cp \"\(resourcesSource)/VERSION\" \"\(resourcesPath)/VERSION\" 2>/dev/null || true",
+            "chown root:wheel \"\(installPath)\"",
+            "chmod 755 \"\(installPath)\"",
+            "chown -R root:wheel \"\(resourcesPath)\"",
+            "chmod -R 755 \"\(resourcesPath)\"",
+            "cp \"\(tmpPlistPath)\" \"\(plistPath)\"",
+            "chown root:wheel \"\(plistPath)\"",
+            "chmod 644 \"\(plistPath)\"",
+            "launchctl bootstrap system \"\(plistPath)\""
         ]
 
         let fullCommand = commands.joined(separator: " && ")
@@ -156,36 +159,39 @@ final class HelperInstaller {
     // MARK: - Private
 
     private func generatePlist() -> String {
-        return """
-        <?xml version="1.0" encoding="UTF-8"?>
-        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-        <plist version="1.0">
-        <dict>
-            <key>Label</key>
-            <string>\(helperLabel)</string>
-            <key>ProgramArguments</key>
-            <array>
-                <string>\(installPath)</string>
-            </array>
-            <key>MachServices</key>
-            <dict>
-                <key>\(helperLabel)</key>
-                <true/>
-            </dict>
-            <key>RunAtLoad</key>
-            <true/>
-            <key>KeepAlive</key>
-            <true/>
-        </dict>
-        </plist>
-        """
+        return [
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
+            "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">",
+            "<plist version=\"1.0\">",
+            "<dict>",
+            "    <key>Label</key>",
+            "    <string>\(helperLabel)</string>",
+            "    <key>ProgramArguments</key>",
+            "    <array>",
+            "        <string>\(installPath)</string>",
+            "    </array>",
+            "    <key>MachServices</key>",
+            "    <dict>",
+            "        <key>\(helperLabel)</key>",
+            "        <true/>",
+            "    </dict>",
+            "    <key>RunAtLoad</key>",
+            "    <true/>",
+            "    <key>KeepAlive</key>",
+            "    <true/>",
+            "</dict>",
+            "</plist>"
+        ].joined(separator: "\n")
     }
 
     private func runWithAdminPrivileges(_ command: String) {
-        let escapedCommand = command.replacingOccurrences(of: "'", with: "'\\''")
-        let script = "do shell script \"\(escapedCommand)\" with administrator privileges"
+        // Escape for AppleScript double-quoted string: \ → \\ then " → \"
+        let escaped = command
+            .replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "\"", with: "\\\"")
+        let script = "do shell script \"\(escaped)\" with administrator privileges"
         guard let appleScript = NSAppleScript(source: script) else {
-            NSLog("[VPNFix] Failed to create AppleScript")
+            AppLogger.shared.error("Failed to create AppleScript")
             return
         }
 
@@ -193,9 +199,9 @@ final class HelperInstaller {
         appleScript.executeAndReturnError(&error)
 
         if let error {
-            NSLog("[VPNFix] Admin command failed: \(error)")
+            AppLogger.shared.error("Admin command failed: \(error)")
         } else {
-            NSLog("[VPNFix] Helper installation completed successfully")
+            AppLogger.shared.info("Helper installation completed successfully")
         }
     }
 }

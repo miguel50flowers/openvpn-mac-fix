@@ -30,6 +30,7 @@
 		4B0000000000000000000015 /* VPNFixHelper in Embed Helper */ = {isa = PBXBuildFile; fileRef = 4A0000000000000000000019 /* VPNFixHelper */; };
 		4B0000000000000000000016 /* HelperInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A000000000000000000001A /* HelperInstaller.swift */; };
 		4B0000000000000000000017 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A000000000000000000001B /* Logger.swift */; };
+		4B0000000000000000000018 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A000000000000000000001C /* AppLogger.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -84,6 +85,7 @@
 		4A0000000000000000000019 /* VPNFixHelper */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = VPNFixHelper; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A000000000000000000001A /* HelperInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperInstaller.swift; sourceTree = "<group>"; };
 		4A000000000000000000001B /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
+		4A000000000000000000001C /* AppLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogger.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -163,6 +165,7 @@
 				4A0000000000000000000009 /* NotificationService.swift */,
 				4A000000000000000000000A /* SparkleUpdater.swift */,
 				4A000000000000000000001A /* HelperInstaller.swift */,
+				4A000000000000000000001C /* AppLogger.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -343,6 +346,7 @@
 				4B000000000000000000000B /* VPNState.swift in Sources */,
 				4B000000000000000000000C /* XPCProtocol.swift in Sources */,
 				4B0000000000000000000016 /* HelperInstaller.swift in Sources */,
+				4B0000000000000000000018 /* AppLogger.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

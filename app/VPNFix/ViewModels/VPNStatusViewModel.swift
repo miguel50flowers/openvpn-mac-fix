@@ -46,7 +46,20 @@ final class VPNStatusViewModel: ObservableObject {
     func refreshState() {
         xpcClient.getVPNState { [weak self] stateString in
             DispatchQueue.main.async {
-                self?.state = VPNState(rawValue: stateString) ?? .unknown
+                let newState = VPNState(rawValue: stateString) ?? .unknown
+                let oldState = self?.state
+                self?.state = newState
+
+                if oldState != newState {
+                    switch newState {
+                    case .connected:
+                        NotificationService.shared.postVPNConnected()
+                    case .disconnected:
+                        NotificationService.shared.postVPNDisconnected()
+                    default:
+                        break
+                    }
+                }
             }
         }
     }
