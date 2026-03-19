@@ -97,6 +97,43 @@ jobs:
           chmod +x build-dmg.sh
           ./build-dmg.sh --app-path "build/DerivedData/Build/Products/Release/VPN Fix.app"
 
+      # ---- Sign DMG with Sparkle EdDSA ----
+      - name: Download Sparkle sign_update
+        run: |
+          curl -sL "https://github.com/sparkle-project/Sparkle/releases/download/2.6.4/Sparkle-2.6.4.tar.xz" -o /tmp/Sparkle.tar.xz
+          mkdir -p /tmp/sparkle
+          tar xf /tmp/Sparkle.tar.xz -C /tmp/sparkle
+          chmod +x /tmp/sparkle/bin/sign_update
+
+      - name: Sign DMG and update appcast
+        env:
+          SPARKLE_ED_PRIVATE_KEY: ${{ secrets.SPARKLE_ED_PRIVATE_KEY }}
+        run: |
+          DMG_PATH="build/VPNFix-${{ steps.version.outputs.version }}.dmg"
+
+          # Sign the DMG (pipe key via stdin as recommended by Sparkle docs)
+          SIGN_OUTPUT=$(echo "$SPARKLE_ED_PRIVATE_KEY" | /tmp/sparkle/bin/sign_update "$DMG_PATH" --ed-key-file -)
+          ED_SIGNATURE=$(echo "$SIGN_OUTPUT" | grep -o 'sparkle:edSignature="[^"]*"' | cut -d'"' -f2)
+          DMG_LENGTH=$(echo "$SIGN_OUTPUT" | grep -o 'length="[^"]*"' | cut -d'"' -f2)
+          BUILD_NUMBER=${{ steps.version.outputs.build_number }}
+
+          echo "EdDSA signature: $ED_SIGNATURE"
+          echo "DMG length: $DMG_LENGTH"
+          echo "Build number: $BUILD_NUMBER"
+
+          # Update appcast.xml with real values
+          sed -i '' "s|__ED_SIGNATURE__|${ED_SIGNATURE}|g" appcast.xml
+          sed -i '' "s|__DMG_LENGTH__|${DMG_LENGTH}|g" appcast.xml
+          sed -i '' "s|__BUILD_NUMBER__|${BUILD_NUMBER}|g" appcast.xml
+
+      - name: Push updated appcast.xml
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add appcast.xml
+          git diff --cached --quiet || git commit -m "Update appcast.xml with EdDSA signature for v${{ steps.version.outputs.version }}"
+          git push origin HEAD:main
+
       # ---- Build .pkg (legacy) ----
       - name: Build .pkg
         run: |
@@ -108,6 +145,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           name: "v${{ steps.version.outputs.version }}"
+          generate_release_notes: true
           body: |
             ## VPN Fix v${{ steps.version.outputs.version }}
 

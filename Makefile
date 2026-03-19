@@ -80,6 +80,9 @@ endif
 	@sed -i '' 's|<title>Version [0-9]*\.[0-9]*\.[0-9]*</title>|<title>Version $(v)</title>|g' appcast.xml
 	@sed -i '' 's|<sparkle:shortVersionString>[0-9]*\.[0-9]*\.[0-9]*</sparkle:shortVersionString>|<sparkle:shortVersionString>$(v)</sparkle:shortVersionString>|g' appcast.xml
 	@sed -i '' 's|/v[0-9]*\.[0-9]*\.[0-9]*/VPNFix-[0-9]*\.[0-9]*\.[0-9]*\.dmg|/v$(v)/VPNFix-$(v).dmg|g' appcast.xml
+	@sed -i '' 's|<sparkle:version>[^<]*</sparkle:version>|<sparkle:version>__BUILD_NUMBER__</sparkle:version>|g' appcast.xml
+	@sed -i '' 's|sparkle:edSignature="[^"]*"|sparkle:edSignature="__ED_SIGNATURE__"|g' appcast.xml
+	@sed -i '' 's|length="[^"]*"|length="__DMG_LENGTH__"|g' appcast.xml
 	@echo "Version updated to $(v)"
 	@echo ""
 	@git add VERSION README.md Formula/openvpn-mac-fix.rb appcast.xml

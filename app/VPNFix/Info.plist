@@ -25,7 +25,7 @@
 	<key>SUFeedURL</key>
 	<string>https://raw.githubusercontent.com/miguel50flowers/openvpn-mac-fix/main/appcast.xml</string>
 	<key>SUPublicEDKey</key>
-	<string></string>
+	<string>QUbcA8bqjcz9Wdqs8oTUesO9cPggT7Y1XM4Cu49ZaB0=</string>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 </dict>
