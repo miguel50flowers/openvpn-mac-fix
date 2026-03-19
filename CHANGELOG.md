@@ -6,6 +6,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [2.0.6] - 2026-03-19
+
+### Added
+
+- "All" log level option in Preferences (shows every log entry, now the default)
+- Functional log filtering in Log Viewer — respects the selected log level (ALL > DEBUG > INFO > WARN > ERROR)
+- Comprehensive app-side logging via `AppLogger` for:
+  - VPN state transitions (old → new state)
+  - Manual fix requests and results
+  - Monitoring enable/disable toggle
+  - Notification dispatch (connect, disconnect, fix applied, test)
+  - Update check triggers and frequency changes
+  - Helper install, reinstall, uninstall, and skip-if-active flow
+
+### Fixed
+
+- Log Viewer now filters entries by the configured log level (previously showed everything regardless of setting)
+- Replaced `NSLog` calls with `AppLogger` in `XPCClient`, `NotificationService`, and `PreferencesView` so all events write to the log file (`/tmp/vpn-monitor.log`) and appear in the Log Viewer
+
 ## [2.0.0] - 2026-03-18
 
 ### Added
