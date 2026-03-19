@@ -94,6 +94,7 @@ struct PreferencesView: View {
     private var advancedTab: some View {
         Form {
             Picker("Log Level", selection: $prefs.logLevel) {
+                Text("All").tag("ALL")
                 Text("Debug").tag("DEBUG")
                 Text("Info").tag("INFO")
                 Text("Warning").tag("WARN")
@@ -156,7 +157,7 @@ struct PreferencesView: View {
                     try service.unregister()
                 }
             } catch {
-                NSLog("[VPNFix] Failed to \(enabled ? "enable" : "disable") launch at login: \(error)")
+                AppLogger.shared.error("Failed to \(enabled ? "enable" : "disable") launch at login: \(error)")
             }
         }
     }

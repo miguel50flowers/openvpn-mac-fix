@@ -22,6 +22,7 @@ final class SparkleUpdater {
     }
 
     func applyCheckFrequency(_ frequency: String) {
+        AppLogger.shared.debug("Update check frequency: \(frequency)")
         switch frequency {
         case "manual":
             controller.updater.automaticallyChecksForUpdates = false
@@ -41,6 +42,7 @@ final class SparkleUpdater {
     }
 
     func checkForUpdates() {
+        AppLogger.shared.info("Checking for updates...")
         controller.checkForUpdates(nil)
     }
 

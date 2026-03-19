@@ -8,7 +8,7 @@ final class AppPreferences: ObservableObject {
     @AppStorage("notifyOnConnect") var notifyOnConnect: Bool = true
     @AppStorage("notifyOnDisconnect") var notifyOnDisconnect: Bool = true
     @AppStorage("notifyOnFix") var notifyOnFix: Bool = true
-    @AppStorage("logLevel") var logLevel: String = "INFO"
+    @AppStorage("logLevel") var logLevel: String = "ALL"
     @AppStorage("launchAtLogin") var launchAtLogin: Bool = false
     @AppStorage("hasCompletedOnboarding") var hasCompletedOnboarding: Bool = false
     @AppStorage("hasOfferedMigration") var hasOfferedMigration: Bool = false

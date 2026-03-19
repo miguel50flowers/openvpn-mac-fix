@@ -8,7 +8,7 @@ struct LogViewerView: View {
         VStack(spacing: 0) {
             // Toolbar
             HStack {
-                Text("\(viewModel.logLines.count) lines")
+                Text("\(viewModel.filteredLogLines.count) lines")
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
@@ -18,7 +18,7 @@ struct LogViewerView: View {
                     .toggleStyle(.checkbox)
 
                 Button("Copy All") {
-                    let allText = viewModel.logLines.map(\.raw).joined(separator: "\n")
+                    let allText = viewModel.filteredLogLines.map(\.raw).joined(separator: "\n")
                     NSPasteboard.general.clearContents()
                     NSPasteboard.general.setString(allText, forType: .string)
                 }
@@ -32,7 +32,7 @@ struct LogViewerView: View {
             Divider()
 
             // Log content
-            if viewModel.logLines.isEmpty {
+            if viewModel.filteredLogLines.isEmpty {
                 Spacer()
                 Text("No log entries yet")
                     .font(.title3)
@@ -42,7 +42,7 @@ struct LogViewerView: View {
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVStack(alignment: .leading, spacing: 1) {
-                            ForEach(Array(viewModel.logLines.enumerated()), id: \.offset) { index, line in
+                            ForEach(Array(viewModel.filteredLogLines.enumerated()), id: \.offset) { index, line in
                                 LogLineView(line: line)
                                     .id(index)
                             }
@@ -51,8 +51,8 @@ struct LogViewerView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .textSelection(.enabled)
                     }
-                    .onChange(of: viewModel.logLines.count) { _ in
-                        if autoScroll, let lastIndex = viewModel.logLines.indices.last {
+                    .onChange(of: viewModel.filteredLogLines.count) { _ in
+                        if autoScroll, let lastIndex = viewModel.filteredLogLines.indices.last {
                             withAnimation {
                                 proxy.scrollTo(lastIndex, anchor: .bottom)
                             }

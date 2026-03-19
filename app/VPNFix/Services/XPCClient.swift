@@ -69,7 +69,7 @@ final class XPCClient {
             guard let self else { return }
             let conn = self.getOrCreateConnection()
             let proxy = conn.remoteObjectProxyWithErrorHandler { error in
-                NSLog("[VPNFix] XPC error: \(error.localizedDescription)")
+                AppLogger.shared.error("XPC error: \(error.localizedDescription)")
                 self.onConnectionStateChanged?(false)
                 errorHandler()
             }
@@ -94,12 +94,12 @@ final class XPCClient {
         conn.exportedObject = XPCAppHandler(client: self)
 
         conn.interruptionHandler = { [weak self] in
-            NSLog("[VPNFix] XPC connection interrupted")
+            AppLogger.shared.warn("XPC connection interrupted")
             self?.onConnectionStateChanged?(false)
         }
 
         conn.invalidationHandler = { [weak self] in
-            NSLog("[VPNFix] XPC connection invalidated")
+            AppLogger.shared.warn("XPC connection invalidated")
             self?.connection = nil
             self?.onConnectionStateChanged?(false)
         }
@@ -125,6 +125,6 @@ private final class XPCAppHandler: NSObject, VPNAppProtocol {
     }
 
     func fixCompleted(_ success: Bool, message: String) {
-        NSLog("[VPNFix] Fix completed: success=\(success), message=\(message)")
+        AppLogger.shared.info("Fix completed: success=\(success), message=\(message)")
     }
 }

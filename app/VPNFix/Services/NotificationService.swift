@@ -15,14 +15,15 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
     func requestPermission() {
         center.requestAuthorization(options: [.alert, .sound]) { granted, error in
             if let error {
-                NSLog("[VPNFix] Notification permission error: \(error.localizedDescription)")
+                AppLogger.shared.error("Notification permission error: \(error.localizedDescription)")
             }
-            NSLog("[VPNFix] Notification permission granted: \(granted)")
+            AppLogger.shared.info("Notification permission granted: \(granted)")
         }
     }
 
     func postVPNConnected() {
         guard prefs.notifyOnConnect else { return }
+        AppLogger.shared.info("Notification sent: VPN Connected")
         post(
             title: "VPN Connected",
             body: "VPN tunnel is active.",
@@ -32,6 +33,7 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
 
     func postVPNDisconnected() {
         guard prefs.notifyOnDisconnect else { return }
+        AppLogger.shared.info("Notification sent: VPN Disconnected")
         post(
             title: "VPN Disconnected",
             body: "VPN tunnel was disconnected. Monitoring for issues...",
@@ -41,6 +43,7 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
 
     func postFixApplied(message: String) {
         guard prefs.notifyOnFix else { return }
+        AppLogger.shared.info("Notification sent: VPN Fix Applied")
         post(
             title: "VPN Fix Applied",
             body: message.isEmpty ? "Network connectivity restored." : message,
@@ -49,6 +52,7 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
     }
 
     func postTestNotification() {
+        AppLogger.shared.debug("Notification sent: Test")
         post(
             title: "VPN Fix - Test",
             body: "Notifications are working correctly!",
@@ -82,7 +86,7 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
 
         center.add(request) { error in
             if let error {
-                NSLog("[VPNFix] Failed to post notification: \(error.localizedDescription)")
+                AppLogger.shared.error("Failed to post notification: \(error.localizedDescription)")
             }
         }
     }

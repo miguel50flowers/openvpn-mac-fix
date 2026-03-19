@@ -29,10 +29,12 @@ final class VPNStatusViewModel: ObservableObject {
 
     func runFix() {
         guard state != .fixing else { return }
+        AppLogger.shared.info("Manual fix requested")
         state = .fixing
 
         xpcClient.runFix { [weak self] success, message in
             DispatchQueue.main.async {
+                AppLogger.shared.info("Fix result: success=\(success), message=\(message)")
                 self?.lastFixMessage = message
                 self?.refreshState()
 
@@ -51,6 +53,7 @@ final class VPNStatusViewModel: ObservableObject {
                 self?.state = newState
 
                 if oldState != newState {
+                    AppLogger.shared.debug("VPN state changed: \(oldState?.rawValue ?? "nil") → \(newState.rawValue)")
                     switch newState {
                     case .connected:
                         NotificationService.shared.postVPNConnected()
@@ -77,6 +80,7 @@ final class VPNStatusViewModel: ObservableObject {
 
                 // Post notifications based on state transitions
                 if oldState != newState {
+                    AppLogger.shared.debug("VPN state changed: \(oldState?.rawValue ?? "nil") → \(newState.rawValue)")
                     switch newState {
                     case .connected:
                         NotificationService.shared.postVPNConnected()
@@ -106,6 +110,7 @@ final class VPNStatusViewModel: ObservableObject {
     }
 
     private func toggleMonitoring() {
+        AppLogger.shared.info("Monitoring \(monitoringEnabled ? "enabled" : "disabled")")
         if monitoringEnabled {
             xpcClient.installWatcher { _, _ in }
         } else {

@@ -53,7 +53,11 @@ final class HelperInstaller {
 
     func installIfNeeded() {
         let status = checkStatus()
-        if status.isActive { return }
+        if status.isActive {
+            AppLogger.shared.debug("Helper already active, skipping install")
+            return
+        }
+        AppLogger.shared.info("Helper not active, installing...")
         install()
     }
 
@@ -100,6 +104,7 @@ final class HelperInstaller {
     // MARK: - Uninstall
 
     func uninstall() {
+        AppLogger.shared.info("Uninstalling helper...")
         let commands = [
             "launchctl bootout system/\(helperLabel) 2>/dev/null || true",
             "rm -f \"\(installPath)\"",
@@ -114,6 +119,7 @@ final class HelperInstaller {
     // MARK: - Reinstall
 
     func reinstall() {
+        AppLogger.shared.info("Reinstalling helper...")
         guard let helperSource = Bundle.main.path(forAuxiliaryExecutable: "VPNFixHelper") else {
             AppLogger.shared.error("Helper binary not found in app bundle")
             return

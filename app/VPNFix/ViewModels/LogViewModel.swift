@@ -13,6 +13,26 @@ struct LogLine: Identifiable {
 final class LogViewModel: ObservableObject {
     @Published var logLines: [LogLine] = []
 
+    var filteredLogLines: [LogLine] {
+        let level = AppPreferences.shared.logLevel.uppercased()
+        guard level != "ALL" else { return logLines }
+        let minPriority = Self.levelPriority(level)
+        return logLines.filter { line in
+            guard let lineLevel = line.level else { return true }
+            return Self.levelPriority(lineLevel) >= minPriority
+        }
+    }
+
+    private static func levelPriority(_ level: String) -> Int {
+        switch level.uppercased() {
+        case "DEBUG": return 0
+        case "INFO":  return 1
+        case "WARN", "WARNING": return 2
+        case "ERROR": return 3
+        default: return 0
+        }
+    }
+
     private let logPath = "/tmp/vpn-monitor.log"
     private var fileHandle: FileHandle?
     private var source: DispatchSourceFileSystemObject?
