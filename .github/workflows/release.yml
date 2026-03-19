@@ -131,9 +131,12 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout main
+          git merge --ff-only FETCH_HEAD 2>/dev/null || true
           git add appcast.xml
           git diff --cached --quiet || git commit -m "Update appcast.xml with EdDSA signature for v${{ steps.version.outputs.version }}"
-          git push origin HEAD:main
+          git push origin main
 
       # ---- Build .pkg (legacy) ----
       - name: Build .pkg
