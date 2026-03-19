@@ -7,14 +7,10 @@ struct MenuBarView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             // Status header
-            HStack {
-                Image(systemName: viewModel.state.sfSymbol)
-                    .foregroundStyle(viewModel.state.tintColor)
-                Text("VPN: \(viewModel.state.label)")
-                    .font(.headline)
-            }
-            .padding(.horizontal, 8)
-            .padding(.top, 4)
+            Label("VPN: \(viewModel.state.label)", systemImage: viewModel.state.sfSymbol)
+                .font(.headline)
+                .padding(.horizontal, 8)
+                .padding(.top, 4)
 
             Divider()
 
