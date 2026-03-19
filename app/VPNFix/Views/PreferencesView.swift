@@ -3,6 +3,7 @@ import ServiceManagement
 
 struct PreferencesView: View {
     @ObservedObject private var prefs = AppPreferences.shared
+    @Environment(\.openWindow) private var openWindow
     @State private var helperStatus: String = "Checking..."
     @State private var helperActive: Bool = false
 
@@ -43,6 +44,11 @@ struct PreferencesView: View {
             Toggle("Launch at login", isOn: $prefs.launchAtLogin)
                 .onChange(of: prefs.launchAtLogin) { newValue in
                     setLaunchAtLogin(newValue)
+                }
+
+            Toggle("Show in Dock", isOn: $prefs.showDockIcon)
+                .onChange(of: prefs.showDockIcon) { newValue in
+                    NSApp.setActivationPolicy(newValue ? .regular : .accessory)
                 }
 
             Picker("Update Check Frequency", selection: $prefs.updateCheckFrequency) {
@@ -99,6 +105,11 @@ struct PreferencesView: View {
                 Text("Info").tag("INFO")
                 Text("Warning").tag("WARN")
                 Text("Error").tag("ERROR")
+            }
+
+            Button("View Logs") {
+                openWindow(id: "log-viewer")
+                NSApp.activate(ignoringOtherApps: true)
             }
         }
         .formStyle(.grouped)

@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [2.0.8] - 2026-03-19
+
+### Added
+
+- Dock icon toggle in Preferences (General tab) — show/hide app in Dock at runtime
+- "View Logs" button in Preferences (Advanced tab) — opens Log Viewer window directly
+
+### Fixed
+
+- Sparkle update dialog now shows correct per-version release notes instead of hardcoded v2.0.0 notes
+- Appcast.xml restructured with multi-item history (one item per release, cumulative notes)
+- `make release` now auto-generates appcast items from CHANGELOG.md instead of sed-replacing a single item
+
 ## [2.0.6] - 2026-03-19
 
 ### Added

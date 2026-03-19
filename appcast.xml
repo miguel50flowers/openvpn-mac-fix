@@ -4,24 +4,13 @@
         <title>VPN Fix Updates</title>
         <description>Most recent changes with links to updates.</description>
         <language>en</language>
-        <!--
-            Add new items here when releasing updates.
-            Use Sparkle's generate_appcast tool to update signatures:
-              ./bin/generate_appcast /path/to/releases/
-        -->
+        <!-- APPCAST_ITEMS -->
         <item>
             <title>Version 2.0.7</title>
             <description><![CDATA[
-                <h2>VPN Fix 2.0.0 — Native macOS App</h2>
+                <h3>Added</h3>
                 <ul>
-                    <li>Native SwiftUI menu bar app</li>
-                    <li>Real-time VPN status monitoring</li>
-                    <li>One-click VPN fix</li>
-                    <li>Native macOS notifications</li>
-                    <li>Log viewer</li>
-                    <li>Preferences panel</li>
-                    <li>Auto-update support</li>
-                    <li>Migration from Phase 1 shell scripts</li>
+                    <li>EdDSA-signed DMG updates via Sparkle</li>
                 </ul>
             ]]></description>
             <pubDate>Wed, 18 Mar 2026 12:00:00 +0000</pubDate>
@@ -33,6 +22,146 @@
                 type="application/octet-stream"
                 sparkle:edSignature="aezto1dpWJmKnLxwYeQjMKc/MM/6QJqTFhZtRKq4vUb2gjebNp5GAx0jw+VANS3P4NzqliRiv+FenWp7emr4Bg=="
                 length="1723726"
+            />
+        </item>
+        <item>
+            <title>Version 2.0.6</title>
+            <description><![CDATA[
+                <h3>Added</h3>
+                <ul>
+                    <li>"All" log level option in Preferences (shows every log entry, now the default)</li>
+                    <li>Functional log filtering in Log Viewer — respects the selected log level (ALL > DEBUG > INFO > WARN > ERROR)</li>
+                    <li>Comprehensive app-side logging via AppLogger for VPN state transitions, manual fixes, monitoring toggle, notifications, update checks, and helper management</li>
+                </ul>
+                <h3>Fixed</h3>
+                <ul>
+                    <li>Log Viewer now filters entries by the configured log level</li>
+                    <li>Replaced NSLog calls with AppLogger in XPCClient, NotificationService, and PreferencesView</li>
+                </ul>
+            ]]></description>
+            <pubDate>Wed, 18 Mar 2026 10:00:00 +0000</pubDate>
+            <sparkle:version>28</sparkle:version>
+            <sparkle:shortVersionString>2.0.6</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <enclosure
+                url="https://github.com/miguel50flowers/openvpn-mac-fix/releases/download/v2.0.6/VPNFix-2.0.6.dmg"
+                type="application/octet-stream"
+                sparkle:edSignature=""
+                length="0"
+            />
+        </item>
+        <item>
+            <title>Version 2.0.5</title>
+            <description><![CDATA[
+                <h3>Changed</h3>
+                <ul>
+                    <li>Appcast.xml now uses placeholders for build number, EdDSA signature, and DMG length — filled automatically by CI</li>
+                    <li>Release workflow integrates Sparkle signing to produce properly signed DMG updates</li>
+                    <li>Added PROD environment to release workflow for secrets access</li>
+                </ul>
+            ]]></description>
+            <pubDate>Wed, 18 Mar 2026 08:00:00 +0000</pubDate>
+            <sparkle:version>25</sparkle:version>
+            <sparkle:shortVersionString>2.0.5</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <enclosure
+                url="https://github.com/miguel50flowers/openvpn-mac-fix/releases/download/v2.0.5/VPNFix-2.0.5.dmg"
+                type="application/octet-stream"
+                sparkle:edSignature=""
+                length="0"
+            />
+        </item>
+        <item>
+            <title>Version 2.0.4</title>
+            <description><![CDATA[
+                <h3>Added</h3>
+                <ul>
+                    <li>Update check frequency setting in Preferences (Automatic, Daily, Weekly, Monthly, Manual)</li>
+                    <li>Selection persisted via AppStorage and applied to Sparkle's SPUUpdater on launch and on change</li>
+                </ul>
+            ]]></description>
+            <pubDate>Wed, 18 Mar 2026 06:00:00 +0000</pubDate>
+            <sparkle:version>22</sparkle:version>
+            <sparkle:shortVersionString>2.0.4</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <enclosure
+                url="https://github.com/miguel50flowers/openvpn-mac-fix/releases/download/v2.0.4/VPNFix-2.0.4.dmg"
+                type="application/octet-stream"
+                sparkle:edSignature=""
+                length="0"
+            />
+        </item>
+        <item>
+            <title>Version 2.0.3</title>
+            <description><![CDATA[
+                <h3>Fixed</h3>
+                <ul>
+                    <li>Menu bar dropdown layout: replaced HStack with Label to prevent macOS MenuBarExtra from splitting icon and text into separate menu items</li>
+                </ul>
+            ]]></description>
+            <pubDate>Wed, 18 Mar 2026 04:00:00 +0000</pubDate>
+            <sparkle:version>20</sparkle:version>
+            <sparkle:shortVersionString>2.0.3</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <enclosure
+                url="https://github.com/miguel50flowers/openvpn-mac-fix/releases/download/v2.0.3/VPNFix-2.0.3.dmg"
+                type="application/octet-stream"
+                sparkle:edSignature=""
+                length="0"
+            />
+        </item>
+        <item>
+            <title>Version 2.0.2</title>
+            <description><![CDATA[
+                <h3>Added</h3>
+                <ul>
+                    <li>AppLogger service for consistent app-side logging</li>
+                    <li>HelperInstaller for managing privileged helper tool</li>
+                    <li>"About" tab in Preferences with app version and GitHub link</li>
+                    <li>"Send Test Notification" button in Preferences</li>
+                    <li>"Copy All" button in Log Viewer</li>
+                    <li>VPN state change notifications</li>
+                    <li>Helper daemon logger with structured levels and log rotation</li>
+                </ul>
+                <h3>Changed</h3>
+                <ul>
+                    <li>Updated VPN state SF Symbols for better visual representation</li>
+                    <li>Streamlined menu bar interactions and helper installation logic</li>
+                    <li>Improved empty-state UI in Log Viewer</li>
+                    <li>Enhanced error handling and logging throughout helper tool</li>
+                </ul>
+            ]]></description>
+            <pubDate>Tue, 17 Mar 2026 22:00:00 +0000</pubDate>
+            <sparkle:version>18</sparkle:version>
+            <sparkle:shortVersionString>2.0.2</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <enclosure
+                url="https://github.com/miguel50flowers/openvpn-mac-fix/releases/download/v2.0.2/VPNFix-2.0.2.dmg"
+                type="application/octet-stream"
+                sparkle:edSignature=""
+                length="0"
+            />
+        </item>
+        <item>
+            <title>Version 2.0.1</title>
+            <description><![CDATA[
+                <h3>Fixed</h3>
+                <ul>
+                    <li>CHANGELOG ordering: moved old [Unreleased] content to [1.1.0]</li>
+                    <li>README: corrected minimum macOS from 12+ to 13+</li>
+                    <li>make release now updates appcast.xml versions/DMG URL</li>
+                    <li>build-pkg.sh now cleans only pkg artifacts</li>
+                </ul>
+            ]]></description>
+            <pubDate>Tue, 17 Mar 2026 20:00:00 +0000</pubDate>
+            <sparkle:version>14</sparkle:version>
+            <sparkle:shortVersionString>2.0.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <enclosure
+                url="https://github.com/miguel50flowers/openvpn-mac-fix/releases/download/v2.0.1/VPNFix-2.0.1.dmg"
+                type="application/octet-stream"
+                sparkle:edSignature=""
+                length="0"
             />
         </item>
     </channel>

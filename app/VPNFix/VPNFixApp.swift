@@ -26,6 +26,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         AppLogger.shared.info("VPN Fix app launched")
+        if AppPreferences.shared.showDockIcon {
+            NSApp.setActivationPolicy(.regular)
+        }
         notificationService.requestPermission()
         HelperInstaller.shared.installIfNeeded()
         checkForPhase1Migration()
