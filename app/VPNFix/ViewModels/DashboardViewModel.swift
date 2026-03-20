@@ -9,6 +9,7 @@ final class DashboardViewModel: ObservableObject {
     @Published var fixingClients: Set<String> = [] // VPNClientType rawValues
     @Published var lastScanTime: Date?
     @Published var showDismissed: Bool = false
+    @Published var fixResults: [String: (success: Bool, message: String)] = [:] // keyed by VPNClientType rawValue
 
     private let xpcClient = XPCClient.shared
     private var scanTimer: Timer?
@@ -49,16 +50,39 @@ final class DashboardViewModel: ObservableObject {
     func fixClient(_ type: VPNClientType) {
         guard !fixingClients.contains(type.rawValue) else { return }
         fixingClients.insert(type.rawValue)
+        fixResults.removeValue(forKey: type.rawValue)
         AppLogger.shared.info("Dashboard: fixing \(type.displayName)")
 
         xpcClient.runFixForClient(type.rawValue) { [weak self] success, message in
             DispatchQueue.main.async {
-                self?.fixingClients.remove(type.rawValue)
                 AppLogger.shared.info("Dashboard: fix \(type.displayName) result: \(success), \(message)")
                 if success {
                     NotificationService.shared.postFixApplied(client: type.displayName, message: message)
                 }
-                self?.scan()
+                self?.fixResults[type.rawValue] = (success, message)
+                // Keep spinner until rescan completes
+                self?.scanAfterFix(type)
+            }
+        }
+    }
+
+    private func scanAfterFix(_ fixedType: VPNClientType) {
+        isScanning = true
+        xpcClient.detectAllVPNClients { [weak self] json in
+            DispatchQueue.main.async {
+                self?.parseClients(json)
+                self?.fixingClients.remove(fixedType.rawValue)
+                self?.isScanning = false
+                self?.lastScanTime = Date()
+                // Auto-clear fix result after 5 seconds
+                DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
+                    self?.fixResults.removeValue(forKey: fixedType.rawValue)
+                }
+            }
+        }
+        xpcClient.getNetworkDiagnostics { [weak self] json in
+            DispatchQueue.main.async {
+                self?.parseDiagnostics(json)
             }
         }
     }

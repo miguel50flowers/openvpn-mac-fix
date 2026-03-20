@@ -58,6 +58,7 @@ struct VPNClientSection: View {
                             activeIssues: active,
                             dismissedCount: dismissed,
                             isFixing: viewModel.fixingClients.contains(client.clientType.rawValue),
+                            fixResult: viewModel.fixResults[client.clientType.rawValue],
                             showDismissed: viewModel.showDismissed,
                             onFix: { viewModel.fixClient(client.clientType) },
                             onFixIssue: { _ in viewModel.fixClient(client.clientType) },

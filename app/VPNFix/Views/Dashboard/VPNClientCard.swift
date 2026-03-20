@@ -5,6 +5,7 @@ struct VPNClientCard: View {
     let activeIssues: [VPNIssue]
     let dismissedCount: Int
     let isFixing: Bool
+    let fixResult: (success: Bool, message: String)?
     let showDismissed: Bool
     let onFix: () -> Void
     let onFixIssue: (VPNIssue) -> Void
@@ -62,6 +63,28 @@ struct VPNClientCard: View {
                 }
             }
             .padding(12)
+
+            // Fix result banner
+            if let result = fixResult {
+                Divider()
+                HStack(spacing: 6) {
+                    Image(systemName: result.success ? "checkmark.circle.fill" : "xmark.circle.fill")
+                        .foregroundStyle(result.success ? .green : .red)
+                    Text(result.success ? "Fix applied" : "Fix failed")
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(result.success ? .green : .red)
+                    if !result.success {
+                        Text(result.message)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .transition(.opacity)
+                .animation(.easeInOut, value: fixResult?.success)
+            }
 
             // Issues list
             if !activeIssues.isEmpty {

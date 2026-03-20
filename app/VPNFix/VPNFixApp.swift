@@ -44,12 +44,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         checkForPhase1Migration()
 
         if AppPreferences.shared.showDashboardOnLaunch {
-            DispatchQueue.main.async {
-                if let window = NSApp.windows.first(where: { $0.title == "VPN Fix" }) {
-                    window.makeKeyAndOrderFront(nil)
-                    NSApp.activate(ignoringOtherApps: true)
+            // SwiftUI creates Window scenes lazily — NSWindow doesn't exist yet at launch.
+            // Retry until SwiftUI creates it (typically ~1-2s).
+            func tryOpen(_ attempt: Int = 0) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    if let window = NSApp.windows.first(where: { $0.title == "VPN Fix" }) {
+                        window.makeKeyAndOrderFront(nil)
+                        NSApp.activate(ignoringOtherApps: true)
+                        AppLogger.shared.info("Dashboard opened on launch (attempt \(attempt + 1))")
+                    } else if attempt < 10 {
+                        tryOpen(attempt + 1)
+                    } else {
+                        AppLogger.shared.warn("Dashboard window not found after 10 attempts")
+                    }
                 }
             }
+            tryOpen()
         }
     }
 

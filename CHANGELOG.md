@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Dashboard not opening on app launch — SwiftUI creates Window scenes lazily; replaced single `DispatchQueue.main.async` with retry-based window lookup (up to 5s)
+- Fix button showing no visible UI feedback — spinner now stays visible until post-fix rescan completes, then shows green "Fix applied" or red "Fix failed" banner (auto-clears after 5s)
+- "Check for Updates" not working — v3.0.3 appcast.xml had unfilled CI placeholders; pulled CI-signed appcast with valid EdDSA signature
+
 ## [3.0.3] - 2026-03-20
 
 ### Fixed
