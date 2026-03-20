@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [2.0.12] - 2026-03-20
+
 ### Fixed
 - Log Viewer still empty when helper daemon not running — AppLogger now checks writability and falls back to NSLog
 - Log file permissions now set to 666 in all creation paths (AppLogger, LogViewModel, HelperInstaller)
