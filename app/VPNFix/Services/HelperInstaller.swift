@@ -56,11 +56,33 @@ final class HelperInstaller {
     func installIfNeeded() {
         let status = checkStatus()
         if status.isActive {
-            AppLogger.shared.debug("Helper already active, skipping install")
+            if isHelperVersionCurrent() {
+                AppLogger.shared.debug("Helper already active and up to date, skipping install")
+                return
+            }
+            AppLogger.shared.info("Helper version mismatch, reinstalling...")
+            reinstall()
             return
         }
         AppLogger.shared.info("Helper not active, installing...")
         install()
+    }
+
+    private func isHelperVersionCurrent() -> Bool {
+        guard let bundledPath = Bundle.main.path(forResource: "VERSION", ofType: nil),
+              let bundled = try? String(contentsOfFile: bundledPath, encoding: .utf8)
+                  .trimmingCharacters(in: .whitespacesAndNewlines) else {
+            return false
+        }
+
+        let installedPath = "\(resourcesPath)/VERSION"
+        guard let installed = try? String(contentsOfFile: installedPath, encoding: .utf8)
+                  .trimmingCharacters(in: .whitespacesAndNewlines) else {
+            return false
+        }
+
+        AppLogger.shared.debug("Helper version check: bundled=\(bundled) installed=\(installed)")
+        return bundled == installed
     }
 
     func install() {
@@ -95,7 +117,6 @@ final class HelperInstaller {
             "chmod 755 \"\(installPath)\"",
             "chown -R root:wheel \"\(resourcesPath)\"",
             "chmod -R 755 \"\(resourcesPath)\"",
-            "touch /tmp/vpn-monitor.log && chmod 666 /tmp/vpn-monitor.log",
             "cp \"\(tmpPlistPath)\" \"\(plistPath)\"",
             "chown root:wheel \"\(plistPath)\"",
             "chmod 644 \"\(plistPath)\"",
@@ -162,7 +183,6 @@ final class HelperInstaller {
             "chmod 755 \"\(installPath)\"",
             "chown -R root:wheel \"\(resourcesPath)\"",
             "chmod -R 755 \"\(resourcesPath)\"",
-            "touch /tmp/vpn-monitor.log && chmod 666 /tmp/vpn-monitor.log",
             "cp \"\(tmpPlistPath)\" \"\(plistPath)\"",
             "chown root:wheel \"\(plistPath)\"",
             "chmod 644 \"\(plistPath)\"",

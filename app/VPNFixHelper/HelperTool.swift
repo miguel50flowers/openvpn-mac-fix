@@ -196,25 +196,6 @@ final class HelperTool: NSObject, VPNHelperProtocol {
         }
     }
 
-    func ensureLogFilePermissions(reply: @escaping (Bool) -> Void) {
-        HelperLogger.shared.info("[VPNFixHelper] ensureLogFilePermissions requested")
-        let logPath = "/tmp/vpn-monitor.log"
-        let fm = FileManager.default
-
-        if !fm.fileExists(atPath: logPath) {
-            fm.createFile(atPath: logPath, contents: nil)
-        }
-
-        do {
-            try fm.setAttributes([.posixPermissions: 0o666], ofItemAtPath: logPath)
-            HelperLogger.shared.info("[VPNFixHelper] Log file permissions set to 666")
-            reply(true)
-        } catch {
-            HelperLogger.shared.error("[VPNFixHelper] Failed to set log file permissions: \(error.localizedDescription)")
-            reply(false)
-        }
-    }
-
     // MARK: - Private
 
     private func handleResolvConfChange() {

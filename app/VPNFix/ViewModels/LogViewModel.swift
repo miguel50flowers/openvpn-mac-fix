@@ -9,7 +9,7 @@ struct LogLine: Identifiable {
     let raw: String
 }
 
-/// Tails the VPN monitor log file and parses entries.
+/// Tails both the app log and helper log, merging entries by timestamp.
 final class LogViewModel: ObservableObject {
     @Published var logLines: [LogLine] = []
 
@@ -33,71 +33,112 @@ final class LogViewModel: ObservableObject {
         }
     }
 
-    private let logPath = "/tmp/vpn-monitor.log"
-    private var fileHandle: FileHandle?
-    private var source: DispatchSourceFileSystemObject?
+    private let appLogDir: String = {
+        let home = FileManager.default.homeDirectoryForCurrentUser.path
+        return "\(home)/Library/Logs/VPNFix"
+    }()
+    private var appLogPath: String { "\(appLogDir)/vpn-monitor.log" }
+    private let helperLogPath = "/tmp/vpn-monitor.log"
+
+    private var appFileHandle: FileHandle?
+    private var helperFileHandle: FileHandle?
+    private var appSource: DispatchSourceFileSystemObject?
+    private var helperSource: DispatchSourceFileSystemObject?
 
     func startTailing() {
-        ensureLogFileExists()
+        ensureAppLogExists()
         loadExistingContent()
         watchForChanges()
     }
 
     func stopTailing() {
-        source?.cancel()
-        source = nil
-        fileHandle?.closeFile()
-        fileHandle = nil
+        appSource?.cancel()
+        appSource = nil
+        appFileHandle?.closeFile()
+        appFileHandle = nil
+
+        helperSource?.cancel()
+        helperSource = nil
+        helperFileHandle?.closeFile()
+        helperFileHandle = nil
     }
 
     func clearLogs() {
         logLines.removeAll()
-        // Also truncate the file
-        if FileManager.default.isWritableFile(atPath: logPath) {
-            try? "".write(toFile: logPath, atomically: true, encoding: .utf8)
+        // Only clear the app log (user-writable); leave helper log alone
+        if FileManager.default.isWritableFile(atPath: appLogPath) {
+            try? "".write(toFile: appLogPath, atomically: true, encoding: .utf8)
         }
     }
 
     // MARK: - Private
 
-    private func ensureLogFileExists() {
-        if !FileManager.default.fileExists(atPath: logPath) {
-            FileManager.default.createFile(atPath: logPath, contents: nil)
-            try? FileManager.default.setAttributes([.posixPermissions: 0o666], ofItemAtPath: logPath)
+    private func ensureAppLogExists() {
+        let fm = FileManager.default
+        if !fm.fileExists(atPath: appLogDir) {
+            try? fm.createDirectory(atPath: appLogDir, withIntermediateDirectories: true)
+        }
+        if !fm.fileExists(atPath: appLogPath) {
+            fm.createFile(atPath: appLogPath, contents: nil)
         }
     }
 
     private func loadExistingContent() {
-        guard let data = FileManager.default.contents(atPath: logPath),
-              let content = String(data: data, encoding: .utf8) else { return }
+        var allLines: [LogLine] = []
 
-        let lines = content.components(separatedBy: .newlines)
-            .filter { !$0.isEmpty }
-            .map { parseLine($0) }
+        // Load app log
+        if let data = FileManager.default.contents(atPath: appLogPath),
+           let content = String(data: data, encoding: .utf8) {
+            let lines = content.components(separatedBy: .newlines)
+                .filter { !$0.isEmpty }
+                .map { parseLine($0) }
+            allLines.append(contentsOf: lines)
+        }
+
+        // Load helper log (read-only)
+        if let data = FileManager.default.contents(atPath: helperLogPath),
+           let content = String(data: data, encoding: .utf8) {
+            let lines = content.components(separatedBy: .newlines)
+                .filter { !$0.isEmpty }
+                .map { parseLine($0) }
+            allLines.append(contentsOf: lines)
+        }
+
+        // Sort by timestamp
+        allLines.sort { a, b in
+            guard let ta = a.timestamp, let tb = b.timestamp else {
+                return a.timestamp != nil
+            }
+            return ta < tb
+        }
 
         DispatchQueue.main.async {
-            self.logLines = lines
+            self.logLines = allLines
         }
     }
 
     private func watchForChanges() {
-        let fd = open(logPath, O_RDONLY | O_EVTONLY)
+        watchFile(path: appLogPath, isAppLog: true)
+        watchFile(path: helperLogPath, isAppLog: false)
+    }
+
+    private func watchFile(path: String, isAppLog: Bool) {
+        let fd = open(path, O_RDONLY | O_EVTONLY)
         guard fd >= 0 else { return }
 
         // Seek to end to only get new content
         lseek(fd, 0, SEEK_END)
 
-        fileHandle = FileHandle(fileDescriptor: fd, closeOnDealloc: true)
-
-        source = DispatchSource.makeFileSystemObjectSource(
+        let handle = FileHandle(fileDescriptor: fd, closeOnDealloc: true)
+        let source = DispatchSource.makeFileSystemObjectSource(
             fileDescriptor: fd,
             eventMask: [.write, .delete, .rename],
             queue: .global(qos: .utility)
         )
 
-        source?.setEventHandler { [weak self] in
+        source.setEventHandler { [weak self] in
             guard let self else { return }
-            let data = self.fileHandle?.availableData ?? Data()
+            let data = handle.availableData
             guard !data.isEmpty, let text = String(data: data, encoding: .utf8) else { return }
 
             let newLines = text.components(separatedBy: .newlines)
@@ -113,11 +154,19 @@ final class LogViewModel: ObservableObject {
             }
         }
 
-        source?.setCancelHandler {
+        source.setCancelHandler {
             close(fd)
         }
 
-        source?.resume()
+        source.resume()
+
+        if isAppLog {
+            appFileHandle = handle
+            appSource = source
+        } else {
+            helperFileHandle = handle
+            helperSource = source
+        }
     }
 
     /// Parse a log line like: "2026-03-17 10:30:45 [INFO] Some message"

@@ -1,15 +1,19 @@
 import Foundation
 
-/// App-side logger that writes to the same log file as the helper daemon.
-/// Enables log viewer to show app events alongside helper events.
+/// App-side logger that writes to ~/Library/Logs/VPNFix/vpn-monitor.log.
+/// Uses a user-writable path to avoid /tmp permission issues with root-owned files.
 final class AppLogger {
     static let shared = AppLogger()
 
-    private let logPath = "/tmp/vpn-monitor.log"
+    private let logDir: String = {
+        let home = FileManager.default.homeDirectoryForCurrentUser.path
+        return "\(home)/Library/Logs/VPNFix"
+    }()
+    private var logPath: String { "\(logDir)/vpn-monitor.log" }
     private let queue = DispatchQueue(label: "com.vpnfix.applogger")
 
     private init() {
-        ensureLogFileWritable()
+        ensureLogDirectory()
     }
 
     func info(_ message: String) {
@@ -33,30 +37,27 @@ final class AppLogger {
             let timestamp = Self.dateFormatter.string(from: Date())
             let line = "\(timestamp) [\(level)] [App] \(message)\n"
 
-            ensureLogFileWritable()
-
             guard let data = line.data(using: .utf8) else { return }
 
             if let handle = FileHandle(forWritingAtPath: logPath) {
                 handle.seekToEndOfFile()
                 handle.write(data)
                 handle.closeFile()
+            } else if FileManager.default.createFile(atPath: logPath, contents: data) {
+                // File was just created with the log line
             } else {
                 NSLog("[AppLogger] FileHandle nil, fallback: %@", line.trimmingCharacters(in: .newlines))
             }
         }
     }
 
-    private func ensureLogFileWritable() {
+    private func ensureLogDirectory() {
         let fm = FileManager.default
-        if fm.fileExists(atPath: logPath) {
-            if !fm.isWritableFile(atPath: logPath) {
-                // Attempt chmod 666 — works only if current user owns the file
-                try? fm.setAttributes([.posixPermissions: 0o666], ofItemAtPath: logPath)
-            }
-        } else {
+        if !fm.fileExists(atPath: logDir) {
+            try? fm.createDirectory(atPath: logDir, withIntermediateDirectories: true)
+        }
+        if !fm.fileExists(atPath: logPath) {
             fm.createFile(atPath: logPath, contents: nil)
-            try? fm.setAttributes([.posixPermissions: 0o666], ofItemAtPath: logPath)
         }
     }
 

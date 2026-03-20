@@ -19,9 +19,6 @@ import Foundation
 
     /// Removes Phase 1 installation artifacts (old daemon, scripts).
     func removePhase1Artifacts(reply: @escaping (Bool, String) -> Void)
-
-    /// Ensures the log file exists with world-writable permissions (runs as root).
-    func ensureLogFilePermissions(reply: @escaping (Bool) -> Void)
 }
 
 /// Protocol for helper → app communication (state updates).

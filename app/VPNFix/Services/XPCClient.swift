@@ -68,15 +68,6 @@ final class XPCClient {
         }
     }
 
-    func ensureLogFilePermissions(reply: @escaping (Bool) -> Void) {
-        AppLogger.shared.debug("XPC: ensureLogFilePermissions requested")
-        proxy { helper in
-            helper.ensureLogFilePermissions(reply: reply)
-        } errorHandler: {
-            reply(false)
-        }
-    }
-
     // MARK: - Connection Management
 
     private func proxy(work: @escaping (VPNHelperProtocol) -> Void, errorHandler: @escaping () -> Void) {
