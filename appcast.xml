@@ -6,6 +6,38 @@
         <language>en</language>
         <!-- APPCAST_ITEMS -->
         <item>
+            <title>Version 3.0.3</title>
+            <description><![CDATA[
+                <h3>Fixed</h3>
+<ul>
+<li>Fix `ps -axo comm` pipe deadlock: read stdout asynchronously to prevent ~64KB buffer blocking `waitUntilExit()` (was causing 5s timeout every detection cycle)</li>
+<li>Skip `ps` process scan in `getNetworkDiagnostics()` via `includeProcesses: false` — saves ~6s per call since diagnostics don't need process data</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li>**Dashboard UI overhaul:**</li>
+<li>VPN client cards now show actual issue descriptions with severity badges (critical/high/medium/low) and per-issue fix descriptions</li>
+<li>Replaced grid layout with full-width list cards for better readability</li>
+<li>Added dismiss/undismiss support for individual issues (persisted in preferences)</li>
+<li>"Show dismissed" toggle and "Undismiss All" button when issues are hidden</li>
+<li>Network Diagnostics renamed to "System Network Status" with subtitle clarifying scope, wrapped in collapsible DisclosureGroup</li>
+<li>Fix button now shows what each fix will do (e.g., "Remove leftover routes and flush DNS")</li>
+<li>Dashboard opens automatically on app launch (default changed to true)</li>
+<li>Added reusable SeverityBadge component with color-coded pills</li>
+</ul>
+            ]]></description>
+            <pubDate>Fri, 20 Mar 2026 19:56:07 +0000</pubDate>
+            <sparkle:version>__BUILD_NUMBER__</sparkle:version>
+            <sparkle:shortVersionString>3.0.3</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <enclosure
+                url="https://github.com/miguel50flowers/openvpn-mac-fix/releases/download/v3.0.3/VPNFix-3.0.3.dmg"
+                type="application/octet-stream"
+                sparkle:edSignature="__ED_SIGNATURE__"
+                length="__DMG_LENGTH__"
+            />
+        </item>
+        <item>
             <title>Version 3.0.2</title>
             <description><![CDATA[
                 <h3>Fixed</h3>

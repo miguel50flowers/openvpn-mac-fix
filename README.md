@@ -52,7 +52,7 @@ cd $(brew --prefix)/Cellar/openvpn-mac-fix/*/libexec && sudo ./install.sh
 Download the latest `.pkg` from [Releases](https://github.com/miguel50flowers/openvpn-mac-fix/releases/latest) and double-click to install. Or from the terminal:
 
 ```bash
-sudo installer -pkg openvpn-mac-fix-3.0.2.pkg -target /
+sudo installer -pkg openvpn-mac-fix-3.0.3.pkg -target /
 ```
 
 ### Option 4: Git clone
