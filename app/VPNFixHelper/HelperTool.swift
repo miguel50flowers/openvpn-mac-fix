@@ -178,8 +178,8 @@ final class HelperTool: NSObject, VPNHelperProtocol {
             }
         }
 
-        // Clean up temp files
-        for tmp in ["/tmp/vpn-was-connected", "/tmp/vpn-monitor.log"] {
+        // Clean up temp files (keep vpn-monitor.log — it's an active Phase 2 file)
+        for tmp in ["/tmp/vpn-was-connected"] {
             if fm.fileExists(atPath: tmp) {
                 HelperLogger.shared.debug("[VPNFixHelper] Cleaning temp file: \(tmp)")
                 try? fm.removeItem(atPath: tmp)
@@ -193,6 +193,25 @@ final class HelperTool: NSObject, VPNHelperProtocol {
         } else {
             HelperLogger.shared.error("[VPNFixHelper] Phase 1 removal had errors: \(errors.joined(separator: "; "))")
             reply(false, "Errors: \(errors.joined(separator: "; "))")
+        }
+    }
+
+    func ensureLogFilePermissions(reply: @escaping (Bool) -> Void) {
+        HelperLogger.shared.info("[VPNFixHelper] ensureLogFilePermissions requested")
+        let logPath = "/tmp/vpn-monitor.log"
+        let fm = FileManager.default
+
+        if !fm.fileExists(atPath: logPath) {
+            fm.createFile(atPath: logPath, contents: nil)
+        }
+
+        do {
+            try fm.setAttributes([.posixPermissions: 0o666], ofItemAtPath: logPath)
+            HelperLogger.shared.info("[VPNFixHelper] Log file permissions set to 666")
+            reply(true)
+        } catch {
+            HelperLogger.shared.error("[VPNFixHelper] Failed to set log file permissions: \(error.localizedDescription)")
+            reply(false)
         }
     }
 

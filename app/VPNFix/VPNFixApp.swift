@@ -35,6 +35,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         notificationService.requestPermission()
         AppLogger.shared.debug("Checking helper install status...")
         HelperInstaller.shared.installIfNeeded()
+        // Ask helper to fix log file permissions after it has time to boot
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            XPCClient.shared.ensureLogFilePermissions { success in
+                AppLogger.shared.debug("ensureLogFilePermissions via XPC: \(success ? "ok" : "failed")")
+            }
+        }
         AppLogger.shared.debug("Checking for Phase 1 migration...")
         checkForPhase1Migration()
     }

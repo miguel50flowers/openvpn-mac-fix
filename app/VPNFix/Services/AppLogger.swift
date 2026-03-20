@@ -9,7 +9,7 @@ final class AppLogger {
     private let queue = DispatchQueue(label: "com.vpnfix.applogger")
 
     private init() {
-        ensureLogFileExists()
+        ensureLogFileWritable()
     }
 
     func info(_ message: String) {
@@ -33,23 +33,30 @@ final class AppLogger {
             let timestamp = Self.dateFormatter.string(from: Date())
             let line = "\(timestamp) [\(level)] [App] \(message)\n"
 
-            ensureLogFileExists()
+            ensureLogFileWritable()
 
-            guard let data = line.data(using: .utf8),
-                  let handle = FileHandle(forWritingAtPath: logPath) else {
-                return
+            guard let data = line.data(using: .utf8) else { return }
+
+            if let handle = FileHandle(forWritingAtPath: logPath) {
+                handle.seekToEndOfFile()
+                handle.write(data)
+                handle.closeFile()
+            } else {
+                NSLog("[AppLogger] FileHandle nil, fallback: %@", line.trimmingCharacters(in: .newlines))
             }
-
-            handle.seekToEndOfFile()
-            handle.write(data)
-            handle.closeFile()
         }
     }
 
-    private func ensureLogFileExists() {
-        if !FileManager.default.fileExists(atPath: logPath) {
-            FileManager.default.createFile(atPath: logPath, contents: nil)
-            try? FileManager.default.setAttributes([.posixPermissions: 0o666], ofItemAtPath: logPath)
+    private func ensureLogFileWritable() {
+        let fm = FileManager.default
+        if fm.fileExists(atPath: logPath) {
+            if !fm.isWritableFile(atPath: logPath) {
+                // Attempt chmod 666 — works only if current user owns the file
+                try? fm.setAttributes([.posixPermissions: 0o666], ofItemAtPath: logPath)
+            }
+        } else {
+            fm.createFile(atPath: logPath, contents: nil)
+            try? fm.setAttributes([.posixPermissions: 0o666], ofItemAtPath: logPath)
         }
     }
 

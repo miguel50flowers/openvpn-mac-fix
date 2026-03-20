@@ -35,6 +35,14 @@ if [ ! -d "$APP_PATH" ]; then
     exit 1
 fi
 
+# Verify app version matches VERSION file
+APP_VER=$(defaults read "$(cd "$(dirname "$APP_PATH")" && pwd)/$(basename "$APP_PATH")/Contents/Info" CFBundleShortVersionString)
+if [ "$APP_VER" != "$VERSION" ]; then
+    echo "Error: App version ($APP_VER) does not match VERSION file ($VERSION)"
+    echo "Run 'make clean app' or just 'make dmg' (which now invalidates the cache)"
+    exit 1
+fi
+
 # Clean previous build
 rm -rf "$DMG_DIR"
 rm -f "$DMG_OUTPUT"

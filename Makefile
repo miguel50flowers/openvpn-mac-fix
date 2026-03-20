@@ -50,6 +50,7 @@ pkg:
 
 app:
 	@echo "=== Building VPN Fix.app v$(VERSION) ==="
+	@rm -f "$(BUILD_DIR)/DerivedData/Build/Products/Release/VPN Fix.app/Contents/Info.plist"
 	xcodebuild build \
 		-project "$(XCODE_PROJECT)" \
 		-scheme VPNFix \
@@ -60,6 +61,11 @@ app:
 		ARCHS="arm64 x86_64" \
 		CODE_SIGN_IDENTITY="-" \
 		CODE_SIGN_STYLE=Manual
+	@BUILT_VER=$$(defaults read "$$(pwd)/$(BUILD_DIR)/DerivedData/Build/Products/Release/VPN Fix.app/Contents/Info" CFBundleShortVersionString); \
+	if [ "$$BUILT_VER" != "$(VERSION)" ]; then \
+		echo "ERROR: Built app version ($$BUILT_VER) does not match VERSION file ($(VERSION))"; \
+		exit 1; \
+	fi
 	@echo ""
 	@echo "=== Build complete ==="
 	@echo "App: $(BUILD_DIR)/DerivedData/Build/Products/Release/VPN Fix.app"

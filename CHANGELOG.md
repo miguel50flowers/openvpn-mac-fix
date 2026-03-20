@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+- Log Viewer still empty when helper daemon not running — AppLogger now checks writability and falls back to NSLog
+- Log file permissions now set to 666 in all creation paths (AppLogger, LogViewModel, HelperInstaller)
+- Phase 1 cleanup no longer deletes active log file
+- Added XPC method for app to request helper fix log permissions on startup
+- Local builds (make dmg) now always embed correct version without requiring make clean
+
 ## [2.0.11] - 2026-03-20
 
 ### Fixed

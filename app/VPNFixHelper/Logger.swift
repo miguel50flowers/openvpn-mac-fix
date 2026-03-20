@@ -41,14 +41,15 @@ final class HelperLogger {
             ensureLogFileExists()
             rotateIfNeeded()
 
-            guard let data = line.data(using: .utf8),
-                  let handle = FileHandle(forWritingAtPath: logPath) else {
-                return
-            }
+            guard let data = line.data(using: .utf8) else { return }
 
-            handle.seekToEndOfFile()
-            handle.write(data)
-            handle.closeFile()
+            if let handle = FileHandle(forWritingAtPath: logPath) {
+                handle.seekToEndOfFile()
+                handle.write(data)
+                handle.closeFile()
+            } else {
+                NSLog("[HelperLogger] FileHandle nil, fallback: %@", line.trimmingCharacters(in: .newlines))
+            }
         }
     }
 
