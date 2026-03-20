@@ -71,7 +71,20 @@ final class ScriptRunner {
 
         do {
             try process.run()
-            process.waitUntilExit()
+
+            // Wait with a 45-second timeout instead of blocking forever
+            let semaphore = DispatchSemaphore(value: 0)
+            process.terminationHandler = { _ in
+                semaphore.signal()
+            }
+            let result = semaphore.wait(timeout: .now() + 45)
+
+            if result == .timedOut {
+                HelperLogger.shared.error("[VPNFixHelper] Script timed out after 45 seconds, terminating")
+                process.terminate()
+                completion(false, "Script execution timed out after 45 seconds")
+                return
+            }
 
             let outData = stdout.fileHandleForReading.readDataToEndOfFile()
             let errData = stderr.fileHandleForReading.readDataToEndOfFile()

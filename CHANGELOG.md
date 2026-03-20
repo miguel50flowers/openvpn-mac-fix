@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- VPN not detected on app launch — app now runs local `netstat -rn` detection immediately, before the XPC helper is available
+- "Fix Now" getting permanently stuck in "Fixing..." state when XPC connection drops or script hangs
+- Added rapid startup retries (1s interval for 5 seconds) so XPC state resolves faster on launch
+- Added 30-second timeout on fix operations with user-visible error message
+- Added 45-second process-level timeout in ScriptRunner to terminate hung scripts
+
 ## [2.0.8] - 2026-03-19
 
 ### Added
