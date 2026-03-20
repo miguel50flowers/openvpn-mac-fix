@@ -6,6 +6,25 @@
         <language>en</language>
         <!-- APPCAST_ITEMS -->
         <item>
+            <title>Version 2.0.14</title>
+            <description><![CDATA[
+                <h3>Fixed</h3>
+<ul>
+<li>Fixed Clear Logs button permanently breaking log tailing (file watchers now restart after clear)</li>
+</ul>
+            ]]></description>
+            <pubDate>Fri, 20 Mar 2026 17:34:20 +0000</pubDate>
+            <sparkle:version>__BUILD_NUMBER__</sparkle:version>
+            <sparkle:shortVersionString>2.0.14</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <enclosure
+                url="https://github.com/miguel50flowers/openvpn-mac-fix/releases/download/v2.0.14/VPNFix-2.0.14.dmg"
+                type="application/octet-stream"
+                sparkle:edSignature="__ED_SIGNATURE__"
+                length="__DMG_LENGTH__"
+            />
+        </item>
+        <item>
             <title>Version 2.0.13</title>
             <description><![CDATA[
                 <h3>Fixed</h3>
