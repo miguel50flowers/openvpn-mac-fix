@@ -65,10 +65,14 @@ final class LogViewModel: ObservableObject {
 
     func clearLogs() {
         logLines.removeAll()
-        // Only clear the app log (user-writable); leave helper log alone
-        if FileManager.default.isWritableFile(atPath: appLogPath) {
-            try? "".write(toFile: appLogPath, atomically: true, encoding: .utf8)
+        // Truncate the app log (preserves inode, unlike atomically:true which replaces the file)
+        if let handle = FileHandle(forWritingAtPath: appLogPath) {
+            handle.truncateFile(atOffset: 0)
+            handle.closeFile()
         }
+        // Restart watchers to reset file descriptor positions
+        stopTailing()
+        watchForChanges()
     }
 
     // MARK: - Private

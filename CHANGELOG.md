@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+- Fixed Clear Logs button permanently breaking log tailing (file watchers now restart after clear)
+
 ## [2.0.13] - 2026-03-20
 
 ### Fixed
