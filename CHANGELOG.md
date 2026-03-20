@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [2.0.11] - 2026-03-20
+
 ### Fixed
 
 - Log Viewer showing no entries — app-side logger couldn't write to root-owned log file; helper now sets world-writable permissions
