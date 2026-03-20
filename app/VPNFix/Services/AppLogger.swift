@@ -49,6 +49,7 @@ final class AppLogger {
     private func ensureLogFileExists() {
         if !FileManager.default.fileExists(atPath: logPath) {
             FileManager.default.createFile(atPath: logPath, contents: nil)
+            try? FileManager.default.setAttributes([.posixPermissions: 0o666], ofItemAtPath: logPath)
         }
     }
 

@@ -56,6 +56,8 @@ final class HelperLogger {
         if !FileManager.default.fileExists(atPath: logPath) {
             FileManager.default.createFile(atPath: logPath, contents: nil)
         }
+        // Ensure app (non-root) can also write to this file
+        try? FileManager.default.setAttributes([.posixPermissions: 0o666], ofItemAtPath: logPath)
     }
 
     private func rotateIfNeeded() {
@@ -68,7 +70,9 @@ final class HelperLogger {
         let backupPath = logPath + ".old"
         try? FileManager.default.removeItem(atPath: backupPath)
         try? FileManager.default.moveItem(atPath: logPath, toPath: backupPath)
+        try? FileManager.default.setAttributes([.posixPermissions: 0o666], ofItemAtPath: backupPath)
         FileManager.default.createFile(atPath: logPath, contents: nil)
+        try? FileManager.default.setAttributes([.posixPermissions: 0o666], ofItemAtPath: logPath)
     }
 
     private static let dateFormatter: DateFormatter = {
