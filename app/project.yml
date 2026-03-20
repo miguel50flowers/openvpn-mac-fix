@@ -18,6 +18,13 @@ packages:
     url: https://github.com/sparkle-project/Sparkle
     from: 2.0.0
 
+schemes:
+  VPNFix:
+    build:
+      targets:
+        VPNFix: all
+        VPNFixHelper: all
+
 targets:
   VPNFix:
     type: application
@@ -68,8 +75,6 @@ targets:
         excludes:
           - "**/*.plist"
           - "**/*.entitlements"
-      - path: VPNFixHelper/Detectors
-      - path: VPNFixHelper/FixModules
       - path: Shared
     settings:
       base:
