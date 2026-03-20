@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.0.3] - 2026-03-20
+
 ### Fixed
 
 - Fix `ps -axo comm` pipe deadlock: read stdout asynchronously to prevent ~64KB buffer blocking `waitUntilExit()` (was causing 5s timeout every detection cycle)
