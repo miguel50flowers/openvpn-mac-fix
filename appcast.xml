@@ -6,6 +6,38 @@
         <language>en</language>
         <!-- APPCAST_ITEMS -->
         <item>
+            <title>Version 3.0.0</title>
+            <description><![CDATA[
+                <h3>Added</h3>
+<ul>
+<li>**Phase 3: Multi-VPN Support, Dashboard & Network Diagnostics**</li>
+<li>Dashboard window (800x600) with VPN client cards, network diagnostics, and Fix All/Scan toolbar (Cmd+D from menu bar)</li>
+<li>Detection engine with pluggable protocol-based detectors for 17 VPN clients:</li>
+<li>Consumer: OpenVPN, WireGuard, NordVPN, ExpressVPN, Surfshark, CyberGhost, Proton VPN, Mullvad, PIA, IPVanish, Windscribe, TunnelBear</li>
+<li>Enterprise: Cisco AnyConnect, GlobalProtect, Pulse Secure/Ivanti, Zscaler, FortiClient</li>
+<li>Per-client issue detection: stale routes, kill switch pf rules, DNS leaks, orphaned interfaces, stale proxies, daemon persistence</li>
+<li>Fix module engine with 8 specialized fix modules: Common, OpenVPN, WireGuard, KillSwitch, Proxy, AnyConnect, GlobalProtect, FortiClient</li>
+<li>Network diagnostics panel: DNS servers, default gateway, active interfaces, public IP, PF rules, proxy settings</li>
+<li>XPC protocol extensions: detectAllVPNClients, runFixForClient, runFixAll, getNetworkDiagnostics, vpnClientsChanged callback</li>
+<li>Menu bar aggregate status showing active VPN count and issue count with "Open Dashboard" button</li>
+<li>New preferences: scan interval (default 30s), auto-fix on detect, show dashboard on launch</li>
+<li>Multi-VPN notifications: issues detected per client, per-client fix applied, fix all completed</li>
+<li>VPN client cards with SF Symbol icons (no trademarked logos), status badges, and per-client Fix buttons</li>
+<li>Network status banner with color-coded health indicator (green=healthy, blue=VPN active, red=issues)</li>
+</ul>
+            ]]></description>
+            <pubDate>Fri, 20 Mar 2026 18:24:07 +0000</pubDate>
+            <sparkle:version>__BUILD_NUMBER__</sparkle:version>
+            <sparkle:shortVersionString>3.0.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <enclosure
+                url="https://github.com/miguel50flowers/openvpn-mac-fix/releases/download/v3.0.0/VPNFix-3.0.0.dmg"
+                type="application/octet-stream"
+                sparkle:edSignature="__ED_SIGNATURE__"
+                length="__DMG_LENGTH__"
+            />
+        </item>
+        <item>
             <title>Version 2.0.14</title>
             <description><![CDATA[
                 <h3>Fixed</h3>
