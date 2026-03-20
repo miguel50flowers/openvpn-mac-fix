@@ -16,14 +16,14 @@
 </ul>
             ]]></description>
             <pubDate>Fri, 20 Mar 2026 20:45:46 +0000</pubDate>
-            <sparkle:version>__BUILD_NUMBER__</sparkle:version>
+            <sparkle:version>79</sparkle:version>
             <sparkle:shortVersionString>3.0.4</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
             <enclosure
                 url="https://github.com/miguel50flowers/openvpn-mac-fix/releases/download/v3.0.4/VPNFix-3.0.4.dmg"
                 type="application/octet-stream"
-                sparkle:edSignature="__ED_SIGNATURE__"
-                length="__DMG_LENGTH__"
+                sparkle:edSignature="y9nD68x54dfneynov2994kSKPxvty2YbG3xFcAo5pms5x9SMK6V+b8hKAmYbKhqz0zNvyF2SnIhtaEkaYkMoCw=="
+                length="1390281"
             />
         </item>
         <item>
