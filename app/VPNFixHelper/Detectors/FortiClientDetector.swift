@@ -12,11 +12,8 @@ final class FortiClientDetector: VPNClientDetector {
         var issues: [VPNIssue] = []
 
         let routes = cache.routingTable
-        // FortiClient uses ppp0 or utun
-        let hasPPP = routes.contains("ppp0")
-        let hasUtun = cache.activeInterfaces.contains { $0.name.hasPrefix("utun") } &&
-                      routes.contains("utun")
-        let hasRoutes = hasPPP || hasUtun
+        // FortiClient SSLVPN uses ppp0 — generic utun interfaces belong to iCloud Private Relay, WireGuard, etc.
+        let hasRoutes = routes.contains("ppp0")
 
         // Check for DNS forwarder on 127.0.0.1:53
         let dns = cache.dnsServers
@@ -43,7 +40,7 @@ final class FortiClientDetector: VPNClientDetector {
         return VPNClientStatus(
             clientType: clientType, installed: installed, running: running,
             connectionState: state, detectedIssues: issues,
-            interfaceName: hasPPP ? "ppp0" : (hasUtun ? "utun" : nil),
+            interfaceName: hasRoutes ? "ppp0" : nil,
             processName: processName, appPath: appPath
         )
     }
