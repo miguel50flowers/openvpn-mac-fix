@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [2.0.13] - 2026-03-20
+
 ### Fixed
 - App updates now auto-reinstall helper daemon when version mismatch detected (triggers admin password prompt)
 - Log Viewer now reliably shows logs — app writes to ~/Library/Logs/VPNFix/ (no more /tmp permission issues)
