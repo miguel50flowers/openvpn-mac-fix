@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.0.5] - 2026-03-20
+
 ### Fixed
 
 - Fix FortiClient false-positive stale routes detection — removed generic `utun` interface check that flagged iCloud Private Relay and other non-FortiClient tunnels as stale FortiClient routes, causing the "Fix" button to loop endlessly; now only checks for `ppp0` (FortiClient SSLVPN-specific)
