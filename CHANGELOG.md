@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [2.0.9] - 2026-03-20
+
 ### Fixed
 
 - VPN not detected on app launch — app now runs local `netstat -rn` detection immediately, before the XPC helper is available
