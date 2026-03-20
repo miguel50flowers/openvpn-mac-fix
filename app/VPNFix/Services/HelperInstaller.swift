@@ -29,6 +29,7 @@ final class HelperInstaller {
 
     func checkStatus() -> Status {
         let binaryExists = FileManager.default.fileExists(atPath: installPath)
+        AppLogger.shared.debug("Helper binary at \(installPath): \(binaryExists ? "exists" : "missing")")
 
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/bin/launchctl")
@@ -46,6 +47,7 @@ final class HelperInstaller {
             daemonLoaded = false
         }
 
+        AppLogger.shared.debug("Helper daemon \(helperLabel): \(daemonLoaded ? "loaded" : "not loaded")")
         return Status(binaryInstalled: binaryExists, daemonLoaded: daemonLoaded)
     }
 
@@ -73,14 +75,17 @@ final class HelperInstaller {
         }
 
         // Write plist to temp file (no admin privileges needed for /tmp)
+        AppLogger.shared.debug("Generating LaunchDaemon plist...")
         let plistContent = generatePlist()
         do {
             try plistContent.write(toFile: tmpPlistPath, atomically: true, encoding: .utf8)
+            AppLogger.shared.debug("Temp plist written to \(tmpPlistPath)")
         } catch {
             AppLogger.shared.error("Failed to write temp plist: \(error)")
             return
         }
 
+        AppLogger.shared.debug("Preparing admin install command...")
         let commands = [
             "mkdir -p \"\(resourcesPath)\"",
             "cp \"\(helperSource)\" \"\(installPath)\"",
@@ -112,6 +117,7 @@ final class HelperInstaller {
             "rm -f \"\(plistPath)\""
         ]
 
+        AppLogger.shared.debug("Uninstall: removing binary, resources, and plist")
         let fullCommand = commands.joined(separator: " && ")
         runWithAdminPrivileges(fullCommand)
     }
@@ -131,14 +137,17 @@ final class HelperInstaller {
         }
 
         // Write plist to temp file (no admin privileges needed for /tmp)
+        AppLogger.shared.debug("Generating LaunchDaemon plist for reinstall...")
         let plistContent = generatePlist()
         do {
             try plistContent.write(toFile: tmpPlistPath, atomically: true, encoding: .utf8)
+            AppLogger.shared.debug("Temp plist written to \(tmpPlistPath)")
         } catch {
             AppLogger.shared.error("Failed to write temp plist: \(error)")
             return
         }
 
+        AppLogger.shared.debug("Preparing admin reinstall command...")
         let commands = [
             "launchctl bootout system/\(helperLabel) 2>/dev/null || true",
             "rm -f \"\(installPath)\"",
@@ -191,6 +200,7 @@ final class HelperInstaller {
     }
 
     private func runWithAdminPrivileges(_ command: String) {
+        AppLogger.shared.debug("Executing admin command: \(command.prefix(120))...")
         // Escape for AppleScript double-quoted string: \ → \\ then " → \"
         let escaped = command
             .replacingOccurrences(of: "\\", with: "\\\\")

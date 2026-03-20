@@ -18,27 +18,34 @@ final class SparkleUpdater {
             updaterDelegate: nil,
             userDriverDelegate: nil
         )
+        AppLogger.shared.debug("Sparkle updater controller initialized")
         applyCheckFrequency(AppPreferences.shared.updateCheckFrequency)
     }
 
     func applyCheckFrequency(_ frequency: String) {
-        AppLogger.shared.debug("Update check frequency: \(frequency)")
+        let humanReadable: String
         switch frequency {
         case "manual":
             controller.updater.automaticallyChecksForUpdates = false
+            humanReadable = "manual (auto-check disabled)"
         case "daily":
             controller.updater.automaticallyChecksForUpdates = true
             controller.updater.updateCheckInterval = 86400
+            humanReadable = "daily (every 24h)"
         case "weekly":
             controller.updater.automaticallyChecksForUpdates = true
             controller.updater.updateCheckInterval = 604800
+            humanReadable = "weekly (every 7d)"
         case "monthly":
             controller.updater.automaticallyChecksForUpdates = true
             controller.updater.updateCheckInterval = 2592000
+            humanReadable = "monthly (every 30d)"
         default: // "automatic"
             controller.updater.automaticallyChecksForUpdates = true
             controller.updater.updateCheckInterval = 86400
+            humanReadable = "automatic (every 24h)"
         }
+        AppLogger.shared.debug("Update check frequency set to: \(humanReadable)")
     }
 
     func checkForUpdates() {

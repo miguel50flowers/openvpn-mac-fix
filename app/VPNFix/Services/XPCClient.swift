@@ -15,6 +15,7 @@ final class XPCClient {
     // MARK: - Public API
 
     func getVPNState(reply: @escaping (String) -> Void) {
+        AppLogger.shared.debug("XPC: getVPNState requested")
         proxy { helper in
             helper.getVPNState(reply: reply)
         } errorHandler: {
@@ -23,6 +24,7 @@ final class XPCClient {
     }
 
     func runFix(reply: @escaping (Bool, String) -> Void) {
+        AppLogger.shared.debug("XPC: runFix requested")
         proxy { helper in
             helper.runFix(reply: reply)
         } errorHandler: {
@@ -31,6 +33,7 @@ final class XPCClient {
     }
 
     func installWatcher(reply: @escaping (Bool, String) -> Void) {
+        AppLogger.shared.debug("XPC: installWatcher requested")
         proxy { helper in
             helper.installWatcher(reply: reply)
         } errorHandler: {
@@ -39,6 +42,7 @@ final class XPCClient {
     }
 
     func uninstallWatcher(reply: @escaping (Bool, String) -> Void) {
+        AppLogger.shared.debug("XPC: uninstallWatcher requested")
         proxy { helper in
             helper.uninstallWatcher(reply: reply)
         } errorHandler: {
@@ -47,6 +51,7 @@ final class XPCClient {
     }
 
     func getVersion(reply: @escaping (String) -> Void) {
+        AppLogger.shared.debug("XPC: getVersion requested")
         proxy { helper in
             helper.getVersion(reply: reply)
         } errorHandler: {
@@ -55,6 +60,7 @@ final class XPCClient {
     }
 
     func removePhase1Artifacts(reply: @escaping (Bool, String) -> Void) {
+        AppLogger.shared.debug("XPC: removePhase1Artifacts requested")
         proxy { helper in
             helper.removePhase1Artifacts(reply: reply)
         } errorHandler: {
@@ -69,11 +75,12 @@ final class XPCClient {
             guard let self else { return }
             let conn = self.getOrCreateConnection()
             let proxy = conn.remoteObjectProxyWithErrorHandler { error in
-                AppLogger.shared.error("XPC error: \(error.localizedDescription)")
+                AppLogger.shared.error("XPC proxy error: \(error.localizedDescription)")
                 self.onConnectionStateChanged?(false)
                 errorHandler()
             }
             guard let helper = proxy as? VPNHelperProtocol else {
+                AppLogger.shared.error("XPC: failed to obtain helper proxy")
                 errorHandler()
                 return
             }
@@ -83,9 +90,11 @@ final class XPCClient {
 
     private func getOrCreateConnection() -> NSXPCConnection {
         if let existing = connection {
+            AppLogger.shared.debug("XPC: reusing existing connection")
             return existing
         }
 
+        AppLogger.shared.debug("XPC: creating new connection to \(XPCConstants.machServiceName)")
         let conn = NSXPCConnection(machServiceName: XPCConstants.machServiceName, options: .privileged)
         conn.remoteObjectInterface = NSXPCInterface(with: VPNHelperProtocol.self)
 
@@ -106,6 +115,7 @@ final class XPCClient {
 
         conn.resume()
         connection = conn
+        AppLogger.shared.debug("XPC: connection created and resumed")
         onConnectionStateChanged?(true)
         return conn
     }
@@ -121,6 +131,7 @@ private final class XPCAppHandler: NSObject, VPNAppProtocol {
     }
 
     func stateChanged(_ state: String) {
+        AppLogger.shared.debug("XPC: received state push from helper: \(state)")
         client?.onStateChanged?(state)
     }
 

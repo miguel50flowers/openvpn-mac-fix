@@ -40,6 +40,7 @@ final class FileWatcher {
             return
         }
 
+        HelperLogger.shared.debug("[VPNFixHelper] Opened file descriptor \(fd) for \(path)")
         let source = DispatchSource.makeFileSystemObjectSource(
             fileDescriptor: fd,
             eventMask: [.write, .delete, .rename, .attrib],
@@ -49,6 +50,13 @@ final class FileWatcher {
         source.setEventHandler { [weak self] in
             guard let self else { return }
             let flags = source.data
+
+            var flagNames: [String] = []
+            if flags.contains(.write) { flagNames.append("write") }
+            if flags.contains(.delete) { flagNames.append("delete") }
+            if flags.contains(.rename) { flagNames.append("rename") }
+            if flags.contains(.attrib) { flagNames.append("attrib") }
+            HelperLogger.shared.debug("[VPNFixHelper] File event on \(path): [\(flagNames.joined(separator: ", "))]")
 
             if flags.contains(.delete) || flags.contains(.rename) {
                 // File was replaced — re-create the watcher
@@ -74,10 +82,12 @@ final class FileWatcher {
     }
 
     private func scheduleRetry(for path: String) {
+        HelperLogger.shared.debug("[VPNFixHelper] Scheduling retry for \(path) (every 5s)")
         let timer = DispatchSource.makeTimerSource(queue: queue)
         timer.schedule(deadline: .now() + 5.0, repeating: 5.0)
         timer.setEventHandler { [weak self] in
             if FileManager.default.fileExists(atPath: path) {
+                HelperLogger.shared.debug("[VPNFixHelper] Retry succeeded: \(path) now exists")
                 self?.retryTimer?.cancel()
                 self?.retryTimer = nil
                 self?.watchFile(at: path)

@@ -7,6 +7,7 @@ final class ScriptRunner {
 
     /// Runs the fix-vpn-disconnect.sh script.
     func runFixScript(completion: @escaping (Bool, String) -> Void) {
+        HelperLogger.shared.debug("[VPNFixHelper] runFixScript requested")
         queue.async {
             guard let scriptPath = self.findScript(named: "fix-vpn-disconnect.sh") else {
                 completion(false, "Script not found")
@@ -19,6 +20,7 @@ final class ScriptRunner {
 
     /// Runs the vpn-monitor.sh script.
     func runMonitorScript(completion: @escaping (Bool, String) -> Void) {
+        HelperLogger.shared.debug("[VPNFixHelper] runMonitorScript requested")
         queue.async {
             guard let scriptPath = self.findScript(named: "vpn-monitor.sh") else {
                 completion(false, "Script not found")
@@ -36,6 +38,7 @@ final class ScriptRunner {
         // Try installed resources path first
         let installedPath = "\(installedResourcesPath)/\(name)"
         if FileManager.default.fileExists(atPath: installedPath) {
+            HelperLogger.shared.debug("[VPNFixHelper] Script found at installed path: \(installedPath)")
             return installedPath
         }
 
@@ -47,6 +50,7 @@ final class ScriptRunner {
         let scriptURL = contentsURL.appendingPathComponent("Resources/\(name)")
 
         if FileManager.default.fileExists(atPath: scriptURL.path) {
+            HelperLogger.shared.debug("[VPNFixHelper] Script found at bundle path: \(scriptURL.path)")
             return scriptURL.path
         }
 
@@ -55,13 +59,16 @@ final class ScriptRunner {
     }
 
     private func execute(script: String, completion: @escaping (Bool, String) -> Void) {
+        HelperLogger.shared.debug("[VPNFixHelper] Executing script: \(script)")
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/bin/bash")
         process.arguments = [script]
 
         // Pass environment variables
         var env = ProcessInfo.processInfo.environment
-        env["VPN_MONITOR_LOG_LEVEL"] = UserDefaults.standard.string(forKey: "logLevel") ?? "INFO"
+        let logLevel = UserDefaults.standard.string(forKey: "logLevel") ?? "INFO"
+        env["VPN_MONITOR_LOG_LEVEL"] = logLevel
+        HelperLogger.shared.debug("[VPNFixHelper] Script environment: VPN_MONITOR_LOG_LEVEL=\(logLevel)")
         process.environment = env
 
         let stdout = Pipe()
@@ -93,7 +100,10 @@ final class ScriptRunner {
 
             let success = process.terminationStatus == 0
 
-            if !success {
+            if success {
+                let truncated = output.count > 200 ? String(output.prefix(200)) + "..." : output
+                HelperLogger.shared.debug("[VPNFixHelper] Script completed (exit 0): \(truncated)")
+            } else {
                 HelperLogger.shared.error("[VPNFixHelper] Script failed (exit \(process.terminationStatus)): \(errorOutput)")
             }
 

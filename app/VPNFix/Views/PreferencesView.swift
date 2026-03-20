@@ -1,5 +1,4 @@
 import SwiftUI
-import ServiceManagement
 
 struct PreferencesView: View {
     @ObservedObject private var prefs = AppPreferences.shared
@@ -32,6 +31,7 @@ struct PreferencesView: View {
         .frame(width: 450, height: 320)
         .onAppear {
             updateHelperStatus()
+            syncLaunchAtLoginToggle()
         }
     }
 
@@ -158,18 +158,63 @@ struct PreferencesView: View {
 
     // MARK: - Actions
 
+    private static let launchAgentLabel = "com.miguel50flowers.VPNFix"
+
+    private static var launchAgentPath: String {
+        NSHomeDirectory() + "/Library/LaunchAgents/\(launchAgentLabel).plist"
+    }
+
     private func setLaunchAtLogin(_ enabled: Bool) {
-        if #available(macOS 13.0, *) {
-            let service = SMAppService.loginItem(identifier: XPCConstants.appBundleID)
+        let plistPath = Self.launchAgentPath
+
+        if enabled {
+            let appPath = Bundle.main.bundlePath
+
+            let plistContent = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+            <plist version="1.0">
+            <dict>
+                <key>Label</key>
+                <string>\(Self.launchAgentLabel)</string>
+                <key>ProgramArguments</key>
+                <array>
+                    <string>/usr/bin/open</string>
+                    <string>-a</string>
+                    <string>\(appPath)</string>
+                </array>
+                <key>RunAtLoad</key>
+                <true/>
+            </dict>
+            </plist>
+            """
+
             do {
-                if enabled {
-                    try service.register()
-                } else {
-                    try service.unregister()
-                }
+                let dirPath = (plistPath as NSString).deletingLastPathComponent
+                try FileManager.default.createDirectory(atPath: dirPath, withIntermediateDirectories: true)
+                try plistContent.write(toFile: plistPath, atomically: true, encoding: .utf8)
+                // Set permissions to 644
+                try FileManager.default.setAttributes([.posixPermissions: 0o644], ofItemAtPath: plistPath)
+                AppLogger.shared.info("Launch at login enabled — wrote \(plistPath)")
             } catch {
-                AppLogger.shared.error("Failed to \(enabled ? "enable" : "disable") launch at login: \(error)")
+                AppLogger.shared.error("Failed to enable launch at login: \(error)")
             }
+        } else {
+            do {
+                if FileManager.default.fileExists(atPath: plistPath) {
+                    try FileManager.default.removeItem(atPath: plistPath)
+                }
+                AppLogger.shared.info("Launch at login disabled — removed \(plistPath)")
+            } catch {
+                AppLogger.shared.error("Failed to disable launch at login: \(error)")
+            }
+        }
+    }
+
+    private func syncLaunchAtLoginToggle() {
+        let exists = FileManager.default.fileExists(atPath: Self.launchAgentPath)
+        if prefs.launchAtLogin != exists {
+            prefs.launchAtLogin = exists
         }
     }
 

@@ -64,7 +64,9 @@ final class HelperTool: NSObject, VPNHelperProtocol {
     }
 
     func getVPNState(reply: @escaping (String) -> Void) {
+        HelperLogger.shared.debug("[VPNFixHelper] getVPNState requested")
         let state = vpnDetector.currentState()
+        HelperLogger.shared.debug("[VPNFixHelper] getVPNState result: \(state.rawValue)")
         reply(state.rawValue)
     }
 
@@ -79,7 +81,9 @@ final class HelperTool: NSObject, VPNHelperProtocol {
     }
 
     func installWatcher(reply: @escaping (Bool, String) -> Void) {
+        HelperLogger.shared.debug("[VPNFixHelper] installWatcher requested")
         if fileWatcher != nil {
+            HelperLogger.shared.debug("[VPNFixHelper] Watcher already active, skipping")
             reply(true, "Watcher already active")
             return
         }
@@ -93,6 +97,7 @@ final class HelperTool: NSObject, VPNHelperProtocol {
     }
 
     func uninstallWatcher(reply: @escaping (Bool, String) -> Void) {
+        HelperLogger.shared.debug("[VPNFixHelper] uninstallWatcher requested")
         fileWatcher?.stop()
         fileWatcher = nil
         reply(true, "Watcher removed")
@@ -100,10 +105,12 @@ final class HelperTool: NSObject, VPNHelperProtocol {
     }
 
     func getVersion(reply: @escaping (String) -> Void) {
+        HelperLogger.shared.debug("[VPNFixHelper] getVersion requested")
         // Try installed resources path first, then bundle-relative
         let installedVersionPath = "/Library/PrivilegedHelperTools/VPNFixResources/VERSION"
 
         if let version = try? String(contentsOfFile: installedVersionPath, encoding: .utf8).trimmingCharacters(in: .whitespacesAndNewlines) {
+            HelperLogger.shared.debug("[VPNFixHelper] Version from installed path: \(version)")
             reply(version)
             return
         }
@@ -116,14 +123,16 @@ final class HelperTool: NSObject, VPNHelperProtocol {
         let versionURL = contentsURL.appendingPathComponent("Resources/VERSION")
 
         if let version = try? String(contentsOf: versionURL, encoding: .utf8).trimmingCharacters(in: .whitespacesAndNewlines) {
+            HelperLogger.shared.debug("[VPNFixHelper] Version from bundle path: \(version)")
             reply(version)
         } else {
+            HelperLogger.shared.warn("[VPNFixHelper] VERSION file not found at installed or bundle path")
             reply("Unknown")
         }
     }
 
     func removePhase1Artifacts(reply: @escaping (Bool, String) -> Void) {
-        HelperLogger.shared.info("[VPNFixHelper] Removing Phase 1 artifacts...")
+        HelperLogger.shared.info("[VPNFixHelper] removePhase1Artifacts requested")
         var removed: [String] = []
         var errors: [String] = []
 
@@ -132,6 +141,7 @@ final class HelperTool: NSObject, VPNHelperProtocol {
         // Unload and remove old LaunchDaemon
         let plistPath = "/Library/LaunchDaemons/com.vpnmonitor.plist"
         if fm.fileExists(atPath: plistPath) {
+            HelperLogger.shared.debug("[VPNFixHelper] Found Phase 1 plist: \(plistPath)")
             let unload = Process()
             unload.executableURL = URL(fileURLWithPath: "/bin/launchctl")
             unload.arguments = ["unload", plistPath]
@@ -141,7 +151,9 @@ final class HelperTool: NSObject, VPNHelperProtocol {
             do {
                 try fm.removeItem(atPath: plistPath)
                 removed.append(plistPath)
+                HelperLogger.shared.debug("[VPNFixHelper] Removed: \(plistPath)")
             } catch {
+                HelperLogger.shared.error("[VPNFixHelper] Failed to remove \(plistPath): \(error.localizedDescription)")
                 errors.append("Failed to remove \(plistPath): \(error.localizedDescription)")
             }
         }
@@ -153,10 +165,13 @@ final class HelperTool: NSObject, VPNHelperProtocol {
             for script in ["vpn-monitor.sh", "fix-vpn-disconnect.sh"] {
                 let scriptPath = "\(homePath)/\(script)"
                 if fm.fileExists(atPath: scriptPath) {
+                    HelperLogger.shared.debug("[VPNFixHelper] Found Phase 1 script: \(scriptPath)")
                     do {
                         try fm.removeItem(atPath: scriptPath)
                         removed.append(scriptPath)
+                        HelperLogger.shared.debug("[VPNFixHelper] Removed: \(scriptPath)")
                     } catch {
+                        HelperLogger.shared.error("[VPNFixHelper] Failed to remove \(scriptPath): \(error.localizedDescription)")
                         errors.append("Failed to remove \(scriptPath): \(error.localizedDescription)")
                     }
                 }
@@ -166,14 +181,17 @@ final class HelperTool: NSObject, VPNHelperProtocol {
         // Clean up temp files
         for tmp in ["/tmp/vpn-was-connected", "/tmp/vpn-monitor.log"] {
             if fm.fileExists(atPath: tmp) {
+                HelperLogger.shared.debug("[VPNFixHelper] Cleaning temp file: \(tmp)")
                 try? fm.removeItem(atPath: tmp)
                 removed.append(tmp)
             }
         }
 
         if errors.isEmpty {
+            HelperLogger.shared.info("[VPNFixHelper] Phase 1 removal complete: \(removed.count) files removed")
             reply(true, "Removed: \(removed.joined(separator: ", "))")
         } else {
+            HelperLogger.shared.error("[VPNFixHelper] Phase 1 removal had errors: \(errors.joined(separator: "; "))")
             reply(false, "Errors: \(errors.joined(separator: "; "))")
         }
     }
@@ -198,12 +216,15 @@ final class HelperTool: NSObject, VPNHelperProtocol {
                     HelperLogger.shared.info("[VPNFixHelper] Auto-fix result: success=\(success), output=\(output)")
                     self.notifyAppOfStateChange()
                 }
+            } else {
+                HelperLogger.shared.debug("[VPNFixHelper] State transition \(previousState.rawValue) → \(newState.rawValue), no fix needed")
             }
         }
     }
 
     private func notifyAppOfStateChange() {
         let state = vpnDetector.currentState()
+        HelperLogger.shared.debug("[VPNFixHelper] Pushing state to app: \(state.rawValue)")
         let proxy = connection.remoteObjectProxy as? VPNAppProtocol
         proxy?.stateChanged(state.rawValue)
     }

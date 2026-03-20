@@ -5,7 +5,10 @@ import Foundation
 final class VPNDetector {
     /// Returns the current VPN state by checking the routing table.
     func currentState() -> VPNState {
-        return isOpenVPNConnected() ? .connected : .disconnected
+        HelperLogger.shared.debug("[VPNFixHelper] VPN state detection requested")
+        let result = isOpenVPNConnected() ? VPNState.connected : VPNState.disconnected
+        HelperLogger.shared.debug("[VPNFixHelper] VPN state result: \(result.rawValue)")
+        return result
     }
 
     /// Checks for OpenVPN's signature routes: 0/1 and 128.0/1 via utun.
@@ -27,10 +30,12 @@ final class VPNDetector {
             }
         }
 
+        HelperLogger.shared.debug("[VPNFixHelper] Route check: 0/1=\(has0slash1), 128.0/1=\(has128slash1)")
         return has0slash1 && has128slash1
     }
 
     private func runNetstat() -> String {
+        HelperLogger.shared.debug("[VPNFixHelper] Running netstat -rn...")
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/sbin/netstat")
         process.arguments = ["-rn"]
@@ -45,6 +50,7 @@ final class VPNDetector {
             let data = pipe.fileHandleForReading.readDataToEndOfFile()
             return String(data: data, encoding: .utf8) ?? ""
         } catch {
+            HelperLogger.shared.error("[VPNFixHelper] Failed to run netstat: \(error.localizedDescription)")
             return ""
         }
     }

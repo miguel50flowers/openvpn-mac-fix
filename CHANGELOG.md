@@ -6,6 +6,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- "Launch at Login" toggle now works with ad-hoc signed builds — replaced `SMAppService` (requires Apple Developer ID) with a user-level LaunchAgent plist (`~/Library/LaunchAgents/com.miguel50flowers.VPNFix.plist`)
+- Launch at Login toggle now syncs with actual plist state on Preferences open
+
+### Added
+
+- Comprehensive logging across all app and helper components for full transparency when Log Level "All" is selected
+  - App initialization: dock icon policy, notification permission, helper install check, Phase 1 migration scan
+  - VPNStatusViewModel: init/deinit lifecycle, polling setup, startup retries, local VPN route detection details
+  - XPCClient: all method calls (getVPNState, runFix, installWatcher, etc.), connection creation/reuse, state pushes from helper
+  - HelperInstaller: binary/daemon status checks, plist generation, admin command execution, install/uninstall/reinstall flow
+  - NotificationService: init, permission requests, skipped notifications (disabled in preferences), delivery confirmation
+  - SparkleUpdater: controller init, human-readable update check frequency
+  - HelperTool: state requests/results, version lookup paths, Phase 1 artifact removal details, state push to app, resolv.conf change handling
+  - ScriptRunner: script requests, path resolution (installed vs bundle), process execution, environment vars, completion with exit code
+  - VPNDetector: detection requests, netstat execution, route check results (0/1 and 128.0/1)
+  - FileWatcher: file descriptor opens, event flags (write/delete/rename/attrib), retry scheduling and success
+
 ## [2.0.9] - 2026-03-20
 
 ### Fixed

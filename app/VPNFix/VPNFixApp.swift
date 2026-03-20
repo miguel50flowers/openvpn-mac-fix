@@ -26,18 +26,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         AppLogger.shared.info("VPN Fix app launched")
-        if AppPreferences.shared.showDockIcon {
+        let showDock = AppPreferences.shared.showDockIcon
+        AppLogger.shared.debug("Dock icon policy: \(showDock ? "regular (visible)" : "accessory (hidden)")")
+        if showDock {
             NSApp.setActivationPolicy(.regular)
         }
+        AppLogger.shared.debug("Requesting notification permission...")
         notificationService.requestPermission()
+        AppLogger.shared.debug("Checking helper install status...")
         HelperInstaller.shared.installIfNeeded()
+        AppLogger.shared.debug("Checking for Phase 1 migration...")
         checkForPhase1Migration()
     }
 
     private func checkForPhase1Migration() {
         let prefs = AppPreferences.shared
-        guard !prefs.hasOfferedMigration else { return }
+        guard !prefs.hasOfferedMigration else {
+            AppLogger.shared.debug("Phase 1 migration already offered, skipping check")
+            return
+        }
 
+        AppLogger.shared.debug("Scanning for Phase 1 artifacts...")
         let phase1Artifacts = [
             "/Library/LaunchDaemons/com.vpnmonitor.plist",
             NSHomeDirectory() + "/vpn-monitor.sh",
@@ -46,10 +55,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         let existingArtifacts = phase1Artifacts.filter { FileManager.default.fileExists(atPath: $0) }
         guard !existingArtifacts.isEmpty else {
+            AppLogger.shared.debug("No Phase 1 artifacts found")
             prefs.hasOfferedMigration = true
             return
         }
 
+        AppLogger.shared.info("Phase 1 artifacts found: \(existingArtifacts.joined(separator: ", "))")
         DispatchQueue.main.async {
             let alert = NSAlert()
             alert.messageText = "Previous Installation Detected"
@@ -59,15 +70,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             alert.addButton(withTitle: "Remove")
             alert.addButton(withTitle: "Later")
 
+            AppLogger.shared.info("Showing Phase 1 migration dialog to user")
             let response = alert.runModal()
             if response == .alertFirstButtonReturn {
+                AppLogger.shared.info("User chose to remove Phase 1 artifacts")
                 self.removePhase1ArtifactsWithAdmin(existingArtifacts)
                 prefs.hasOfferedMigration = true
+            } else {
+                AppLogger.shared.info("User deferred Phase 1 artifact removal")
             }
         }
     }
 
     private func removePhase1ArtifactsWithAdmin(_ artifacts: [String]) {
+        AppLogger.shared.info("Starting Phase 1 artifact removal (\(artifacts.count) files)...")
         var commands: [String] = []
 
         for artifact in artifacts {
@@ -84,7 +100,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let escapedCommand = fullCommand.replacingOccurrences(of: "'", with: "'\\''")
         let script = "do shell script \"\(escapedCommand)\" with administrator privileges"
 
-        guard let appleScript = NSAppleScript(source: script) else { return }
+        guard let appleScript = NSAppleScript(source: script) else {
+            AppLogger.shared.error("Failed to create AppleScript for Phase 1 removal")
+            return
+        }
 
         var error: NSDictionary?
         appleScript.executeAndReturnError(&error)

@@ -20,6 +20,7 @@ final class VPNStatusViewModel: ObservableObject {
 
     init() {
         self.monitoringEnabled = AppPreferences.shared.monitoringEnabled
+        AppLogger.shared.debug("VPNStatusViewModel initialized (monitoring=\(monitoringEnabled))")
         setupXPCCallbacks()
         startPolling()
     }
@@ -27,6 +28,7 @@ final class VPNStatusViewModel: ObservableObject {
     deinit {
         pollTimer?.invalidate()
         startupTimer?.invalidate()
+        AppLogger.shared.debug("VPNStatusViewModel destroyed, timers invalidated")
     }
 
     // MARK: - Public
@@ -93,6 +95,7 @@ final class VPNStatusViewModel: ObservableObject {
     // MARK: - Private
 
     private func setupXPCCallbacks() {
+        AppLogger.shared.debug("Registering XPC state change callbacks")
         xpcClient.onStateChanged = { [weak self] stateString in
             DispatchQueue.main.async {
                 let newState = VPNState(rawValue: stateString) ?? .unknown
@@ -117,6 +120,7 @@ final class VPNStatusViewModel: ObservableObject {
         }
 
         xpcClient.onConnectionStateChanged = { [weak self] connected in
+            AppLogger.shared.debug("Helper connection state: \(connected ? "connected" : "disconnected")")
             DispatchQueue.main.async {
                 self?.helperConnected = connected
             }
@@ -124,22 +128,27 @@ final class VPNStatusViewModel: ObservableObject {
     }
 
     private func startPolling() {
+        AppLogger.shared.debug("Starting local VPN detection (pre-XPC)...")
         // Immediate local detection so we have state before XPC is ready
         performLocalVPNDetection()
 
         // Rapid startup retries: every 1s for 5 attempts via XPC
         startupRetryCount = 0
+        AppLogger.shared.debug("Starting rapid startup retries (1s interval, max 5)")
         startupTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] timer in
             guard let self = self else { timer.invalidate(); return }
             self.startupRetryCount += 1
+            AppLogger.shared.debug("Startup retry \(self.startupRetryCount)/5")
             self.refreshState()
             if self.startupRetryCount >= 5 {
+                AppLogger.shared.debug("Startup retries complete, switching to normal polling")
                 timer.invalidate()
                 self.startupTimer = nil
             }
         }
 
         // Normal 10-second polling as fallback to XPC push notifications
+        AppLogger.shared.debug("Poll timer started (10s interval)")
         pollTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { [weak self] _ in
             self?.refreshState()
         }
@@ -164,6 +173,7 @@ final class VPNStatusViewModel: ObservableObject {
 
     /// Checks the routing table for OpenVPN's signature routes (0/1 and 128.0/1 via utun).
     static func detectVPNViaNetstat() -> Bool {
+        AppLogger.shared.debug("Local VPN detection: running netstat -rn...")
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/sbin/netstat")
         process.arguments = ["-rn"]
@@ -193,8 +203,11 @@ final class VPNStatusViewModel: ObservableObject {
                 }
             }
 
-            return has0slash1 && has128slash1
+            let result = has0slash1 && has128slash1
+            AppLogger.shared.debug("Local VPN detection: 0/1=\(has0slash1), 128.0/1=\(has128slash1) → \(result ? "connected" : "disconnected")")
+            return result
         } catch {
+            AppLogger.shared.error("Local VPN detection failed: \(error.localizedDescription)")
             return false
         }
     }

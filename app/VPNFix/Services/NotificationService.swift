@@ -10,9 +10,11 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
     private override init() {
         super.init()
         center.delegate = self
+        AppLogger.shared.debug("NotificationService initialized")
     }
 
     func requestPermission() {
+        AppLogger.shared.debug("Requesting notification permission...")
         center.requestAuthorization(options: [.alert, .sound]) { granted, error in
             if let error {
                 AppLogger.shared.error("Notification permission error: \(error.localizedDescription)")
@@ -22,7 +24,10 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
     }
 
     func postVPNConnected() {
-        guard prefs.notifyOnConnect else { return }
+        guard prefs.notifyOnConnect else {
+            AppLogger.shared.debug("Skipping VPN Connected notification (disabled in preferences)")
+            return
+        }
         AppLogger.shared.info("Notification sent: VPN Connected")
         post(
             title: "VPN Connected",
@@ -32,7 +37,10 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
     }
 
     func postVPNDisconnected() {
-        guard prefs.notifyOnDisconnect else { return }
+        guard prefs.notifyOnDisconnect else {
+            AppLogger.shared.debug("Skipping VPN Disconnected notification (disabled in preferences)")
+            return
+        }
         AppLogger.shared.info("Notification sent: VPN Disconnected")
         post(
             title: "VPN Disconnected",
@@ -42,7 +50,10 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
     }
 
     func postFixApplied(message: String) {
-        guard prefs.notifyOnFix else { return }
+        guard prefs.notifyOnFix else {
+            AppLogger.shared.debug("Skipping VPN Fix Applied notification (disabled in preferences)")
+            return
+        }
         AppLogger.shared.info("Notification sent: VPN Fix Applied")
         post(
             title: "VPN Fix Applied",
@@ -86,7 +97,9 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
 
         center.add(request) { error in
             if let error {
-                AppLogger.shared.error("Failed to post notification: \(error.localizedDescription)")
+                AppLogger.shared.error("Failed to post notification '\(identifier)': \(error.localizedDescription)")
+            } else {
+                AppLogger.shared.debug("Notification '\(identifier)' delivered to notification center")
             }
         }
     }
