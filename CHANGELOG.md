@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [2.0.10] - 2026-03-20
+
 ### Fixed
 
 - "Launch at Login" toggle now works with ad-hoc signed builds — replaced `SMAppService` (requires Apple Developer ID) with a user-level LaunchAgent plist (`~/Library/LaunchAgents/com.miguel50flowers.VPNFix.plist`)
