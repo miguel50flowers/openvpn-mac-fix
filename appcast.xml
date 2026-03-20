@@ -6,6 +6,27 @@
         <language>en</language>
         <!-- APPCAST_ITEMS -->
         <item>
+            <title>Version 3.0.4</title>
+            <description><![CDATA[
+                <h3>Fixed</h3>
+<ul>
+<li>Dashboard not opening on app launch — SwiftUI creates Window scenes lazily; replaced single `DispatchQueue.main.async` with retry-based window lookup (up to 5s)</li>
+<li>Fix button showing no visible UI feedback — spinner now stays visible until post-fix rescan completes, then shows green "Fix applied" or red "Fix failed" banner (auto-clears after 5s)</li>
+<li>"Check for Updates" not working — v3.0.3 appcast.xml had unfilled CI placeholders; pulled CI-signed appcast with valid EdDSA signature</li>
+</ul>
+            ]]></description>
+            <pubDate>Fri, 20 Mar 2026 20:45:46 +0000</pubDate>
+            <sparkle:version>__BUILD_NUMBER__</sparkle:version>
+            <sparkle:shortVersionString>3.0.4</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <enclosure
+                url="https://github.com/miguel50flowers/openvpn-mac-fix/releases/download/v3.0.4/VPNFix-3.0.4.dmg"
+                type="application/octet-stream"
+                sparkle:edSignature="__ED_SIGNATURE__"
+                length="__DMG_LENGTH__"
+            />
+        </item>
+        <item>
             <title>Version 3.0.3</title>
             <description><![CDATA[
                 <h3>Fixed</h3>
