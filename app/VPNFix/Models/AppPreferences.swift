@@ -14,4 +14,9 @@ final class AppPreferences: ObservableObject {
     @AppStorage("hasOfferedMigration") var hasOfferedMigration: Bool = false
     @AppStorage("updateCheckFrequency") var updateCheckFrequency: String = "automatic"
     @AppStorage("showDockIcon") var showDockIcon: Bool = false
+
+    // Phase 3: Multi-VPN settings
+    @AppStorage("scanInterval") var scanInterval: Int = 30
+    @AppStorage("autoFixOnDetect") var autoFixOnDetect: Bool = false
+    @AppStorage("showDashboardOnLaunch") var showDashboardOnLaunch: Bool = false
 }

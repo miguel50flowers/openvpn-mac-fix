@@ -68,6 +68,8 @@ targets:
         excludes:
           - "**/*.plist"
           - "**/*.entitlements"
+      - path: VPNFixHelper/Detectors
+      - path: VPNFixHelper/FixModules
       - path: Shared
     settings:
       base:

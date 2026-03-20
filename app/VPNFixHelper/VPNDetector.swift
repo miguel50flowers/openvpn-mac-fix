@@ -1,57 +1,97 @@
 import Foundation
 
-/// Detects VPN connection state by checking for OpenVPN's characteristic routes.
-/// OpenVPN pushes routes 0/1 and 128.0/1 via a utun interface to override the default route.
+/// Multi-VPN coordinator — iterates all pluggable detectors and aggregates results.
+/// Backward compatible: `currentState()` still returns a single VPNState for the menu bar.
 final class VPNDetector {
-    /// Returns the current VPN state by checking the routing table.
+    private let detectors: [VPNClientDetector]
+    private let cache = DetectionCache()
+
+    init() {
+        self.detectors = [
+            OpenVPNDetector(),
+            WireGuardDetector(),
+            NordVPNDetector(),
+            ExpressVPNDetector(),
+            SurfsharkDetector(),
+            CyberGhostDetector(),
+            ProtonVPNDetector(),
+            MullvadDetector(),
+            PIADetector(),
+            IPVanishDetector(),
+            WindscribeDetector(),
+            TunnelBearDetector(),
+            CiscoAnyConnectDetector(),
+            GlobalProtectDetector(),
+            PulseSecureDetector(),
+            ZscalerDetector(),
+            FortiClientDetector(),
+        ]
+    }
+
+    /// Backward-compatible single state for the menu bar.
     func currentState() -> VPNState {
-        HelperLogger.shared.debug("[VPNFixHelper] VPN state detection requested")
-        let result = isOpenVPNConnected() ? VPNState.connected : VPNState.disconnected
-        HelperLogger.shared.debug("[VPNFixHelper] VPN state result: \(result.rawValue)")
+        HelperLogger.shared.debug("[VPNDetector] VPN state detection requested")
+        let statuses = detectAll()
+        let connected = statuses.filter { $0.running && $0.connectionState == .connected }
+        let withIssues = statuses.filter { $0.hasIssues }
+
+        let result: VPNState
+        if !connected.isEmpty {
+            result = .connected
+        } else if !withIssues.isEmpty {
+            result = .disconnected
+        } else {
+            result = .disconnected
+        }
+        HelperLogger.shared.debug("[VPNDetector] Aggregate state: \(result.rawValue) (connected=\(connected.count), issues=\(withIssues.count))")
         return result
     }
 
-    /// Checks for OpenVPN's signature routes: 0/1 and 128.0/1 via utun.
-    private func isOpenVPNConnected() -> Bool {
-        let output = runNetstat()
-        let lines = output.components(separatedBy: .newlines)
-
-        var has0slash1 = false
-        var has128slash1 = false
-
-        for line in lines {
-            if line.contains("utun") {
-                if line.hasPrefix("0/1") || line.contains(" 0/1 ") {
-                    has0slash1 = true
-                }
-                if line.hasPrefix("128.0/1") || line.contains(" 128.0/1 ") {
-                    has128slash1 = true
-                }
+    /// Detects all VPN clients. Returns only installed or running clients.
+    func detectAll() -> [VPNClientStatus] {
+        HelperLogger.shared.debug("[VPNDetector] Running detection for \(detectors.count) VPN clients...")
+        let allStatuses = detectors.map { detector -> VPNClientStatus in
+            let status = detector.detect(using: cache)
+            if status.installed || status.running {
+                HelperLogger.shared.debug("[VPNDetector] \(status.clientType.displayName): installed=\(status.installed), running=\(status.running), state=\(status.connectionState.rawValue), issues=\(status.issueCount)")
             }
+            return status
         }
-
-        HelperLogger.shared.debug("[VPNFixHelper] Route check: 0/1=\(has0slash1), 128.0/1=\(has128slash1)")
-        return has0slash1 && has128slash1
+        // Return only clients that are installed or running
+        return allStatuses.filter { $0.installed || $0.running }
     }
 
-    private func runNetstat() -> String {
-        HelperLogger.shared.debug("[VPNFixHelper] Running netstat -rn...")
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/sbin/netstat")
-        process.arguments = ["-rn"]
+    /// Computes the aggregate state for the menu bar.
+    func aggregateState() -> AggregateVPNState {
+        let statuses = detectAll()
+        let activeCount = statuses.filter { $0.connectionState == .connected }.count
+        let issueCount = statuses.reduce(0) { $0 + $1.issueCount }
 
-        let pipe = Pipe()
-        process.standardOutput = pipe
-        process.standardError = Pipe()
-
-        do {
-            try process.run()
-            process.waitUntilExit()
-            let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            return String(data: data, encoding: .utf8) ?? ""
-        } catch {
-            HelperLogger.shared.error("[VPNFixHelper] Failed to run netstat: \(error.localizedDescription)")
-            return ""
+        if issueCount > 0 {
+            return .issuesDetected(count: issueCount)
+        } else if activeCount > 0 {
+            return .vpnActive(count: activeCount)
+        } else {
+            return .allClear
         }
+    }
+
+    /// Collects network diagnostics snapshot.
+    func getNetworkDiagnostics() -> NetworkDiagnostics {
+        let routes = cache.routingTable
+        return NetworkDiagnostics(
+            dnsServers: cache.dnsServers,
+            defaultGateway: DetectionUtilities.getDefaultGateway(from: routes),
+            publicIP: nil, // Populated asynchronously by the app if needed
+            activeInterfaces: cache.activeInterfaces,
+            pfRulesActive: !cache.pfAnchors.isEmpty,
+            proxyConfigured: isProxyConfigured(cache.proxySettings),
+            timestamp: Date()
+        )
+    }
+
+    private func isProxyConfigured(_ settings: [String: String]) -> Bool {
+        let proxyKeys = ["HTTPEnable", "HTTPSEnable", "SOCKSEnable", "ProxyAutoConfigEnable"]
+        return proxyKeys.contains { settings[$0] == "1" }
     }
 }

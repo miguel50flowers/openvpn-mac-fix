@@ -7,18 +7,29 @@ struct MenuBarView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             // Status header
-            Label("VPN: \(viewModel.state.label)", systemImage: viewModel.state.sfSymbol)
+            Label(statusText, systemImage: viewModel.state.sfSymbol)
                 .font(.headline)
                 .padding(.horizontal, 8)
                 .padding(.top, 4)
 
             Divider()
 
-            // Fix Now button
+            // Open Dashboard
+            Button {
+                openWindow(id: "dashboard")
+                NSApp.activate(ignoringOtherApps: true)
+            } label: {
+                Label("Open Dashboard", systemImage: "rectangle.3.group")
+            }
+            .keyboardShortcut("d")
+
+            Divider()
+
+            // Fix button
             Button {
                 viewModel.runFix()
             } label: {
-                Label("Fix Now", systemImage: "wrench.and.screwdriver")
+                Label(fixButtonLabel, systemImage: "wrench.and.screwdriver")
             }
             .disabled(viewModel.state == .fixing)
             .keyboardShortcut("f")
@@ -67,7 +78,7 @@ struct MenuBarView: View {
 
             Divider()
 
-            // Helper status
+            // Helper status + issue count
             HStack {
                 Circle()
                     .fill(viewModel.helperConnected ? .green : .red)
@@ -75,6 +86,17 @@ struct MenuBarView: View {
                 Text(viewModel.helperConnected ? "Helper Active" : "Helper Offline")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+
+                Spacer()
+
+                if viewModel.clientsWithIssues > 0 {
+                    Text("\(viewModel.clientsWithIssues) issue\(viewModel.clientsWithIssues == 1 ? "" : "s")")
+                        .font(.caption2)
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(.orange, in: Capsule())
+                }
             }
             .padding(.horizontal, 8)
 
@@ -87,6 +109,20 @@ struct MenuBarView: View {
         }
         .frame(width: 240)
         .padding(.vertical, 4)
+    }
+
+    private var statusText: String {
+        if viewModel.detectedClientCount > 0 {
+            if viewModel.clientsWithIssues > 0 {
+                return "\(viewModel.clientsWithIssues) Issue\(viewModel.clientsWithIssues == 1 ? "" : "s") Detected"
+            }
+            return "\(viewModel.detectedClientCount) VPN\(viewModel.detectedClientCount == 1 ? "" : "s") Active"
+        }
+        return "VPN: \(viewModel.state.label)"
+    }
+
+    private var fixButtonLabel: String {
+        viewModel.clientsWithIssues > 1 ? "Fix All" : "Fix Now"
     }
 }
 

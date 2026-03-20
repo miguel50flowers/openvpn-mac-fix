@@ -5,6 +5,8 @@ final class VPNStatusViewModel: ObservableObject {
     @Published var state: VPNState = .unknown
     @Published var helperConnected: Bool = false
     @Published var lastFixMessage: String = ""
+    @Published var detectedClientCount: Int = 0
+    @Published var clientsWithIssues: Int = 0
     @Published var monitoringEnabled: Bool {
         didSet {
             AppPreferences.shared.monitoringEnabled = monitoringEnabled
@@ -151,6 +153,7 @@ final class VPNStatusViewModel: ObservableObject {
         AppLogger.shared.debug("Poll timer started (10s interval)")
         pollTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { [weak self] _ in
             self?.refreshState()
+            self?.refreshClientCounts()
         }
 
         // Initial XPC fetch
@@ -209,6 +212,17 @@ final class VPNStatusViewModel: ObservableObject {
         } catch {
             AppLogger.shared.error("Local VPN detection failed: \(error.localizedDescription)")
             return false
+        }
+    }
+
+    private func refreshClientCounts() {
+        xpcClient.detectAllVPNClients { [weak self] json in
+            guard let data = json.data(using: .utf8),
+                  let statuses = try? JSONDecoder().decode([VPNClientStatus].self, from: data) else { return }
+            DispatchQueue.main.async {
+                self?.detectedClientCount = statuses.filter { $0.connectionState == .connected }.count
+                self?.clientsWithIssues = statuses.reduce(0) { $0 + $1.issueCount }
+            }
         }
     }
 

@@ -19,6 +19,20 @@ import Foundation
 
     /// Removes Phase 1 installation artifacts (old daemon, scripts).
     func removePhase1Artifacts(reply: @escaping (Bool, String) -> Void)
+
+    // MARK: - Phase 3: Multi-VPN Support
+
+    /// Detects all installed/running VPN clients. Returns JSON-encoded [VPNClientStatus].
+    func detectAllVPNClients(reply: @escaping (String) -> Void)
+
+    /// Runs fix for a specific VPN client type. Returns (success, message).
+    func runFixForClient(_ clientType: String, reply: @escaping (Bool, String) -> Void)
+
+    /// Runs fix for all detected issues across all VPN clients. Returns (success, message).
+    func runFixAll(reply: @escaping (Bool, String) -> Void)
+
+    /// Returns JSON-encoded NetworkDiagnostics snapshot.
+    func getNetworkDiagnostics(reply: @escaping (String) -> Void)
 }
 
 /// Protocol for helper → app communication (state updates).
@@ -28,6 +42,9 @@ import Foundation
 
     /// Called when a fix operation completes.
     func fixCompleted(_ success: Bool, message: String)
+
+    /// Called when multi-VPN client statuses change. JSON-encoded [VPNClientStatus].
+    func vpnClientsChanged(_ statusesJSON: String)
 }
 
 /// Shared constants for XPC communication.

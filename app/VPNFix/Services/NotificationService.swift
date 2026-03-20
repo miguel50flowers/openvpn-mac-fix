@@ -62,6 +62,44 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
         )
     }
 
+    // MARK: - Phase 3: Multi-VPN Notifications
+
+    func postVPNIssuesDetected(client: String, issueCount: Int) {
+        guard prefs.notifyOnFix else { return }
+        AppLogger.shared.info("Notification sent: \(issueCount) issues detected for \(client)")
+        post(
+            title: "VPN Issues Detected",
+            body: "\(client): \(issueCount) issue\(issueCount == 1 ? "" : "s") found that may affect your network.",
+            identifier: "vpn-issues-\(client)"
+        )
+    }
+
+    func postFixApplied(client: String, message: String) {
+        guard prefs.notifyOnFix else { return }
+        AppLogger.shared.info("Notification sent: Fix applied for \(client)")
+        post(
+            title: "Fix Applied — \(client)",
+            body: message.isEmpty ? "Network issues resolved." : message,
+            identifier: "vpn-fix-\(client)"
+        )
+    }
+
+    func postFixAllCompleted(fixedCount: Int, failedCount: Int) {
+        guard prefs.notifyOnFix else { return }
+        let body: String
+        if failedCount == 0 {
+            body = "Successfully fixed \(fixedCount) VPN client\(fixedCount == 1 ? "" : "s")."
+        } else {
+            body = "Fixed \(fixedCount), failed \(failedCount) VPN client\(failedCount == 1 ? "" : "s")."
+        }
+        AppLogger.shared.info("Notification sent: Fix All completed (fixed=\(fixedCount), failed=\(failedCount))")
+        post(
+            title: "Fix All Completed",
+            body: body,
+            identifier: "vpn-fix-all"
+        )
+    }
+
     func postTestNotification() {
         AppLogger.shared.debug("Notification sent: Test")
         post(

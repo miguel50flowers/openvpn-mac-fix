@@ -6,6 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- **Phase 3: Multi-VPN Support, Dashboard & Network Diagnostics**
+- Dashboard window (800x600) with VPN client cards, network diagnostics, and Fix All/Scan toolbar (Cmd+D from menu bar)
+- Detection engine with pluggable protocol-based detectors for 17 VPN clients:
+  - Consumer: OpenVPN, WireGuard, NordVPN, ExpressVPN, Surfshark, CyberGhost, Proton VPN, Mullvad, PIA, IPVanish, Windscribe, TunnelBear
+  - Enterprise: Cisco AnyConnect, GlobalProtect, Pulse Secure/Ivanti, Zscaler, FortiClient
+- Per-client issue detection: stale routes, kill switch pf rules, DNS leaks, orphaned interfaces, stale proxies, daemon persistence
+- Fix module engine with 8 specialized fix modules: Common, OpenVPN, WireGuard, KillSwitch, Proxy, AnyConnect, GlobalProtect, FortiClient
+- Network diagnostics panel: DNS servers, default gateway, active interfaces, public IP, PF rules, proxy settings
+- XPC protocol extensions: detectAllVPNClients, runFixForClient, runFixAll, getNetworkDiagnostics, vpnClientsChanged callback
+- Menu bar aggregate status showing active VPN count and issue count with "Open Dashboard" button
+- New preferences: scan interval (default 30s), auto-fix on detect, show dashboard on launch
+- Multi-VPN notifications: issues detected per client, per-client fix applied, fix all completed
+- VPN client cards with SF Symbol icons (no trademarked logos), status badges, and per-client Fix buttons
+- Network status banner with color-coded health indicator (green=healthy, blue=VPN active, red=issues)
+
 ## [2.0.14] - 2026-03-20
 
 ### Fixed

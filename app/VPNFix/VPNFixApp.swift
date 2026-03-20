@@ -10,6 +10,11 @@ struct VPNFixApp: App {
             MenuBarView(viewModel: vpnStatus)
         }
 
+        Window("VPN Fix", id: "dashboard") {
+            DashboardView()
+        }
+        .defaultSize(width: 800, height: 600)
+
         Window("Log Viewer", id: "log-viewer") {
             LogViewerView()
         }

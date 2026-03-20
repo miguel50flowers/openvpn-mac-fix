@@ -6,6 +6,7 @@ final class XPCClient {
 
     var onStateChanged: ((String) -> Void)?
     var onConnectionStateChanged: ((Bool) -> Void)?
+    var onClientsChanged: ((String) -> Void)?
 
     private var connection: NSXPCConnection?
     private let queue = DispatchQueue(label: "com.vpnfix.xpc-client")
@@ -65,6 +66,44 @@ final class XPCClient {
             helper.removePhase1Artifacts(reply: reply)
         } errorHandler: {
             reply(false, "Helper connection failed")
+        }
+    }
+
+    // MARK: - Phase 3: Multi-VPN Support
+
+    func detectAllVPNClients(reply: @escaping (String) -> Void) {
+        AppLogger.shared.debug("XPC: detectAllVPNClients requested")
+        proxy { helper in
+            helper.detectAllVPNClients(reply: reply)
+        } errorHandler: {
+            reply("[]")
+        }
+    }
+
+    func runFixForClient(_ clientType: String, reply: @escaping (Bool, String) -> Void) {
+        AppLogger.shared.debug("XPC: runFixForClient requested for \(clientType)")
+        proxy { helper in
+            helper.runFixForClient(clientType, reply: reply)
+        } errorHandler: {
+            reply(false, "Helper connection failed")
+        }
+    }
+
+    func runFixAll(reply: @escaping (Bool, String) -> Void) {
+        AppLogger.shared.debug("XPC: runFixAll requested")
+        proxy { helper in
+            helper.runFixAll(reply: reply)
+        } errorHandler: {
+            reply(false, "Helper connection failed")
+        }
+    }
+
+    func getNetworkDiagnostics(reply: @escaping (String) -> Void) {
+        AppLogger.shared.debug("XPC: getNetworkDiagnostics requested")
+        proxy { helper in
+            helper.getNetworkDiagnostics(reply: reply)
+        } errorHandler: {
+            reply("{}")
         }
     }
 
@@ -137,5 +176,10 @@ private final class XPCAppHandler: NSObject, VPNAppProtocol {
 
     func fixCompleted(_ success: Bool, message: String) {
         AppLogger.shared.info("Fix completed: success=\(success), message=\(message)")
+    }
+
+    func vpnClientsChanged(_ statusesJSON: String) {
+        AppLogger.shared.debug("XPC: received clients push from helper")
+        client?.onClientsChanged?(statusesJSON)
     }
 }

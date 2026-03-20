@@ -56,6 +56,7 @@ final class HelperTool: NSObject, VPNHelperProtocol {
     private let connection: NSXPCConnection
     private let vpnDetector = VPNDetector()
     private let scriptRunner = ScriptRunner()
+    private let fixEngine = FixEngine()
     private var fileWatcher: FileWatcher?
 
     init(connection: NSXPCConnection) {
@@ -196,7 +197,85 @@ final class HelperTool: NSObject, VPNHelperProtocol {
         }
     }
 
+    // MARK: - Phase 3: Multi-VPN Support
+
+    func detectAllVPNClients(reply: @escaping (String) -> Void) {
+        HelperLogger.shared.debug("[VPNFixHelper] detectAllVPNClients requested")
+        let statuses = vpnDetector.detectAll()
+        do {
+            let data = try JSONEncoder().encode(statuses)
+            let json = String(data: data, encoding: .utf8) ?? "[]"
+            HelperLogger.shared.debug("[VPNFixHelper] Detected \(statuses.count) VPN clients")
+            reply(json)
+        } catch {
+            HelperLogger.shared.error("[VPNFixHelper] Failed to encode VPN statuses: \(error.localizedDescription)")
+            reply("[]")
+        }
+    }
+
+    func runFixForClient(_ clientType: String, reply: @escaping (Bool, String) -> Void) {
+        HelperLogger.shared.info("[VPNFixHelper] runFixForClient requested for: \(clientType)")
+        guard let type = VPNClientType(rawValue: clientType) else {
+            reply(false, "Unknown client type: \(clientType)")
+            return
+        }
+
+        // Detect current issues for this client
+        let statuses = vpnDetector.detectAll()
+        guard let status = statuses.first(where: { $0.clientType == type }) else {
+            reply(false, "Client \(type.displayName) not detected")
+            return
+        }
+
+        fixEngine.fixClient(type, issues: status.detectedIssues) { success, message in
+            HelperLogger.shared.info("[VPNFixHelper] Fix for \(type.displayName): success=\(success), \(message)")
+            self.notifyAppOfStateChange()
+            reply(success, message)
+        }
+    }
+
+    func runFixAll(reply: @escaping (Bool, String) -> Void) {
+        HelperLogger.shared.info("[VPNFixHelper] runFixAll requested")
+        let statuses = vpnDetector.detectAll()
+
+        fixEngine.fixAll(statuses: statuses) { success, message in
+            HelperLogger.shared.info("[VPNFixHelper] Fix all: success=\(success), \(message)")
+            // Also run the legacy script for comprehensive cleanup
+            self.scriptRunner.runFixScript { scriptSuccess, scriptOutput in
+                HelperLogger.shared.info("[VPNFixHelper] Legacy fix script: success=\(scriptSuccess)")
+                self.notifyAppOfStateChange()
+                self.notifyAppOfClientsChanged()
+                reply(success && scriptSuccess, message)
+            }
+        }
+    }
+
+    func getNetworkDiagnostics(reply: @escaping (String) -> Void) {
+        HelperLogger.shared.debug("[VPNFixHelper] getNetworkDiagnostics requested")
+        let diagnostics = vpnDetector.getNetworkDiagnostics()
+        do {
+            let data = try JSONEncoder().encode(diagnostics)
+            let json = String(data: data, encoding: .utf8) ?? "{}"
+            reply(json)
+        } catch {
+            HelperLogger.shared.error("[VPNFixHelper] Failed to encode diagnostics: \(error.localizedDescription)")
+            reply("{}")
+        }
+    }
+
     // MARK: - Private
+
+    private func notifyAppOfClientsChanged() {
+        let statuses = vpnDetector.detectAll()
+        do {
+            let data = try JSONEncoder().encode(statuses)
+            let json = String(data: data, encoding: .utf8) ?? "[]"
+            let proxy = connection.remoteObjectProxy as? VPNAppProtocol
+            proxy?.vpnClientsChanged(json)
+        } catch {
+            HelperLogger.shared.error("[VPNFixHelper] Failed to push client statuses: \(error.localizedDescription)")
+        }
+    }
 
     private func handleResolvConfChange() {
         let previousState = vpnDetector.currentState()
