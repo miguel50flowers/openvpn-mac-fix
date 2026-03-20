@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.0.4] - 2026-03-20
+
 ### Fixed
 
 - Dashboard not opening on app launch — SwiftUI creates Window scenes lazily; replaced single `DispatchQueue.main.async` with retry-based window lookup (up to 5s)
