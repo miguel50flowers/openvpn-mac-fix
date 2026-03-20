@@ -70,6 +70,7 @@
 		CCB296BEAC5AB4F3ABB29413 /* VPNIssue.swift in Sources */ = {isa = PBXBuildFile; fileRef = C44985F3FF697373C9336F3E /* VPNIssue.swift */; };
 		D46895BD95A57DAECCD5EA4F /* LogViewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A717F0F3C17400F70569F917 /* LogViewerView.swift */; };
 		D4886733DC05A2CDE41E01B5 /* VPNFixApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A7BD152FF47732F902E5DC3 /* VPNFixApp.swift */; };
+		D74654E16D9C9F2A03F1A955 /* SeverityBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA6A33559CE79EC7B5AD4367 /* SeverityBadge.swift */; };
 		DA366ED942ED983D9302F554 /* OpenVPNFixModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36698FF61207B7C60ED34225 /* OpenVPNFixModule.swift */; };
 		DC26DBC871ADE92A4D9B4A34 /* FileWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3DF386CA20735AB10DBE6C5 /* FileWatcher.swift */; };
 		DE30E19A2E8E0B6238C15119 /* DiagnosticRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642EF027145ACA6D0B47F14A /* DiagnosticRow.swift */; };
@@ -153,6 +154,7 @@
 		B3DF386CA20735AB10DBE6C5 /* FileWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileWatcher.swift; sourceTree = "<group>"; };
 		B768E31A635D4D21765C6CF0 /* HelperTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperTool.swift; sourceTree = "<group>"; };
 		B9AAABD751F98D01FC5645B7 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		BA6A33559CE79EC7B5AD4367 /* SeverityBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeverityBadge.swift; sourceTree = "<group>"; };
 		BA9CDAF8FE751D87358331FA /* PulseSecureDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PulseSecureDetector.swift; sourceTree = "<group>"; };
 		BE5CE7AB193CEB7CACBBCEAB /* ZscalerDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZscalerDetector.swift; sourceTree = "<group>"; };
 		C0684A32403AEFB78D23C342 /* VPNClientSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNClientSection.swift; sourceTree = "<group>"; };
@@ -322,6 +324,7 @@
 				642EF027145ACA6D0B47F14A /* DiagnosticRow.swift */,
 				508EE859AB35F5DF12B14ED1 /* NetworkDiagnosticsSection.swift */,
 				07AB0D659D365F7F38F0C3EF /* NetworkStatusBanner.swift */,
+				BA6A33559CE79EC7B5AD4367 /* SeverityBadge.swift */,
 				25DAA4AD0D7AE7C567FD0E7E /* VPNClientCard.swift */,
 				C0684A32403AEFB78D23C342 /* VPNClientSection.swift */,
 			);
@@ -480,6 +483,7 @@
 				BF78E01DF1A1B6E9670DCCFA /* NetworkStatusBanner.swift in Sources */,
 				A1DD8CB0B5B977DDB59C0FAC /* NotificationService.swift in Sources */,
 				A4492A8C49C578E2133D5D2C /* PreferencesView.swift in Sources */,
+				D74654E16D9C9F2A03F1A955 /* SeverityBadge.swift in Sources */,
 				1ECB06DACC392EA2AD36107A /* SparkleUpdater.swift in Sources */,
 				C0425E8A77B01841B7384AAE /* VPNClientCard.swift in Sources */,
 				6995AAF93065AC692EB886A2 /* VPNClientSection.swift in Sources */,

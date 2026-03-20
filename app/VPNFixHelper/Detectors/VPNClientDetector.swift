@@ -16,8 +16,8 @@ final class DetectionCache {
     let proxySettings: [String: String]
     let activeInterfaces: [NetworkInterface]
 
-    init() {
-        self.runningProcesses = DetectionUtilities.getRunningProcesses()
+    init(includeProcesses: Bool = true) {
+        self.runningProcesses = includeProcesses ? DetectionUtilities.getRunningProcesses() : []
         self.routingTable = DetectionUtilities.getRoutingTable()
         self.pfAnchors = DetectionUtilities.getPfAnchors()
         self.dnsServers = DetectionUtilities.getDNSServers()

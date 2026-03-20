@@ -22,6 +22,18 @@ struct VPNIssue: Codable, Sendable, Identifiable {
         case staleProxy
         case killSwitchActive
         case daemonPersistence
+
+        var fixDescription: String {
+            switch self {
+            case .staleRoutes: return "Remove leftover routes and flush DNS"
+            case .killSwitchActive: return "Remove firewall (pf) rules blocking traffic"
+            case .dnsLeak: return "Reset DNS configuration to defaults"
+            case .orphanedInterface: return "Clean up orphaned network interface"
+            case .staleProxy: return "Remove stale proxy settings"
+            case .stalePfRules: return "Remove leftover packet filter rules"
+            case .daemonPersistence: return "Background process running (informational)"
+            }
+        }
     }
 
     enum Severity: String, Codable, Sendable, Comparable {

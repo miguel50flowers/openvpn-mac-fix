@@ -42,6 +42,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         HelperInstaller.shared.installIfNeeded()
         AppLogger.shared.debug("Checking for Phase 1 migration...")
         checkForPhase1Migration()
+
+        if AppPreferences.shared.showDashboardOnLaunch {
+            DispatchQueue.main.async {
+                if let window = NSApp.windows.first(where: { $0.title == "VPN Fix" }) {
+                    window.makeKeyAndOrderFront(nil)
+                    NSApp.activate(ignoringOtherApps: true)
+                }
+            }
+        }
     }
 
     private func checkForPhase1Migration() {

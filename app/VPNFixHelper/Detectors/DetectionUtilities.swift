@@ -161,6 +161,16 @@ enum DetectionUtilities {
             return ""
         }
 
+        // Read pipe data async to avoid buffer deadlock — if output exceeds the ~64KB
+        // macOS pipe buffer, the process blocks on write and waitUntilExit() never returns.
+        var outputData = Data()
+        let readGroup = DispatchGroup()
+        readGroup.enter()
+        DispatchQueue.global().async {
+            outputData = pipe.fileHandleForReading.readDataToEndOfFile()
+            readGroup.leave()
+        }
+
         let semaphore = DispatchSemaphore(value: 0)
         DispatchQueue.global().async {
             process.waitUntilExit()
@@ -173,7 +183,7 @@ enum DetectionUtilities {
             return ""
         }
 
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        return String(data: data, encoding: .utf8) ?? ""
+        readGroup.wait()
+        return String(data: outputData, encoding: .utf8) ?? ""
     }
 }

@@ -8,6 +8,7 @@ final class DashboardViewModel: ObservableObject {
     @Published var isFixingAll: Bool = false
     @Published var fixingClients: Set<String> = [] // VPNClientType rawValues
     @Published var lastScanTime: Date?
+    @Published var showDismissed: Bool = false
 
     private let xpcClient = XPCClient.shared
     private var scanTimer: Timer?
@@ -117,8 +118,32 @@ final class DashboardViewModel: ObservableObject {
         }
     }
 
+    func dismissIssue(type: VPNIssue.IssueType, client: VPNClientType) {
+        AppPreferences.shared.dismissIssue(type: type.rawValue, client: client.rawValue)
+        objectWillChange.send()
+    }
+
+    func undismissAll() {
+        AppPreferences.shared.undismissAll()
+        objectWillChange.send()
+    }
+
+    func activeIssues(for client: VPNClientStatus) -> [VPNIssue] {
+        client.detectedIssues.filter { issue in
+            !AppPreferences.shared.isIssueDismissed(type: issue.type.rawValue, client: client.clientType.rawValue)
+        }
+    }
+
+    func dismissedIssueCount(for client: VPNClientStatus) -> Int {
+        client.detectedIssues.count - activeIssues(for: client).count
+    }
+
+    var hasDismissedIssues: Bool {
+        clients.contains { dismissedIssueCount(for: $0) > 0 }
+    }
+
     var totalIssueCount: Int {
-        clients.reduce(0) { $0 + $1.issueCount }
+        clients.reduce(0) { $0 + activeIssues(for: $1).count }
     }
 
     var activeVPNCount: Int {

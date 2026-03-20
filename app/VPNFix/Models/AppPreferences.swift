@@ -18,5 +18,36 @@ final class AppPreferences: ObservableObject {
     // Phase 3: Multi-VPN settings
     @AppStorage("scanInterval") var scanInterval: Int = 30
     @AppStorage("autoFixOnDetect") var autoFixOnDetect: Bool = false
-    @AppStorage("showDashboardOnLaunch") var showDashboardOnLaunch: Bool = false
+    @AppStorage("showDashboardOnLaunch") var showDashboardOnLaunch: Bool = true
+
+    // Dismissed issues (stored as JSON-encoded Set<String>)
+    @AppStorage("dismissedIssues") var dismissedIssuesData: String = "[]"
+
+    var dismissedIssues: Set<String> {
+        get {
+            guard let data = dismissedIssuesData.data(using: .utf8),
+                  let array = try? JSONDecoder().decode([String].self, from: data) else { return [] }
+            return Set(array)
+        }
+        set {
+            if let data = try? JSONEncoder().encode(Array(newValue)),
+               let string = String(data: data, encoding: .utf8) {
+                dismissedIssuesData = string
+            }
+        }
+    }
+
+    func dismissIssue(type: String, client: String) {
+        var current = dismissedIssues
+        current.insert("\(client):\(type)")
+        dismissedIssues = current
+    }
+
+    func undismissAll() {
+        dismissedIssues = []
+    }
+
+    func isIssueDismissed(type: String, client: String) -> Bool {
+        dismissedIssues.contains("\(client):\(type)")
+    }
 }

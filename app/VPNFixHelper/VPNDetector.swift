@@ -72,7 +72,7 @@ final class VPNDetector {
 
     /// Collects network diagnostics snapshot.
     func getNetworkDiagnostics() -> NetworkDiagnostics {
-        let cache = DetectionCache()
+        let cache = DetectionCache(includeProcesses: false)
         let routes = cache.routingTable
         return NetworkDiagnostics(
             dnsServers: cache.dnsServers,

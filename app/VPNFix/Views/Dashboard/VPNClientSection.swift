@@ -5,8 +5,26 @@ struct VPNClientSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Detected VPN Clients")
-                .font(.title3.weight(.semibold))
+            HStack {
+                Text("Detected VPN Clients")
+                    .font(.title3.weight(.semibold))
+
+                Spacer()
+
+                if viewModel.hasDismissedIssues {
+                    Toggle("Show dismissed", isOn: $viewModel.showDismissed)
+                        .toggleStyle(.switch)
+                        .controlSize(.small)
+                }
+
+                if viewModel.hasDismissedIssues && viewModel.showDismissed {
+                    Button("Undismiss All") {
+                        viewModel.undismissAll()
+                    }
+                    .controlSize(.small)
+                    .buttonStyle(.bordered)
+                }
+            }
 
             if viewModel.clients.isEmpty {
                 if viewModel.isScanning {
@@ -28,12 +46,24 @@ struct VPNClientSection: View {
                     .frame(maxWidth: .infinity, minHeight: 100)
                 }
             } else {
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 180), spacing: 12)], spacing: 12) {
+                VStack(spacing: 12) {
                     ForEach(viewModel.clients) { client in
+                        let active = viewModel.showDismissed
+                            ? client.detectedIssues
+                            : viewModel.activeIssues(for: client)
+                        let dismissed = viewModel.dismissedIssueCount(for: client)
+
                         VPNClientCard(
                             client: client,
+                            activeIssues: active,
+                            dismissedCount: dismissed,
                             isFixing: viewModel.fixingClients.contains(client.clientType.rawValue),
-                            onFix: { viewModel.fixClient(client.clientType) }
+                            showDismissed: viewModel.showDismissed,
+                            onFix: { viewModel.fixClient(client.clientType) },
+                            onFixIssue: { _ in viewModel.fixClient(client.clientType) },
+                            onDismiss: { issue in
+                                viewModel.dismissIssue(type: issue.type, client: client.clientType)
+                            }
                         )
                     }
                 }

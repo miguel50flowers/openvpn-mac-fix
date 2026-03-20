@@ -6,6 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix `ps -axo comm` pipe deadlock: read stdout asynchronously to prevent ~64KB buffer blocking `waitUntilExit()` (was causing 5s timeout every detection cycle)
+- Skip `ps` process scan in `getNetworkDiagnostics()` via `includeProcesses: false` — saves ~6s per call since diagnostics don't need process data
+
+### Changed
+
+- **Dashboard UI overhaul:**
+  - VPN client cards now show actual issue descriptions with severity badges (critical/high/medium/low) and per-issue fix descriptions
+  - Replaced grid layout with full-width list cards for better readability
+  - Added dismiss/undismiss support for individual issues (persisted in preferences)
+  - "Show dismissed" toggle and "Undismiss All" button when issues are hidden
+  - Network Diagnostics renamed to "System Network Status" with subtitle clarifying scope, wrapped in collapsible DisclosureGroup
+  - Fix button now shows what each fix will do (e.g., "Remove leftover routes and flush DNS")
+  - Dashboard opens automatically on app launch (default changed to true)
+  - Added reusable SeverityBadge component with color-coded pills
+
 ## [3.0.2] - 2026-03-20
 
 ### Fixed
