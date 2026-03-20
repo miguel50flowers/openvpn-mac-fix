@@ -153,7 +153,6 @@ final class VPNStatusViewModel: ObservableObject {
         AppLogger.shared.debug("Poll timer started (10s interval)")
         pollTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { [weak self] _ in
             self?.refreshState()
-            self?.refreshClientCounts()
         }
 
         // Initial XPC fetch

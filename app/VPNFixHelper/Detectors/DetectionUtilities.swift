@@ -14,6 +14,17 @@ enum DetectionUtilities {
         }
     }
 
+    static func getRunningProcesses() -> Set<String> {
+        let output = runCommand("/bin/ps", arguments: ["-axo", "comm"])
+        var names = Set<String>()
+        for line in output.components(separatedBy: .newlines) {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            let baseName = (trimmed as NSString).lastPathComponent
+            if !baseName.isEmpty { names.insert(baseName) }
+        }
+        return names
+    }
+
     static func isAppInstalled(at path: String) -> Bool {
         FileManager.default.fileExists(atPath: path)
     }
@@ -134,7 +145,7 @@ enum DetectionUtilities {
 
     // MARK: - Shell Runner
 
-    static func runCommand(_ path: String, arguments: [String]) -> String {
+    static func runCommand(_ path: String, arguments: [String], timeout: TimeInterval = 5) -> String {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: path)
         process.arguments = arguments
@@ -145,12 +156,24 @@ enum DetectionUtilities {
 
         do {
             try process.run()
-            process.waitUntilExit()
-            let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            return String(data: data, encoding: .utf8) ?? ""
         } catch {
             HelperLogger.shared.error("[DetectionUtilities] Failed to run \(path): \(error.localizedDescription)")
             return ""
         }
+
+        let semaphore = DispatchSemaphore(value: 0)
+        DispatchQueue.global().async {
+            process.waitUntilExit()
+            semaphore.signal()
+        }
+
+        if semaphore.wait(timeout: .now() + timeout) == .timedOut {
+            process.terminate()
+            HelperLogger.shared.error("[DetectionUtilities] Command timed out after \(Int(timeout))s: \(path)")
+            return ""
+        }
+
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        return String(data: data, encoding: .utf8) ?? ""
     }
 }

@@ -8,7 +8,7 @@ final class FortiClientDetector: VPNClientDetector {
 
     func detect(using cache: DetectionCache) -> VPNClientStatus {
         let installed = DetectionUtilities.isAppInstalled(at: appPath)
-        let running = DetectionUtilities.isProcessRunning(processName)
+        let running = cache.runningProcesses.contains(processName)
         var issues: [VPNIssue] = []
 
         let routes = cache.routingTable

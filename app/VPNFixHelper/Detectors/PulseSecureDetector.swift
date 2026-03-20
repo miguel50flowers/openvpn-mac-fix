@@ -10,7 +10,7 @@ final class PulseSecureDetector: VPNClientDetector {
         // Also check for Ivanti Secure Access (rebrand)
         let installed = DetectionUtilities.isAppInstalled(at: appPath) ||
                         DetectionUtilities.isAppInstalled(at: "/Applications/Ivanti Secure Access.app")
-        let running = DetectionUtilities.isProcessRunning(processName)
+        let running = cache.runningProcesses.contains(processName)
         var issues: [VPNIssue] = []
 
         let routes = cache.routingTable

@@ -7,14 +7,21 @@ protocol VPNClientDetector {
 }
 
 /// Cached system state shared across all detectors within a single detection cycle.
+/// Create a new instance for each detection cycle to ensure fresh data.
 final class DetectionCache {
-    private(set) lazy var routingTable: String = DetectionUtilities.getRoutingTable()
-    private(set) lazy var pfAnchors: [String] = DetectionUtilities.getPfAnchors()
-    private(set) lazy var dnsServers: [String] = DetectionUtilities.getDNSServers()
-    private(set) lazy var proxySettings: [String: String] = DetectionUtilities.getProxySettings()
-    private(set) lazy var activeInterfaces: [NetworkInterface] = DetectionUtilities.getActiveInterfaces()
+    let runningProcesses: Set<String>
+    let routingTable: String
+    let pfAnchors: [String]
+    let dnsServers: [String]
+    let proxySettings: [String: String]
+    let activeInterfaces: [NetworkInterface]
 
-    func reset() {
-        // Force re-evaluation on next access by creating a new cache
+    init() {
+        self.runningProcesses = DetectionUtilities.getRunningProcesses()
+        self.routingTable = DetectionUtilities.getRoutingTable()
+        self.pfAnchors = DetectionUtilities.getPfAnchors()
+        self.dnsServers = DetectionUtilities.getDNSServers()
+        self.proxySettings = DetectionUtilities.getProxySettings()
+        self.activeInterfaces = DetectionUtilities.getActiveInterfaces()
     }
 }

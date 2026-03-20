@@ -8,7 +8,7 @@ final class ZscalerDetector: VPNClientDetector {
 
     func detect(using cache: DetectionCache) -> VPNClientStatus {
         let installed = DetectionUtilities.isAppInstalled(at: appPath)
-        let running = DetectionUtilities.isProcessRunning(processName)
+        let running = cache.runningProcesses.contains(processName)
         var issues: [VPNIssue] = []
 
         // Zscaler uses localhost:9000 proxy model rather than routes

@@ -4,7 +4,6 @@ import Foundation
 /// Backward compatible: `currentState()` still returns a single VPNState for the menu bar.
 final class VPNDetector {
     private let detectors: [VPNClientDetector]
-    private let cache = DetectionCache()
 
     init() {
         self.detectors = [
@@ -28,27 +27,22 @@ final class VPNDetector {
         ]
     }
 
-    /// Backward-compatible single state for the menu bar.
+    /// Fast VPN state check for 10s menu bar polling — only reads `netstat -rn`.
     func currentState() -> VPNState {
-        HelperLogger.shared.debug("[VPNDetector] VPN state detection requested")
-        let statuses = detectAll()
-        let connected = statuses.filter { $0.running && $0.connectionState == .connected }
-        let withIssues = statuses.filter { $0.hasIssues }
-
-        let result: VPNState
-        if !connected.isEmpty {
-            result = .connected
-        } else if !withIssues.isEmpty {
-            result = .disconnected
-        } else {
-            result = .disconnected
+        let output = DetectionUtilities.runCommand("/usr/sbin/netstat", arguments: ["-rn"])
+        let lines = output.components(separatedBy: .newlines)
+        var has0slash1 = false
+        var has128slash1 = false
+        for line in lines where line.contains("utun") {
+            if line.hasPrefix("0/1") || line.contains(" 0/1 ") { has0slash1 = true }
+            if line.hasPrefix("128.0/1") || line.contains(" 128.0/1 ") { has128slash1 = true }
         }
-        HelperLogger.shared.debug("[VPNDetector] Aggregate state: \(result.rawValue) (connected=\(connected.count), issues=\(withIssues.count))")
-        return result
+        return (has0slash1 && has128slash1) ? .connected : .disconnected
     }
 
     /// Detects all VPN clients. Returns only installed or running clients.
     func detectAll() -> [VPNClientStatus] {
+        let cache = DetectionCache()
         HelperLogger.shared.debug("[VPNDetector] Running detection for \(detectors.count) VPN clients...")
         let allStatuses = detectors.map { detector -> VPNClientStatus in
             let status = detector.detect(using: cache)
@@ -78,6 +72,7 @@ final class VPNDetector {
 
     /// Collects network diagnostics snapshot.
     func getNetworkDiagnostics() -> NetworkDiagnostics {
+        let cache = DetectionCache()
         let routes = cache.routingTable
         return NetworkDiagnostics(
             dnsServers: cache.dnsServers,

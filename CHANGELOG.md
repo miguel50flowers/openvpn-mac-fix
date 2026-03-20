@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix Dashboard hang: restore fast `currentState()` using only `netstat -rn` for 10s menu bar polling (was running full 17-detector scan blocking XPC queue)
+- Add 5-second timeout to all shell commands (`runCommand`) to prevent XPC queue blocking from hung `pfctl`/`scutil` processes
+- Cache process list in `DetectionCache` — single `ps` invocation per detection cycle instead of 17 separate spawns
+- Replace broken `lazy var` cache with fresh `DetectionCache` instance per detection cycle to prevent stale data
+- Remove `detectAllVPNClients` from 10s poll timer (only runs on dashboard's 30s scan timer)
+
 ## [3.0.0] - 2026-03-20
 
 ### Added
