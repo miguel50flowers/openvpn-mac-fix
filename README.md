@@ -120,7 +120,7 @@ To receive alerts when the monitor detects connection/disconnection:
 sudo launchctl list | grep vpnmonitor
 
 # View monitor logs
-cat /tmp/vpn-monitor.log
+cat /var/log/VPNFix/vpn-monitor.log
 
 # Manually test the fix (requires sudo)
 sudo ~/fix-vpn-disconnect.sh
@@ -154,7 +154,7 @@ sudo launchctl load /Library/LaunchDaemons/com.vpnmonitor.plist
 
 ### Not receiving notifications
 - Verify that **Script Editor** has **Alerts** notification style in System Settings
-- Check the logs: `cat /tmp/vpn-monitor.log`
+- Check the logs: `cat /var/log/VPNFix/vpn-monitor.log`
 
 ### Internet still not working after the fix
 ```bash

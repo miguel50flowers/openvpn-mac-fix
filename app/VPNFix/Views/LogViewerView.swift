@@ -11,6 +11,7 @@ struct LogViewerView: View {
                 Text("\(viewModel.filteredLogLines.count) lines")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .accessibilityLabel("\(viewModel.filteredLogLines.count) log lines")
 
                 Spacer()
 
@@ -22,10 +23,12 @@ struct LogViewerView: View {
                     NSPasteboard.general.clearContents()
                     NSPasteboard.general.setString(allText, forType: .string)
                 }
+                .accessibilityHint("Copies all log lines to the clipboard")
 
                 Button("Clear Logs") {
                     viewModel.clearLogs()
                 }
+                .accessibilityHint("Removes all log entries from the viewer")
             }
             .padding(8)
 
@@ -93,6 +96,8 @@ struct LogLineView: View {
                 .font(.system(.body, design: .monospaced))
                 .textSelection(.enabled)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(line.level ?? "LOG"): \(line.message)")
     }
 
     private func colorForLevel(_ level: String) -> Color {

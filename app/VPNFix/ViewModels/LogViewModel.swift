@@ -10,6 +10,7 @@ struct LogLine: Identifiable {
 }
 
 /// Tails both the app log and helper log, merging entries by timestamp.
+@MainActor
 final class LogViewModel: ObservableObject {
     @Published var logLines: [LogLine] = []
 
@@ -38,7 +39,7 @@ final class LogViewModel: ObservableObject {
         return "\(home)/Library/Logs/VPNFix"
     }()
     private var appLogPath: String { "\(appLogDir)/vpn-monitor.log" }
-    private let helperLogPath = "/tmp/vpn-monitor.log"
+    private let helperLogPath = "/var/log/VPNFix/vpn-monitor.log"
 
     private var appFileHandle: FileHandle?
     private var helperFileHandle: FileHandle?

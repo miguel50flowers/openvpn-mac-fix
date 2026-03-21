@@ -4,13 +4,12 @@ import Foundation
 
 final class HelperToolDelegate: NSObject, NSXPCListenerDelegate {
     func listener(_ listener: NSXPCListener, shouldAcceptNewConnection newConnection: NSXPCConnection) -> Bool {
-        #if !DEBUG
-        // Verify the calling app's code signature
+        // Always verify the calling app's code signature, even in debug builds.
+        // A compromised or absent verification allows any process to control the root helper.
         guard verifyCallerSignature(connection: newConnection) else {
             HelperLogger.shared.info("[VPNFixHelper] Rejected connection: invalid code signature")
             return false
         }
-        #endif
 
         newConnection.exportedInterface = NSXPCInterface(with: VPNHelperProtocol.self)
         newConnection.exportedObject = HelperTool(connection: newConnection)
@@ -57,6 +56,8 @@ final class HelperTool: NSObject, VPNHelperProtocol {
     private let vpnDetector = VPNDetector()
     private let scriptRunner = ScriptRunner()
     private let fixEngine = FixEngine()
+    private let phase1Migrator = Phase1Migrator()
+    private lazy var stateNotifier = StateNotifier(connection: connection, vpnDetector: vpnDetector)
     private var fileWatcher: FileWatcher?
 
     init(connection: NSXPCConnection) {
@@ -76,7 +77,7 @@ final class HelperTool: NSObject, VPNHelperProtocol {
         scriptRunner.runFixScript { success, output in
             HelperLogger.shared.info("[VPNFixHelper] Fix completed: success=\(success)")
             // Notify the app of the new state
-            self.notifyAppOfStateChange()
+            self.stateNotifier.notifyStateChange()
             reply(success, output)
         }
     }
@@ -133,68 +134,7 @@ final class HelperTool: NSObject, VPNHelperProtocol {
     }
 
     func removePhase1Artifacts(reply: @escaping (Bool, String) -> Void) {
-        HelperLogger.shared.info("[VPNFixHelper] removePhase1Artifacts requested")
-        var removed: [String] = []
-        var errors: [String] = []
-
-        let fm = FileManager.default
-
-        // Unload and remove old LaunchDaemon
-        let plistPath = "/Library/LaunchDaemons/com.vpnmonitor.plist"
-        if fm.fileExists(atPath: plistPath) {
-            HelperLogger.shared.debug("[VPNFixHelper] Found Phase 1 plist: \(plistPath)")
-            let unload = Process()
-            unload.executableURL = URL(fileURLWithPath: "/bin/launchctl")
-            unload.arguments = ["unload", plistPath]
-            try? unload.run()
-            unload.waitUntilExit()
-
-            do {
-                try fm.removeItem(atPath: plistPath)
-                removed.append(plistPath)
-                HelperLogger.shared.debug("[VPNFixHelper] Removed: \(plistPath)")
-            } catch {
-                HelperLogger.shared.error("[VPNFixHelper] Failed to remove \(plistPath): \(error.localizedDescription)")
-                errors.append("Failed to remove \(plistPath): \(error.localizedDescription)")
-            }
-        }
-
-        // Remove old scripts from all user home directories
-        let userDirs = (try? fm.contentsOfDirectory(atPath: "/Users")) ?? []
-        for user in userDirs where !user.hasPrefix(".") {
-            let homePath = "/Users/\(user)"
-            for script in ["vpn-monitor.sh", "fix-vpn-disconnect.sh"] {
-                let scriptPath = "\(homePath)/\(script)"
-                if fm.fileExists(atPath: scriptPath) {
-                    HelperLogger.shared.debug("[VPNFixHelper] Found Phase 1 script: \(scriptPath)")
-                    do {
-                        try fm.removeItem(atPath: scriptPath)
-                        removed.append(scriptPath)
-                        HelperLogger.shared.debug("[VPNFixHelper] Removed: \(scriptPath)")
-                    } catch {
-                        HelperLogger.shared.error("[VPNFixHelper] Failed to remove \(scriptPath): \(error.localizedDescription)")
-                        errors.append("Failed to remove \(scriptPath): \(error.localizedDescription)")
-                    }
-                }
-            }
-        }
-
-        // Clean up temp files (keep vpn-monitor.log — it's an active Phase 2 file)
-        for tmp in ["/tmp/vpn-was-connected"] {
-            if fm.fileExists(atPath: tmp) {
-                HelperLogger.shared.debug("[VPNFixHelper] Cleaning temp file: \(tmp)")
-                try? fm.removeItem(atPath: tmp)
-                removed.append(tmp)
-            }
-        }
-
-        if errors.isEmpty {
-            HelperLogger.shared.info("[VPNFixHelper] Phase 1 removal complete: \(removed.count) files removed")
-            reply(true, "Removed: \(removed.joined(separator: ", "))")
-        } else {
-            HelperLogger.shared.error("[VPNFixHelper] Phase 1 removal had errors: \(errors.joined(separator: "; "))")
-            reply(false, "Errors: \(errors.joined(separator: "; "))")
-        }
+        phase1Migrator.removeArtifacts(reply: reply)
     }
 
     // MARK: - Phase 3: Multi-VPN Support
@@ -204,12 +144,16 @@ final class HelperTool: NSObject, VPNHelperProtocol {
         let statuses = vpnDetector.detectAll()
         do {
             let data = try JSONEncoder().encode(statuses)
-            let json = String(data: data, encoding: .utf8) ?? "[]"
+            guard let json = String(data: data, encoding: .utf8) else {
+                HelperLogger.shared.error("[VPNFixHelper] Failed to encode VPN statuses as UTF-8")
+                reply("{\"error\":\"UTF-8 encoding failed\"}")
+                return
+            }
             HelperLogger.shared.debug("[VPNFixHelper] Detected \(statuses.count) VPN clients")
             reply(json)
         } catch {
             HelperLogger.shared.error("[VPNFixHelper] Failed to encode VPN statuses: \(error.localizedDescription)")
-            reply("[]")
+            reply("{\"error\":\"\(error.localizedDescription)\"}")
         }
     }
 
@@ -229,7 +173,7 @@ final class HelperTool: NSObject, VPNHelperProtocol {
 
         fixEngine.fixClient(type, issues: status.detectedIssues) { success, message in
             HelperLogger.shared.info("[VPNFixHelper] Fix for \(type.displayName): success=\(success), \(message)")
-            self.notifyAppOfStateChange()
+            self.stateNotifier.notifyStateChange()
             reply(success, message)
         }
     }
@@ -243,8 +187,8 @@ final class HelperTool: NSObject, VPNHelperProtocol {
             // Also run the legacy script for comprehensive cleanup
             self.scriptRunner.runFixScript { scriptSuccess, scriptOutput in
                 HelperLogger.shared.info("[VPNFixHelper] Legacy fix script: success=\(scriptSuccess)")
-                self.notifyAppOfStateChange()
-                self.notifyAppOfClientsChanged()
+                self.stateNotifier.notifyStateChange()
+                self.stateNotifier.notifyClientsChanged()
                 reply(success && scriptSuccess, message)
             }
         }
@@ -255,27 +199,19 @@ final class HelperTool: NSObject, VPNHelperProtocol {
         let diagnostics = vpnDetector.getNetworkDiagnostics()
         do {
             let data = try JSONEncoder().encode(diagnostics)
-            let json = String(data: data, encoding: .utf8) ?? "{}"
+            guard let json = String(data: data, encoding: .utf8) else {
+                HelperLogger.shared.error("[VPNFixHelper] Failed to encode diagnostics as UTF-8")
+                reply("{\"error\":\"UTF-8 encoding failed\"}")
+                return
+            }
             reply(json)
         } catch {
             HelperLogger.shared.error("[VPNFixHelper] Failed to encode diagnostics: \(error.localizedDescription)")
-            reply("{}")
+            reply("{\"error\":\"\(error.localizedDescription)\"}")
         }
     }
 
     // MARK: - Private
-
-    private func notifyAppOfClientsChanged() {
-        let statuses = vpnDetector.detectAll()
-        do {
-            let data = try JSONEncoder().encode(statuses)
-            let json = String(data: data, encoding: .utf8) ?? "[]"
-            let proxy = connection.remoteObjectProxy as? VPNAppProtocol
-            proxy?.vpnClientsChanged(json)
-        } catch {
-            HelperLogger.shared.error("[VPNFixHelper] Failed to push client statuses: \(error.localizedDescription)")
-        }
-    }
 
     private func handleResolvConfChange() {
         let previousState = vpnDetector.currentState()
@@ -286,14 +222,14 @@ final class HelperTool: NSObject, VPNHelperProtocol {
             let newState = self.vpnDetector.currentState()
 
             HelperLogger.shared.info("[VPNFixHelper] resolv.conf changed: \(previousState.rawValue) -> \(newState.rawValue)")
-            self.notifyAppOfStateChange()
+            self.stateNotifier.notifyStateChange()
 
             // If VPN just disconnected, run the fix
             if previousState == .connected && newState == .disconnected {
                 HelperLogger.shared.info("[VPNFixHelper] VPN disconnection detected, running fix...")
                 self.scriptRunner.runFixScript { success, output in
                     HelperLogger.shared.info("[VPNFixHelper] Auto-fix result: success=\(success), output=\(output)")
-                    self.notifyAppOfStateChange()
+                    self.stateNotifier.notifyStateChange()
                 }
             } else {
                 HelperLogger.shared.debug("[VPNFixHelper] State transition \(previousState.rawValue) → \(newState.rawValue), no fix needed")
@@ -301,10 +237,4 @@ final class HelperTool: NSObject, VPNHelperProtocol {
         }
     }
 
-    private func notifyAppOfStateChange() {
-        let state = vpnDetector.currentState()
-        HelperLogger.shared.debug("[VPNFixHelper] Pushing state to app: \(state.rawValue)")
-        let proxy = connection.remoteObjectProxy as? VPNAppProtocol
-        proxy?.stateChanged(state.rawValue)
-    }
 }

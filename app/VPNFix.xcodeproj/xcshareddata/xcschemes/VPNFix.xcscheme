@@ -35,6 +35,20 @@
                ReferencedContainer = "container:VPNFix.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "11619250F5E9C44A98D5E140"
+               BuildableName = "VPNFixTests.xctest"
+               BlueprintName = "VPNFixTests"
+               ReferencedContainer = "container:VPNFix.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -53,7 +67,20 @@
          </BuildableReference>
       </MacroExpansion>
       <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "11619250F5E9C44A98D5E140"
+               BuildableName = "VPNFixTests.xctest"
+               BlueprintName = "VPNFixTests"
+               ReferencedContainer = "container:VPNFix.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
+      <CommandLineArguments>
+      </CommandLineArguments>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"

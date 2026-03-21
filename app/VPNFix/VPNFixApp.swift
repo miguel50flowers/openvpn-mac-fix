@@ -106,23 +106,33 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    /// Shell-safe single-quote escaping for paths.
+    private func shellQuote(_ path: String) -> String {
+        let escaped = path.replacingOccurrences(of: "'", with: "'\\''")
+        return "'\(escaped)'"
+    }
+
     private func removePhase1ArtifactsWithAdmin(_ artifacts: [String]) {
         AppLogger.shared.info("Starting Phase 1 artifact removal (\(artifacts.count) files)...")
         var commands: [String] = []
 
         for artifact in artifacts {
+            let sq = shellQuote(artifact)
             if artifact.hasSuffix(".plist") {
-                commands.append("launchctl unload '\(artifact)' 2>/dev/null || true")
+                commands.append("launchctl unload \(sq) 2>/dev/null || true")
             }
-            commands.append("rm -f '\(artifact)'")
+            commands.append("rm -f \(sq)")
         }
 
         // Also clean up temp files
         commands.append("rm -f /tmp/vpn-was-connected")
 
         let fullCommand = commands.joined(separator: " && ")
-        let escapedCommand = fullCommand.replacingOccurrences(of: "'", with: "'\\''")
-        let script = "do shell script \"\(escapedCommand)\" with administrator privileges"
+        // Escape for AppleScript double-quoted string: \ → \\ then " → \"
+        let escaped = fullCommand
+            .replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "\"", with: "\\\"")
+        let script = "do shell script \"\(escaped)\" with administrator privileges"
 
         guard let appleScript = NSAppleScript(source: script) else {
             AppLogger.shared.error("Failed to create AppleScript for Phase 1 removal")

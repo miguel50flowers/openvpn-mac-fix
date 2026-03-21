@@ -186,4 +186,55 @@ enum DetectionUtilities {
         readGroup.wait()
         return String(data: outputData, encoding: .utf8) ?? ""
     }
+
+    /// Result of a command execution, including exit code for error propagation.
+    struct CommandResult {
+        let output: String
+        let exitCode: Int32
+        let timedOut: Bool
+
+        var succeeded: Bool { exitCode == 0 && !timedOut }
+    }
+
+    /// Runs a command and returns a typed result with exit code, preventing silent failures.
+    static func runCommandWithStatus(_ path: String, arguments: [String], timeout: TimeInterval = 5) -> CommandResult {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: path)
+        process.arguments = arguments
+
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = Pipe()
+
+        do {
+            try process.run()
+        } catch {
+            HelperLogger.shared.error("[DetectionUtilities] Failed to run \(path): \(error.localizedDescription)")
+            return CommandResult(output: "", exitCode: -1, timedOut: false)
+        }
+
+        var outputData = Data()
+        let readGroup = DispatchGroup()
+        readGroup.enter()
+        DispatchQueue.global().async {
+            outputData = pipe.fileHandleForReading.readDataToEndOfFile()
+            readGroup.leave()
+        }
+
+        let semaphore = DispatchSemaphore(value: 0)
+        DispatchQueue.global().async {
+            process.waitUntilExit()
+            semaphore.signal()
+        }
+
+        if semaphore.wait(timeout: .now() + timeout) == .timedOut {
+            process.terminate()
+            HelperLogger.shared.error("[DetectionUtilities] Command timed out after \(Int(timeout))s: \(path)")
+            return CommandResult(output: "", exitCode: -1, timedOut: true)
+        }
+
+        readGroup.wait()
+        let output = String(data: outputData, encoding: .utf8) ?? ""
+        return CommandResult(output: output, exitCode: process.terminationStatus, timedOut: false)
+    }
 }

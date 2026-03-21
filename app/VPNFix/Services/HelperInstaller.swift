@@ -108,11 +108,15 @@ final class HelperInstaller {
         }
 
         AppLogger.shared.debug("Preparing admin install command...")
+        // Use shellQuote for dynamic paths (from Bundle.main) to prevent shell injection
+        let sqHelper = shellQuote(helperSource)
+        let sqResources = shellQuote(resourcesSource)
         let commands = [
             "mkdir -p \"\(resourcesPath)\"",
-            "cp \"\(helperSource)\" \"\(installPath)\"",
-            "cp \"\(resourcesSource)/\"*.sh \"\(resourcesPath)/\" 2>/dev/null || true",
-            "cp \"\(resourcesSource)/VERSION\" \"\(resourcesPath)/VERSION\" 2>/dev/null || true",
+            "mkdir -p /var/log/VPNFix && chmod 755 /var/log/VPNFix",
+            "cp \(sqHelper) \"\(installPath)\"",
+            "cp \(sqResources)/\"*.sh\" \"\(resourcesPath)/\" 2>/dev/null || true",
+            "cp \(sqResources)/VERSION \"\(resourcesPath)/VERSION\" 2>/dev/null || true",
             "chown root:wheel \"\(installPath)\"",
             "chmod 755 \"\(installPath)\"",
             "chown -R root:wheel \"\(resourcesPath)\"",
@@ -170,15 +174,19 @@ final class HelperInstaller {
         }
 
         AppLogger.shared.debug("Preparing admin reinstall command...")
+        // Use shellQuote for dynamic paths (from Bundle.main) to prevent shell injection
+        let sqHelper = shellQuote(helperSource)
+        let sqResources = shellQuote(resourcesSource)
         let commands = [
             "launchctl bootout system/\(helperLabel) 2>/dev/null || true",
             "rm -f \"\(installPath)\"",
             "rm -rf \"\(resourcesPath)\"",
             "rm -f \"\(plistPath)\"",
             "mkdir -p \"\(resourcesPath)\"",
-            "cp \"\(helperSource)\" \"\(installPath)\"",
-            "cp \"\(resourcesSource)/\"*.sh \"\(resourcesPath)/\" 2>/dev/null || true",
-            "cp \"\(resourcesSource)/VERSION\" \"\(resourcesPath)/VERSION\" 2>/dev/null || true",
+            "mkdir -p /var/log/VPNFix && chmod 755 /var/log/VPNFix",
+            "cp \(sqHelper) \"\(installPath)\"",
+            "cp \(sqResources)/\"*.sh\" \"\(resourcesPath)/\" 2>/dev/null || true",
+            "cp \(sqResources)/VERSION \"\(resourcesPath)/VERSION\" 2>/dev/null || true",
             "chown root:wheel \"\(installPath)\"",
             "chmod 755 \"\(installPath)\"",
             "chown -R root:wheel \"\(resourcesPath)\"",
@@ -219,6 +227,14 @@ final class HelperInstaller {
             "</dict>",
             "</plist>"
         ].joined(separator: "\n")
+    }
+
+    /// Shell-safe single-quote escaping for paths.
+    /// Single quotes prevent all shell interpretation ($, `, \, etc.).
+    /// The only character that needs escaping inside single quotes is `'` itself.
+    private func shellQuote(_ path: String) -> String {
+        let escaped = path.replacingOccurrences(of: "'", with: "'\\''")
+        return "'\(escaped)'"
     }
 
     private func runWithAdminPrivileges(_ command: String) {

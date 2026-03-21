@@ -24,6 +24,10 @@ schemes:
       targets:
         VPNFix: all
         VPNFixHelper: all
+        VPNFixTests: [test]
+    test:
+      targets:
+        - VPNFixTests
 
 targets:
   VPNFix:
@@ -83,3 +87,15 @@ targets:
         INFOPLIST_FILE: VPNFixHelper/Info.plist
         CODE_SIGN_ENTITLEMENTS: VPNFixHelper/VPNFixHelper.entitlements
         SKIP_INSTALL: YES
+
+  VPNFixTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: VPNFixTests
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.miguel50flowers.VPNFixTests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: ""

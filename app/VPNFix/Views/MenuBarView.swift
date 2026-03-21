@@ -11,6 +11,7 @@ struct MenuBarView: View {
                 .font(.headline)
                 .padding(.horizontal, 8)
                 .padding(.top, 4)
+                .accessibilityLabel("VPN status: \(statusText)")
 
             Divider()
 
@@ -33,6 +34,8 @@ struct MenuBarView: View {
             }
             .disabled(viewModel.state == .fixing)
             .keyboardShortcut("f")
+            .accessibilityLabel(fixButtonLabel)
+            .accessibilityHint("Applies fixes to all detected VPN issues")
 
             Divider()
 
@@ -83,6 +86,7 @@ struct MenuBarView: View {
                 Circle()
                     .fill(viewModel.helperConnected ? .green : .red)
                     .frame(width: 8, height: 8)
+                    .accessibilityHidden(true)
                 Text(viewModel.helperConnected ? "Helper Active" : "Helper Offline")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -96,9 +100,12 @@ struct MenuBarView: View {
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
                         .background(.orange, in: Capsule())
+                        .accessibilityLabel("\(viewModel.clientsWithIssues) \(viewModel.clientsWithIssues == 1 ? "issue" : "issues") detected")
                 }
             }
             .padding(.horizontal, 8)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("Helper status: \(viewModel.helperConnected ? "Active" : "Offline")\(viewModel.clientsWithIssues > 0 ? ", \(viewModel.clientsWithIssues) \(viewModel.clientsWithIssues == 1 ? "issue" : "issues") detected" : "")")
 
             Divider()
 

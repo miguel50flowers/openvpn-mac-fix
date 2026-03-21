@@ -1,7 +1,7 @@
 import Foundation
 
 /// Manages XPC connection to the privileged helper daemon.
-final class XPCClient {
+final class XPCClient: XPCClientProtocol {
     static let shared = XPCClient()
 
     var onStateChanged: ((String) -> Void)?
@@ -107,16 +107,93 @@ final class XPCClient {
         }
     }
 
+    // MARK: - Typed Convenience API
+
+    /// Decodes VPN client statuses from JSON, returning a typed Result.
+    func detectAllVPNClientsTyped(reply: @escaping (Result<[VPNClientStatus], XPCError>) -> Void) {
+        detectAllVPNClients { json in
+            guard let data = json.data(using: .utf8) else {
+                reply(.failure(.decodingFailed("Invalid UTF-8 in response")))
+                return
+            }
+            do {
+                let statuses = try JSONDecoder().decode([VPNClientStatus].self, from: data)
+                reply(.success(statuses))
+            } catch {
+                AppLogger.shared.error("Failed to decode VPN client statuses: \(error)")
+                reply(.failure(.decodingFailed(error.localizedDescription)))
+            }
+        }
+    }
+
+    /// Decodes network diagnostics from JSON, returning a typed Result.
+    func getNetworkDiagnosticsTyped(reply: @escaping (Result<NetworkDiagnostics, XPCError>) -> Void) {
+        getNetworkDiagnostics { json in
+            guard let data = json.data(using: .utf8) else {
+                reply(.failure(.decodingFailed("Invalid UTF-8 in response")))
+                return
+            }
+            do {
+                let diagnostics = try JSONDecoder().decode(NetworkDiagnostics.self, from: data)
+                reply(.success(diagnostics))
+            } catch {
+                AppLogger.shared.error("Failed to decode network diagnostics: \(error)")
+                reply(.failure(.decodingFailed(error.localizedDescription)))
+            }
+        }
+    }
+
+    /// Wraps a (Bool, String) fix reply into a typed FixResult.
+    func runFixTyped(reply: @escaping (FixResult) -> Void) {
+        runFix { success, message in
+            reply(FixResult(success: success, message: message))
+        }
+    }
+
+    /// Wraps a per-client fix reply into a typed FixResult.
+    func runFixForClientTyped(_ clientType: String, reply: @escaping (FixResult) -> Void) {
+        runFixForClient(clientType) { success, message in
+            reply(FixResult(success: success, message: message))
+        }
+    }
+
+    /// Wraps a fix-all reply into a typed FixResult.
+    func runFixAllTyped(reply: @escaping (FixResult) -> Void) {
+        runFixAll { success, message in
+            reply(FixResult(success: success, message: message))
+        }
+    }
+
     // MARK: - Connection Management
 
+    private static let maxRetries = 3
+    private static let retryDelays: [TimeInterval] = [1.0, 2.0, 4.0]
+
     private func proxy(work: @escaping (VPNHelperProtocol) -> Void, errorHandler: @escaping () -> Void) {
+        proxyWithRetry(work: work, errorHandler: errorHandler, attempt: 0)
+    }
+
+    private func proxyWithRetry(work: @escaping (VPNHelperProtocol) -> Void, errorHandler: @escaping () -> Void, attempt: Int) {
         queue.async { [weak self] in
             guard let self else { return }
             let conn = self.getOrCreateConnection()
-            let proxy = conn.remoteObjectProxyWithErrorHandler { error in
-                AppLogger.shared.error("XPC proxy error: \(error.localizedDescription)")
-                self.onConnectionStateChanged?(false)
-                errorHandler()
+            let proxy = conn.remoteObjectProxyWithErrorHandler { [weak self] error in
+                AppLogger.shared.error("XPC proxy error (attempt \(attempt + 1)): \(error.localizedDescription)")
+                self?.onConnectionStateChanged?(false)
+
+                // Retry with exponential backoff if we haven't exhausted attempts
+                if attempt < Self.maxRetries {
+                    let delay = Self.retryDelays[min(attempt, Self.retryDelays.count - 1)]
+                    AppLogger.shared.info("XPC: retrying in \(delay)s (attempt \(attempt + 2)/\(Self.maxRetries + 1))...")
+                    // Force new connection on retry
+                    self?.queue.async { self?.connection = nil }
+                    self?.queue.asyncAfter(deadline: .now() + delay) {
+                        self?.proxyWithRetry(work: work, errorHandler: errorHandler, attempt: attempt + 1)
+                    }
+                } else {
+                    AppLogger.shared.error("XPC: all \(Self.maxRetries + 1) attempts failed")
+                    errorHandler()
+                }
             }
             guard let helper = proxy as? VPNHelperProtocol else {
                 AppLogger.shared.error("XPC: failed to obtain helper proxy")

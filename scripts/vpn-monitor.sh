@@ -5,7 +5,7 @@
 VERSION="__VERSION__"
 
 STATE_FILE="/tmp/vpn-was-connected"
-LOG="/tmp/vpn-monitor.log"
+LOG="/var/log/VPNFix/vpn-monitor.log"
 LOG_LEVEL="${VPN_MONITOR_LOG_LEVEL:-INFO}"
 
 log() { echo "$(date '+%Y-%m-%d %H:%M:%S') [monitor] $*" >> "$LOG"; }

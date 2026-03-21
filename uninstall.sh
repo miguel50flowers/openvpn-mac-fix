@@ -36,6 +36,7 @@ done
 echo "[3/3] Cleaning up temporary files..."
 rm -f /tmp/vpn-was-connected
 rm -f /tmp/vpn-monitor.log*
+rm -rf /var/log/VPNFix
 echo "  ✓ Temporary files removed"
 
 echo ""

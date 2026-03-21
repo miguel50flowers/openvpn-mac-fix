@@ -8,37 +8,52 @@ final class CommonFixModule: VPNFixModule {
         HelperLogger.shared.info("[CommonFix] Running common network fixes")
 
         var steps: [String] = []
+        var failures: [String] = []
 
         // Flush DNS cache
-        let dnsResult = DetectionUtilities.runCommand("/usr/bin/dscacheutil", arguments: ["-flushcache"])
-        _ = DetectionUtilities.runCommand("/usr/bin/killall", arguments: ["-HUP", "mDNSResponder"])
-        steps.append("DNS cache flushed")
-        HelperLogger.shared.debug("[CommonFix] DNS flush done: \(dnsResult)")
+        let dnsFlush = DetectionUtilities.runCommandWithStatus("/usr/bin/dscacheutil", arguments: ["-flushcache"])
+        let mDNS = DetectionUtilities.runCommandWithStatus("/usr/bin/killall", arguments: ["-HUP", "mDNSResponder"])
+        if dnsFlush.succeeded {
+            steps.append("DNS cache flushed")
+        } else {
+            failures.append("DNS flush failed (exit \(dnsFlush.exitCode))")
+        }
+        if !mDNS.succeeded {
+            HelperLogger.shared.warn("[CommonFix] mDNSResponder HUP failed (exit \(mDNS.exitCode))")
+        }
 
         // Renew DHCP lease on primary interface
         let primaryInterface = findPrimaryInterface()
         if let iface = primaryInterface {
-            _ = DetectionUtilities.runCommand("/usr/sbin/ipconfig", arguments: ["set", iface, "DHCP"])
-            steps.append("DHCP renewed on \(iface)")
-            HelperLogger.shared.debug("[CommonFix] DHCP renewed on \(iface)")
+            let dhcp = DetectionUtilities.runCommandWithStatus("/usr/sbin/ipconfig", arguments: ["set", iface, "DHCP"])
+            if dhcp.succeeded {
+                steps.append("DHCP renewed on \(iface)")
+            } else {
+                failures.append("DHCP renew failed on \(iface) (exit \(dhcp.exitCode))")
+            }
         }
 
         // Restore default route if missing
         let routes = DetectionUtilities.getRoutingTable()
         let gateway = DetectionUtilities.getDefaultGateway(from: routes)
         if gateway == nil, let iface = primaryInterface {
-            // Try to get gateway from DHCP
             let dhcpInfo = DetectionUtilities.runCommand("/usr/sbin/ipconfig", arguments: ["getpacket", iface])
             if let gw = parseGateway(from: dhcpInfo) {
-                _ = DetectionUtilities.runCommand("/sbin/route", arguments: ["-n", "add", "default", gw])
-                steps.append("Default route restored via \(gw)")
-                HelperLogger.shared.info("[CommonFix] Default route restored: \(gw)")
+                let routeResult = DetectionUtilities.runCommandWithStatus("/sbin/route", arguments: ["-n", "add", "default", gw])
+                if routeResult.succeeded {
+                    steps.append("Default route restored via \(gw)")
+                    HelperLogger.shared.info("[CommonFix] Default route restored: \(gw)")
+                } else {
+                    failures.append("Route restore failed (exit \(routeResult.exitCode))")
+                }
             }
         }
 
+        let allSuccess = failures.isEmpty
         let message = steps.joined(separator: ", ")
-        HelperLogger.shared.info("[CommonFix] Done: \(message)")
-        completion(true, message.isEmpty ? "Common fixes applied" : message)
+        let failureMsg = failures.isEmpty ? "" : " | Failures: \(failures.joined(separator: ", "))"
+        HelperLogger.shared.info("[CommonFix] Done: \(message)\(failureMsg)")
+        completion(allSuccess, (message.isEmpty ? "Common fixes applied" : message) + failureMsg)
     }
 
     private func findPrimaryInterface() -> String? {

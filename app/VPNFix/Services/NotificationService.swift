@@ -1,7 +1,7 @@
 import UserNotifications
 
 /// Manages native macOS notifications via UNUserNotificationCenter.
-final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
+final class NotificationService: NSObject, UNUserNotificationCenterDelegate, NotificationServiceProtocol {
     static let shared = NotificationService()
 
     private let center = UNUserNotificationCenter.current()

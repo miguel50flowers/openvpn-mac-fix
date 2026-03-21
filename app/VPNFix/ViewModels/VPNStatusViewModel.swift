@@ -1,6 +1,7 @@
 import SwiftUI
 
 /// Drives the menu bar UI state. Receives state updates from the helper via XPC.
+@MainActor
 final class VPNStatusViewModel: ObservableObject {
     @Published var state: VPNState = .unknown
     @Published var helperConnected: Bool = false
@@ -173,7 +174,7 @@ final class VPNStatusViewModel: ObservableObject {
         }
     }
 
-    /// Checks the routing table for OpenVPN's signature routes (0/1 and 128.0/1 via utun).
+    /// Checks the routing table for OpenVPN's signature routes using the shared parser.
     static func detectVPNViaNetstat() -> Bool {
         AppLogger.shared.debug("Local VPN detection: running netstat -rn...")
         let process = Process()
@@ -189,24 +190,8 @@ final class VPNStatusViewModel: ObservableObject {
             process.waitUntilExit()
             let data = pipe.fileHandleForReading.readDataToEndOfFile()
             let output = String(data: data, encoding: .utf8) ?? ""
-            let lines = output.components(separatedBy: .newlines)
-
-            var has0slash1 = false
-            var has128slash1 = false
-
-            for line in lines {
-                if line.contains("utun") {
-                    if line.hasPrefix("0/1") || line.contains(" 0/1 ") {
-                        has0slash1 = true
-                    }
-                    if line.hasPrefix("128.0/1") || line.contains(" 128.0/1 ") {
-                        has128slash1 = true
-                    }
-                }
-            }
-
-            let result = has0slash1 && has128slash1
-            AppLogger.shared.debug("Local VPN detection: 0/1=\(has0slash1), 128.0/1=\(has128slash1) → \(result ? "connected" : "disconnected")")
+            let result = RoutingTableParser.detectVPNFromNetstat(output)
+            AppLogger.shared.debug("Local VPN detection: \(result ? "connected" : "disconnected")")
             return result
         } catch {
             AppLogger.shared.error("Local VPN detection failed: \(error.localizedDescription)")

@@ -23,6 +23,7 @@ struct DiagnosticRow: View {
             Image(systemName: systemImage)
                 .foregroundStyle(status.color)
                 .frame(width: 20)
+                .accessibilityHidden(true)
 
             Text(label)
                 .font(.subheadline)
@@ -39,9 +40,21 @@ struct DiagnosticRow: View {
             Circle()
                 .fill(status.color)
                 .frame(width: 8, height: 8)
+                .accessibilityHidden(true)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .background(Color(nsColor: .controlBackgroundColor))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(label): \(value)")
+        .accessibilityValue("Status: \(statusLabel)")
+    }
+
+    private var statusLabel: String {
+        switch status {
+        case .ok: return "OK"
+        case .warning: return "Warning"
+        case .neutral: return "Neutral"
+        }
     }
 }

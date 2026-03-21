@@ -28,7 +28,7 @@ struct PreferencesView: View {
                     Label("About", systemImage: "info.circle")
                 }
         }
-        .frame(width: 450, height: 320)
+        .frame(minWidth: 450, minHeight: 320)
         .onAppear {
             updateHelperStatus()
             syncLaunchAtLoginToggle()
@@ -67,8 +67,12 @@ struct PreferencesView: View {
                     Circle()
                         .fill(helperActive ? .green : .orange)
                         .frame(width: 8, height: 8)
+                        .accessibilityHidden(true)
                     Text(helperStatus)
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("Helper status: \(helperStatus)")
+                .accessibilityValue(helperActive ? "Active" : "Inactive")
             }
 
             Button("Reinstall Helper") {

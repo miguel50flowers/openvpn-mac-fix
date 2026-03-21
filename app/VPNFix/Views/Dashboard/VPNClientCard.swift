@@ -19,6 +19,7 @@ struct VPNClientCard: View {
                     .font(.system(size: 22))
                     .foregroundStyle(headerColor)
                     .frame(width: 28)
+                    .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(client.clientType.displayName)
@@ -27,10 +28,13 @@ struct VPNClientCard: View {
                         Circle()
                             .fill(stateColor)
                             .frame(width: 7, height: 7)
+                            .accessibilityHidden(true)
                         Text(client.connectionState.label)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("Connection status: \(client.connectionState.label)")
                 }
 
                 Spacer()
@@ -41,6 +45,7 @@ struct VPNClientCard: View {
                         .foregroundStyle(.white)
                         .frame(width: 22, height: 22)
                         .background(headerColor, in: Circle())
+                        .accessibilityLabel("\(activeIssues.count) active \(activeIssues.count == 1 ? "issue" : "issues")")
                 }
 
                 if !activeIssues.isEmpty {
@@ -60,6 +65,8 @@ struct VPNClientCard: View {
                     .tint(.orange)
                     .controlSize(.small)
                     .disabled(isFixing)
+                    .accessibilityLabel(isFixing ? "Fixing in progress" : "Fix All")
+                    .accessibilityHint("Applies fixes for all detected issues on this VPN client")
                 }
             }
             .padding(12)
@@ -70,6 +77,7 @@ struct VPNClientCard: View {
                 HStack(spacing: 6) {
                     Image(systemName: result.success ? "checkmark.circle.fill" : "xmark.circle.fill")
                         .foregroundStyle(result.success ? .green : .red)
+                        .accessibilityHidden(true)
                     Text(result.success ? "Fix applied" : "Fix failed")
                         .font(.caption.weight(.medium))
                         .foregroundStyle(result.success ? .green : .red)
@@ -84,6 +92,8 @@ struct VPNClientCard: View {
                 .padding(.vertical, 6)
                 .transition(.opacity)
                 .animation(.easeInOut, value: fixResult?.success)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel(result.success ? "Fix applied successfully" : "Fix failed: \(result.message)")
             }
 
             // Issues list
@@ -127,11 +137,14 @@ struct VPNClientCard: View {
                 HStack(spacing: 6) {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundStyle(.green)
+                        .accessibilityHidden(true)
                     Text("No issues detected")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
                 .padding(12)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("No issues detected for \(client.clientType.displayName)")
             }
         }
         .background(.background)
@@ -197,6 +210,7 @@ private struct IssueRow: View {
                 .tint(.orange)
                 .controlSize(.mini)
                 .disabled(isFixing)
+                .accessibilityHint("Applies a fix for this specific issue")
 
                 Button {
                     onDismiss()
@@ -207,6 +221,8 @@ private struct IssueRow: View {
                 .buttonStyle(.bordered)
                 .controlSize(.mini)
                 .help("Dismiss this issue")
+                .accessibilityLabel("Dismiss issue")
+                .accessibilityHint("Hides this issue from the active list")
             }
         }
         .padding(.horizontal, 12)

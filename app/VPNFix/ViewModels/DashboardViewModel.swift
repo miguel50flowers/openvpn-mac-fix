@@ -1,7 +1,16 @@
 import SwiftUI
 
 /// Drives the Dashboard window — manages multi-VPN client state and diagnostics.
+@MainActor
 final class DashboardViewModel: ObservableObject {
+    enum ViewState {
+        case loading
+        case loaded
+        case error(String)
+        case empty
+    }
+
+    @Published var viewState: ViewState = .loading
     @Published var clients: [VPNClientStatus] = []
     @Published var diagnostics: NetworkDiagnostics?
     @Published var isScanning: Bool = false
@@ -11,10 +20,13 @@ final class DashboardViewModel: ObservableObject {
     @Published var showDismissed: Bool = false
     @Published var fixResults: [String: (success: Bool, message: String)] = [:] // keyed by VPNClientType rawValue
 
-    private let xpcClient = XPCClient.shared
+    private let xpcClient: XPCClientProtocol
+    private let notificationService: NotificationServiceProtocol
     private var scanTimer: Timer?
 
-    init() {
+    init(xpcClient: XPCClientProtocol = XPCClient.shared, notificationService: NotificationServiceProtocol = NotificationService.shared) {
+        self.xpcClient = xpcClient
+        self.notificationService = notificationService
         AppLogger.shared.debug("DashboardViewModel initialized")
         setupXPCCallbacks()
         scan()
@@ -32,17 +44,28 @@ final class DashboardViewModel: ObservableObject {
         isScanning = true
         AppLogger.shared.debug("Dashboard: starting scan")
 
-        xpcClient.detectAllVPNClients { [weak self] json in
+        xpcClient.detectAllVPNClientsTyped { [weak self] result in
             DispatchQueue.main.async {
-                self?.parseClients(json)
+                switch result {
+                case .success(let statuses):
+                    self?.clients = statuses
+                    self?.viewState = statuses.isEmpty ? .empty : .loaded
+                case .failure(let error):
+                    AppLogger.shared.error("Dashboard: detection failed: \(error)")
+                    if self?.clients.isEmpty == true {
+                        self?.viewState = .error("Failed to connect to helper daemon")
+                    }
+                }
                 self?.isScanning = false
                 self?.lastScanTime = Date()
             }
         }
 
-        xpcClient.getNetworkDiagnostics { [weak self] json in
+        xpcClient.getNetworkDiagnosticsTyped { [weak self] result in
             DispatchQueue.main.async {
-                self?.parseDiagnostics(json)
+                if case .success(let diag) = result {
+                    self?.diagnostics = diag
+                }
             }
         }
     }
@@ -53,13 +76,13 @@ final class DashboardViewModel: ObservableObject {
         fixResults.removeValue(forKey: type.rawValue)
         AppLogger.shared.info("Dashboard: fixing \(type.displayName)")
 
-        xpcClient.runFixForClient(type.rawValue) { [weak self] success, message in
+        xpcClient.runFixForClientTyped(type.rawValue) { [weak self] result in
             DispatchQueue.main.async {
-                AppLogger.shared.info("Dashboard: fix \(type.displayName) result: \(success), \(message)")
-                if success {
-                    NotificationService.shared.postFixApplied(client: type.displayName, message: message)
+                AppLogger.shared.info("Dashboard: fix \(type.displayName) result: \(result.isSuccess), \(result.message)")
+                if result.isSuccess {
+                    self?.notificationService.postFixApplied(client: type.displayName, message: result.message)
                 }
-                self?.fixResults[type.rawValue] = (success, message)
+                self?.fixResults[type.rawValue] = (result.isSuccess, result.message)
                 // Keep spinner until rescan completes
                 self?.scanAfterFix(type)
             }
@@ -68,9 +91,11 @@ final class DashboardViewModel: ObservableObject {
 
     private func scanAfterFix(_ fixedType: VPNClientType) {
         isScanning = true
-        xpcClient.detectAllVPNClients { [weak self] json in
+        xpcClient.detectAllVPNClientsTyped { [weak self] result in
             DispatchQueue.main.async {
-                self?.parseClients(json)
+                if case .success(let statuses) = result {
+                    self?.clients = statuses
+                }
                 self?.fixingClients.remove(fixedType.rawValue)
                 self?.isScanning = false
                 self?.lastScanTime = Date()
@@ -80,9 +105,11 @@ final class DashboardViewModel: ObservableObject {
                 }
             }
         }
-        xpcClient.getNetworkDiagnostics { [weak self] json in
+        xpcClient.getNetworkDiagnosticsTyped { [weak self] result in
             DispatchQueue.main.async {
-                self?.parseDiagnostics(json)
+                if case .success(let diag) = result {
+                    self?.diagnostics = diag
+                }
             }
         }
     }
@@ -92,15 +119,15 @@ final class DashboardViewModel: ObservableObject {
         isFixingAll = true
         AppLogger.shared.info("Dashboard: fixing all")
 
-        xpcClient.runFixAll { [weak self] success, message in
+        xpcClient.runFixAllTyped { [weak self] result in
             DispatchQueue.main.async {
                 self?.isFixingAll = false
-                AppLogger.shared.info("Dashboard: fix all result: \(success), \(message)")
+                AppLogger.shared.info("Dashboard: fix all result: \(result.isSuccess), \(result.message)")
 
                 let fixedCount = self?.clients.filter { $0.hasIssues }.count ?? 0
-                NotificationService.shared.postFixAllCompleted(
-                    fixedCount: success ? fixedCount : 0,
-                    failedCount: success ? 0 : fixedCount
+                self?.notificationService.postFixAllCompleted(
+                    fixedCount: result.isSuccess ? fixedCount : 0,
+                    failedCount: result.isSuccess ? 0 : fixedCount
                 )
                 self?.scan()
             }
@@ -111,8 +138,12 @@ final class DashboardViewModel: ObservableObject {
 
     private func setupXPCCallbacks() {
         xpcClient.onClientsChanged = { [weak self] json in
+            guard let data = json.data(using: .utf8),
+                  let statuses = try? JSONDecoder().decode([VPNClientStatus].self, from: data) else {
+                return
+            }
             DispatchQueue.main.async {
-                self?.parseClients(json)
+                self?.clients = statuses
             }
         }
     }
@@ -121,24 +152,6 @@ final class DashboardViewModel: ObservableObject {
         let interval = TimeInterval(AppPreferences.shared.scanInterval)
         scanTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
             self?.scan()
-        }
-    }
-
-    private func parseClients(_ json: String) {
-        guard let data = json.data(using: .utf8) else { return }
-        do {
-            clients = try JSONDecoder().decode([VPNClientStatus].self, from: data)
-        } catch {
-            AppLogger.shared.error("Dashboard: failed to decode clients: \(error.localizedDescription)")
-        }
-    }
-
-    private func parseDiagnostics(_ json: String) {
-        guard let data = json.data(using: .utf8) else { return }
-        do {
-            diagnostics = try JSONDecoder().decode(NetworkDiagnostics.self, from: data)
-        } catch {
-            AppLogger.shared.error("Dashboard: failed to decode diagnostics: \(error.localizedDescription)")
         }
     }
 

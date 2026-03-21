@@ -61,20 +61,31 @@ final class FixEngine {
         let group = DispatchGroup()
         var allSuccess = true
         var messages: [String] = []
+        let allIssues = clientsWithIssues.flatMap { $0.detectedIssues }
 
+        // Run client-specific fixes in parallel (without CommonFixModule)
         for status in clientsWithIssues {
             group.enter()
-            fixClient(status.clientType, issues: status.detectedIssues) { success, message in
-                if !success { allSuccess = false }
-                messages.append("\(status.clientType.displayName): \(message)")
+            if let module = modules[status.clientType] {
+                module.fix(issues: status.detectedIssues) { success, message in
+                    if !success { allSuccess = false }
+                    messages.append("\(status.clientType.displayName): \(message)")
+                    group.leave()
+                }
+            } else {
                 group.leave()
             }
         }
 
-        group.notify(queue: .global()) {
-            let summary = messages.joined(separator: "; ")
-            HelperLogger.shared.info("[FixEngine] Fix all complete: success=\(allSuccess)")
-            completion(allSuccess, summary)
+        // Run CommonFixModule once after all client-specific fixes complete
+        group.notify(queue: .global()) { [self] in
+            commonFix.fix(issues: allIssues) { commonSuccess, commonMessage in
+                if !commonSuccess { allSuccess = false }
+                messages.append("Common: \(commonMessage)")
+                let summary = messages.joined(separator: "; ")
+                HelperLogger.shared.info("[FixEngine] Fix all complete: success=\(allSuccess)")
+                completion(allSuccess, summary)
+            }
         }
     }
 }

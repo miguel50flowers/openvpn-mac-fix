@@ -31,8 +31,8 @@ status:
 
 logs:
 	@echo "=== Current log ==="
-	@cat /tmp/vpn-monitor.log 2>/dev/null || echo "No logs yet"
-	@for f in /tmp/vpn-monitor.log.*; do \
+	@cat /var/log/VPNFix/vpn-monitor.log 2>/dev/null || echo "No logs yet"
+	@for f in /var/log/VPNFix/vpn-monitor.log.*; do \
 		if [ -f "$$f" ]; then \
 			echo ""; \
 			echo "=== $$f ==="; \

@@ -10,6 +10,7 @@ struct SeverityBadge: View {
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
             .background(backgroundColor, in: Capsule())
+            .accessibilityLabel("Severity: \(severity.rawValue.capitalized)")
     }
 
     private var backgroundColor: Color {

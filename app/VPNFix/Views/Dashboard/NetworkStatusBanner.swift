@@ -8,6 +8,7 @@ struct NetworkStatusBanner: View {
             Image(systemName: viewModel.overallHealth.sfSymbol)
                 .font(.title2)
                 .foregroundStyle(.white)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(viewModel.overallHealth.label)
@@ -38,6 +39,7 @@ struct NetworkStatusBanner: View {
                     .padding(.horizontal, 10)
                     .padding(.vertical, 4)
                     .background(.white.opacity(0.2), in: Capsule())
+                    .accessibilityLabel("\(viewModel.activeVPNCount) active VPN \(viewModel.activeVPNCount == 1 ? "connection" : "connections")")
             }
 
             if viewModel.totalIssueCount > 0 {
@@ -47,9 +49,12 @@ struct NetworkStatusBanner: View {
                     .padding(.horizontal, 10)
                     .padding(.vertical, 4)
                     .background(.white.opacity(0.2), in: Capsule())
+                    .accessibilityLabel("\(viewModel.totalIssueCount) \(viewModel.totalIssueCount == 1 ? "issue" : "issues") detected")
             }
         }
         .padding()
         .background(viewModel.overallHealth.color.gradient)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Network health: \(viewModel.overallHealth.label)")
     }
 }
