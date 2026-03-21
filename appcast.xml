@@ -6,6 +6,64 @@
         <language>en</language>
         <!-- APPCAST_ITEMS -->
         <item>
+            <title>Version 3.1.0</title>
+            <description><![CDATA[
+                <h3>Added</h3>
+<ul>
+<li>**Test infrastructure**: XCTest target with 30 unit tests covering Shared models (Codable round-trips, severity ordering, VPN client classification) and log parsing</li>
+<li>**Architecture Decision Records**: 4 ADRs in `docs/adr/` documenting privilege escalation, XPC serialization, dual-logger design, and ad-hoc signing decisions</li>
+<li>**Dependency injection protocols**: `XPCClientProtocol` and `NotificationServiceProtocol` enabling testable ViewModels with injected dependencies</li>
+<li>**XPC retry with exponential backoff**: 3 retries with 1s/2s/4s delays on proxy errors, with automatic connection reset between attempts</li>
+<li>**Localization infrastructure**: `Localizable.strings` base file created for future `String(localized:)` migration</li>
+<li>**HelperTool decomposition**: Extracted `Phase1Migrator` and `StateNotifier` from HelperTool, reducing it from 310 to ~200 lines (SRP compliance)</li>
+<li>**Log-level filtering at write time**: `HelperLogger` now respects `VPN_MONITOR_LOG_LEVEL` environment variable, skipping DEBUG/INFO writes when level is higher</li>
+<li>**CI workflow**: GitHub Actions `ci.yml` for build verification on PRs and pushes to main</li>
+<li>**Typed Result API**: `FixResult` enum and `XPCError` type replacing raw `(Bool, String)` tuples; typed `XPCClient` convenience methods (`detectAllVPNClientsTyped`, `getNetworkDiagnosticsTyped`, `runFixTyped`, etc.)</li>
+<li>**UI state machine**: `DashboardViewModel.ViewState` enum with `.loading`, `.loaded`, `.error`, `.empty` states; Dashboard now shows appropriate feedback for each state</li>
+<li>**Command result tracking**: `DetectionUtilities.CommandResult` struct with exit code and timeout status for error propagation in fix operations</li>
+<li>**Shared routing table parser**: `RoutingTableParser` in Shared target eliminates duplicated VPN detection logic between app and helper</li>
+<li>Accessibility labels and VoiceOver support across all SwiftUI views</li>
+<li>VPNClientCard: status circles, issue count badges, Fix All button, fix result banners, and no-issues row now announce state to VoiceOver</li>
+<li>SeverityBadge: announces severity level by text instead of relying on color alone</li>
+<li>NetworkStatusBanner: combined accessibility element describing overall health status</li>
+<li>DiagnosticRow: combined label/value element with status announced as text</li>
+<li>MenuBarView: status header, fix button, and helper status indicator are VoiceOver-accessible</li>
+<li>BottomToolbar: Fix All and Scan buttons have labels, hints, and dynamic values</li>
+<li>LogViewerView: log line count, Copy All/Clear Logs hints, and combined log entry labels</li>
+<li>IssueRow: dismiss button and fix button have labels and hints</li>
+<li>Decorative icons and color-only status circles marked with `.accessibilityHidden(true)`</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li>PreferencesView frame changed from fixed `(width: 450, height: 320)` to `(minWidth: 450, minHeight: 320)` for dynamic type support</li>
+</ul>
+<h3>Security</h3>
+<ul>
+<li>**Helper log moved** from `/tmp/vpn-monitor.log` (0o666 world-writable) to `/var/log/VPNFix/vpn-monitor.log` (0o644 root-write, world-read) to prevent log injection attacks</li>
+<li>**XPC signature verification always active**: removed `#if !DEBUG` compile-time guard that disabled code signature verification in debug builds; verification now runs unconditionally</li>
+<li>**Shell command injection hardened**: `HelperInstaller` now uses single-quote shell escaping (`shellQuote`) for dynamic Bundle.main paths, preventing `$`, backtick, and semicolon interpretation; fixed broken escaping in `VPNFixApp.removePhase1ArtifactsWithAdmin`</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li>`CommonFixModule.fix()` now propagates individual step failures instead of always returning success; DNS flush, DHCP renew, and route restoration each report their own exit codes</li>
+<li>`HelperTool.detectAllVPNClients` and `getNetworkDiagnostics` now return error JSON instead of empty success (`"[]"` / `"{}"`) on encoding failure</li>
+<li>`FixEngine.fixAll` now runs `CommonFixModule` once after all client-specific fixes complete, preventing race conditions from concurrent DNS flush and route restoration</li>
+<li>Extracted duplicated VPN detection logic from `VPNStatusViewModel.detectVPNViaNetstat()` to shared `RoutingTableParser`</li>
+<li>All ViewModels annotated with `@MainActor` for compile-time main-thread safety</li>
+</ul>
+            ]]></description>
+            <pubDate>Sat, 21 Mar 2026 20:32:23 +0000</pubDate>
+            <sparkle:version>__BUILD_NUMBER__</sparkle:version>
+            <sparkle:shortVersionString>3.1.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <enclosure
+                url="https://github.com/miguel50flowers/openvpn-mac-fix/releases/download/v3.1.0/VPNFix-3.1.0.dmg"
+                type="application/octet-stream"
+                sparkle:edSignature="__ED_SIGNATURE__"
+                length="__DMG_LENGTH__"
+            />
+        </item>
+        <item>
             <title>Version 3.0.5</title>
             <description><![CDATA[
                 <h3>Fixed</h3>
