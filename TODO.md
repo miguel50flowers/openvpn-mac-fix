@@ -27,25 +27,25 @@
 - [x] AppLogger structured logging — v2.0.2
 - [x] Multi-item appcast with per-version release notes — v2.0.8
 - [ ] Code-sign and notarize the `.app`/`.dmg` for Gatekeeper (pending Apple Developer ID)
-- [ ] Unit tests (VPNDetector, LogViewModel, AppPreferences, HelperInstaller)
+- [x] Unit tests (30 XCTest tests covering Shared models, log parsing) — v3.1.0
 - [ ] Homebrew formula/cask SHA256 integrity (currently empty/`:no_check`)
 
 ## Phase 2.5 — Production polish
 
 - [x] Keyboard shortcuts for menu bar actions (⌘F Fix Now, ⌘L View Logs, ⌘, Preferences, ⌘Q Quit)
-- [ ] Accessibility labels for VoiceOver (status indicators, buttons, log viewer)
+- [x] Accessibility labels for VoiceOver (status indicators, buttons, log viewer) — v3.1.0
 - [ ] Onboarding flow for first launch (permission requests, helper install explanation)
-- [ ] XPC reconnection with exponential backoff on helper crash (basic reconnect-on-next-call exists)
+- [x] XPC reconnection with exponential backoff on helper crash (3 retries with 1s/2s/4s delays) — v3.1.0
 
 ## Phase 3 — Multi-VPN Support & Network Diagnostics
 
-- [ ] VPN client auto-detection (detect installed VPNs: OpenVPN, WireGuard, NordVPN, ExpressVPN, Surfshark, Cisco AnyConnect, GlobalProtect, FortiClient, Tunnelblick, Mullvad, Proton VPN, etc.)
-- [ ] Fix engine per VPN client (modular fix modules specific to each VPN's failure patterns)
-- [ ] DNS leak detection and auto-fix (verify DNS queries don't leak outside tunnel)
-- [ ] Kill switch cleanup (detect and clean stale pf rules from any VPN client)
-- [ ] Orphaned interface cleanup (detect and destroy stale utun/ipsec interfaces)
-- [ ] Stale proxy settings fix (clean SOCKS/HTTP/PAC proxy configs left by VPN disconnect)
-- [ ] Network diagnostics dashboard (DNS status, route table, active interfaces, latency, public IP)
+- [x] VPN client auto-detection (17 VPN clients: OpenVPN, WireGuard, NordVPN, ExpressVPN, Surfshark, CyberGhost, Proton VPN, Mullvad, PIA, IPVanish, Windscribe, TunnelBear, Cisco AnyConnect, GlobalProtect, Pulse Secure, Zscaler, FortiClient) — v3.0.0
+- [x] Fix engine per VPN client (8 modular fix modules: Common, OpenVPN, WireGuard, KillSwitch, Proxy, AnyConnect, GlobalProtect, FortiClient) — v3.0.0
+- [x] DNS leak detection and auto-fix — v3.0.0
+- [x] Kill switch cleanup (detect and clean stale pf rules from any VPN client) — v3.0.0
+- [x] Orphaned interface cleanup (detect and destroy stale utun/ipsec interfaces) — v3.0.0
+- [x] Stale proxy settings fix (clean SOCKS/HTTP/PAC proxy configs left by VPN disconnect) — v3.0.0
+- [x] Network diagnostics dashboard (DNS servers, default gateway, active interfaces, PF rules, proxy settings) — v3.0.0
 - [ ] CLI companion tool (`vpnfix status`, `vpnfix diagnose`, `vpnfix fix --all`)
 
 ## Phase 4 — Network Repair Toolkit (non-VPN)
@@ -78,8 +78,8 @@
 - **GitHub Packages** does not apply here — it's for code packages (npm, Docker, etc.), not macOS installers. The `.pkg` in GitHub Releases is the correct approach.
 - **`.pkg` vs `.dmg`**: The `.pkg` remains available for shell-script-only users. Phase 2's `.dmg` + `.app` is the primary distribution for the native app experience.
 - **Code signing**: Pipeline is scaffolded in `.github/workflows/release.yml`. Once an Apple Developer ID certificate is obtained, uncomment the signing/notarization steps. Testing and accessibility are recommended prerequisites before pursuing notarization.
-- **Testing**: 0% test coverage currently. Adding XCTest targets for VPNDetector, LogViewModel, and AppPreferences is the highest-priority quality improvement.
-- **Accessibility**: No `accessibilityLabel` usage in the codebase. Color-only status indicators (green/red dots) need text alternatives for VoiceOver support.
+- **Testing**: 30 XCTest unit tests added in v3.1.0 covering Shared models (Codable, severity ordering, VPN client classification) and log parsing. Expanding coverage to VPNDetector, LogViewModel, and AppPreferences is the next priority.
+- **Accessibility**: Full VoiceOver support added in v3.1.0 with semantic labels, hints, and `accessibilityHidden` on decorative elements across all views.
 - **Re-branding**: As the tool expands beyond OpenVPN, consider renaming from "openvpn-mac-fix" to something broader like **"NetFix"**, **"VPN Fix Pro"**, or **"MacNetRepair"**. The current name limits discoverability for users with non-OpenVPN issues.
 - **Market gap**: As of March 2026, there is **no direct competitor** in the "VPN fixer" category on macOS. See `docs/COMPETITIVE-ANALYSIS.md` for details. Existing tools are VPN clients, network monitors, or general utilities — none specialize in repairing VPN-caused network damage.
 - **Localization**: Moved from Phase 2.5 to Phase 5 to consolidate all localization work after features stabilize.
