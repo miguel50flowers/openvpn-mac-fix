@@ -26,16 +26,23 @@
 - [x] Configurable update check frequency — v2.0.4
 - [x] AppLogger structured logging — v2.0.2
 - [x] Multi-item appcast with per-version release notes — v2.0.8
-- [ ] Code-sign and notarize the `.app`/`.dmg` for Gatekeeper (pending Apple Developer ID)
 - [x] Unit tests (30 XCTest tests covering Shared models, log parsing) — v3.1.0
+- [ ] Code-sign and notarize the `.app`/`.dmg` for Gatekeeper (pending Apple Developer ID)
 - [ ] Homebrew formula/cask SHA256 integrity (currently empty/`:no_check`)
 
 ## Phase 2.5 — Production polish
 
 - [x] Keyboard shortcuts for menu bar actions (⌘F Fix Now, ⌘L View Logs, ⌘, Preferences, ⌘Q Quit)
 - [x] Accessibility labels for VoiceOver (status indicators, buttons, log viewer) — v3.1.0
-- [ ] Onboarding flow for first launch (permission requests, helper install explanation)
 - [x] XPC reconnection with exponential backoff on helper crash (3 retries with 1s/2s/4s delays) — v3.1.0
+- [x] Architecture Decision Records (4 ADRs: privilege escalation, XPC serialization, dual-logger, ad-hoc signing) — v3.1.0
+- [x] Dependency injection protocols (`XPCClientProtocol`, `NotificationServiceProtocol`) for testable ViewModels — v3.1.0
+- [x] Typed Result API (`FixResult`, `XPCError`) replacing raw tuples — v3.1.0
+- [x] HelperTool decomposition (extracted `Phase1Migrator`, `StateNotifier`, SRP compliance) — v3.1.0
+- [x] Security hardening: log moved from `/tmp` to `/var/log/VPNFix/` (0o644), XPC signature verification always active, shell injection hardening — v3.1.0
+- [x] Shared `RoutingTableParser` eliminating duplicated VPN detection logic — v3.1.0
+- [x] UI state machine for Dashboard (`ViewState` enum: loading/loaded/error/empty) — v3.1.0
+- [ ] Onboarding flow for first launch (permission requests, helper install explanation)
 
 ## Phase 3 — Multi-VPN Support & Network Diagnostics
 
@@ -46,9 +53,26 @@
 - [x] Orphaned interface cleanup (detect and destroy stale utun/ipsec interfaces) — v3.0.0
 - [x] Stale proxy settings fix (clean SOCKS/HTTP/PAC proxy configs left by VPN disconnect) — v3.0.0
 - [x] Network diagnostics dashboard (DNS servers, default gateway, active interfaces, PF rules, proxy settings) — v3.0.0
+- [x] Dashboard UI overhaul: severity badges, per-issue fix descriptions, dismiss/undismiss, collapsible diagnostics — v3.0.3
+- [x] Show Dashboard on launch toggle — v3.1.3
 - [ ] Hide/remove VPN from Dashboard (per-client visibility toggle, persisted in UserDefaults, "Manage VPNs" panel to restore hidden clients) — see `docs/VPN-DASHBOARD-MANAGEMENT.md`
 - [ ] Manually add VPN client (app picker via `NSWorkspace`/Launch Services, or select from known list; custom entries stored in UserDefaults with bundle ID + app path + interface type) — see `docs/VPN-DASHBOARD-MANAGEMENT.md`
 - [ ] CLI companion tool (`vpnfix status`, `vpnfix diagnose`, `vpnfix fix --all`)
+
+## Phase 3.5 — Unified UI & Community
+
+- [x] **Unified single-window UI**: Replaced 3 separate windows (Dashboard, Settings, Log Viewer) with a single NavigationSplitView window featuring collapsible sidebar — v4.0.0
+- [x] Sidebar organized into Monitor (Dashboard, VPN Clients, Network, Logs) and Settings (General, Notifications, Advanced, About) sections — v4.0.0
+- [x] Landing page (vpn-fix.maecly.com) — v4.0.2
+- [x] In-app "Send Feedback" and "Report Issue" buttons with pre-filled GitHub issues (device info + recent logs, IP redaction) — v4.1.0
+- [x] GitHub issue templates (bug report, feature request, feedback) with YAML forms — v4.1.0
+- [x] Pull request template — v4.1.0
+- [x] CODEOWNERS (@miguel50flowers @MigelAngelEC) — v4.1.0
+- [x] Community files: CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md — v4.1.0
+- [x] GitHub Sponsors funding configuration — v4.1.0
+- [x] Dependabot for Swift and GitHub Actions dependencies — v4.1.0
+- [x] Stale issues workflow (60 days stale, 7 days to close) — v4.1.0
+- [ ] Branch protection rules on `main` (require PR reviews, CI status checks, CODEOWNERS review)
 
 ## Phase 4 — Network Repair Toolkit (non-VPN)
 
@@ -86,3 +110,4 @@
 - **Market gap**: As of March 2026, there is **no direct competitor** in the "VPN fixer" category on macOS. See `docs/COMPETITIVE-ANALYSIS.md` for details. Existing tools are VPN clients, network monitors, or general utilities — none specialize in repairing VPN-caused network damage.
 - **Localization**: Moved from Phase 2.5 to Phase 5 to consolidate all localization work after features stabilize.
 - **VPN Dashboard Management**: Research on hiding/adding VPN clients, macOS detection APIs, and UI patterns documented in `docs/VPN-DASHBOARD-MANAGEMENT.md`.
+- **Open source infrastructure**: Full GitHub community setup deployed in v4.1.0 — issue templates, PR template, CODEOWNERS, contributing guidelines, security policy, Dependabot, stale bot, and GitHub Sponsors.
