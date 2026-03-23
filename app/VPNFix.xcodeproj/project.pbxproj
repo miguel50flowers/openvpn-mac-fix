@@ -16,6 +16,7 @@
 		0FDEFEBFCDBC040D24F4A9F6 /* AdvancedSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9FC54F927E31FFF45A15721 /* AdvancedSettingsView.swift */; };
 		11C1C55952E7E87556C0DD26 /* ProtonVPNDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63DAAE0328A303D9D9042C8B /* ProtonVPNDetector.swift */; };
 		125581338871DF06E258C063 /* FixResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = E323ED89724D33C9C281CD0C /* FixResult.swift */; };
+		126FC32A5E070D7AEC497C00 /* SystemInfoCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A385A92F3E242F2427692A /* SystemInfoCollector.swift */; };
 		12E8D095107C11DB8F920261 /* VPNDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EFBCD075AED23F6412C8F7A /* VPNDetector.swift */; };
 		14344FAA0C85F32D7A1705EE /* DashboardDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 618E835DA19E58A051E0640C /* DashboardDetailView.swift */; };
 		14C73DAD0987A0DE717B6EE7 /* NetworkDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61A531CB9DA1B66CABEF5558 /* NetworkDiagnostics.swift */; };
@@ -23,6 +24,7 @@
 		1875FD4EA291E3556D50F051 /* VPNClientStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DC5CF805CC0F78F10CE60DF /* VPNClientStatus.swift */; };
 		1990A6206A3EA25B3904D201 /* ZscalerDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5CE7AB193CEB7CACBBCEAB /* ZscalerDetector.swift */; };
 		19E926EF88BB218A30E47B0D /* VPNIssue.swift in Sources */ = {isa = PBXBuildFile; fileRef = C44985F3FF697373C9336F3E /* VPNIssue.swift */; };
+		1D2BD3FB8AD829E38903092D /* GitHubIssueURLBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 615B033360FEBC9889E0CB35 /* GitHubIssueURLBuilder.swift */; };
 		1E25761686BB901478194128 /* DetectionUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFC775D2271471F4D5DAB1D1 /* DetectionUtilities.swift */; };
 		1ECB06DACC392EA2AD36107A /* SparkleUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C5E62E09FCF57B20ADCC7A /* SparkleUpdater.swift */; };
 		220330799AFDD33B41E11E0B /* AggregateVPNState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A5E3547A27CAF9A41AAD8DA /* AggregateVPNState.swift */; };
@@ -58,6 +60,7 @@
 		6995AAF93065AC692EB886A2 /* VPNClientSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0684A32403AEFB78D23C342 /* VPNClientSection.swift */; };
 		6DF01C3BF06BBBA1B1A72D6E /* RoutingTableParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22CE7F51DA19F8EE645A8D0D /* RoutingTableParser.swift */; };
 		730C2FBDBDCBDDA194F45E3B /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B6BE64B24A58B20B565B767 /* Logger.swift */; };
+		75CC93A1A5F68D57CEDD1467 /* LogCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587B49354EEED37FA71A8832 /* LogCollector.swift */; };
 		762D4F92397E1FB4ACDE7478 /* ProxyFixModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15337E38064C9D43A8C21BA6 /* ProxyFixModule.swift */; };
 		7E7F54DB9BB24052E46F6B74 /* NotificationsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BBD50E53F93D5550D36FC35 /* NotificationsSettingsView.swift */; };
 		8060BC074F5E3E68019D2E66 /* FixResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = E323ED89724D33C9C281CD0C /* FixResult.swift */; };
@@ -162,10 +165,12 @@
 		4A08A71F62C79D53C4F9E9FB /* IPVanishDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPVanishDetector.swift; sourceTree = "<group>"; };
 		504672A9127A427C4B0DD143 /* GlobalProtectFixModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalProtectFixModule.swift; sourceTree = "<group>"; };
 		508EE859AB35F5DF12B14ED1 /* NetworkDiagnosticsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkDiagnosticsSection.swift; sourceTree = "<group>"; };
+		587B49354EEED37FA71A8832 /* LogCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogCollector.swift; sourceTree = "<group>"; };
 		5B6750B7C913C196C2320DA7 /* TunnelBearDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelBearDetector.swift; sourceTree = "<group>"; };
 		5B9E7964121E49FA87C0AAC7 /* SidebarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarItem.swift; sourceTree = "<group>"; };
 		5E4F90768A85074775D2D61B /* OpenVPNDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenVPNDetector.swift; sourceTree = "<group>"; };
 		5FF6C387E5D9C00C449925F8 /* SurfsharkDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurfsharkDetector.swift; sourceTree = "<group>"; };
+		615B033360FEBC9889E0CB35 /* GitHubIssueURLBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubIssueURLBuilder.swift; sourceTree = "<group>"; };
 		618E835DA19E58A051E0640C /* DashboardDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardDetailView.swift; sourceTree = "<group>"; };
 		61A531CB9DA1B66CABEF5558 /* NetworkDiagnostics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkDiagnostics.swift; sourceTree = "<group>"; };
 		63DAAE0328A303D9D9042C8B /* ProtonVPNDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtonVPNDetector.swift; sourceTree = "<group>"; };
@@ -190,6 +195,7 @@
 		A78CE8F83C00990E086F1CC6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AD4D55B61E6326A6B60ED217 /* ScriptRunner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptRunner.swift; sourceTree = "<group>"; };
 		B1CCAF93F6BC5DC546D4C340 /* NetworkDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkDetailView.swift; sourceTree = "<group>"; };
+		B2A385A92F3E242F2427692A /* SystemInfoCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemInfoCollector.swift; sourceTree = "<group>"; };
 		B3DF386CA20735AB10DBE6C5 /* FileWatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileWatcher.swift; sourceTree = "<group>"; };
 		B768E31A635D4D21765C6CF0 /* HelperTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperTool.swift; sourceTree = "<group>"; };
 		B88954C65F69492495AF1C0C /* Localizable.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Localizable.strings; sourceTree = "<group>"; };
@@ -376,10 +382,13 @@
 			isa = PBXGroup;
 			children = (
 				C995B943E0BD9FA2EADBFDB1 /* AppLogger.swift */,
+				615B033360FEBC9889E0CB35 /* GitHubIssueURLBuilder.swift */,
 				76F5D95A2F46ADAC4264E636 /* HelperInstaller.swift */,
+				587B49354EEED37FA71A8832 /* LogCollector.swift */,
 				B9AAABD751F98D01FC5645B7 /* NotificationService.swift */,
 				9A60C6D848D879B78DC3EAA0 /* Protocols.swift */,
 				A1C5E62E09FCF57B20ADCC7A /* SparkleUpdater.swift */,
+				B2A385A92F3E242F2427692A /* SystemInfoCollector.swift */,
 				FB3192FAB7EEE4AE8C8E1A38 /* XPCClient.swift */,
 			);
 			path = Services;
@@ -599,7 +608,9 @@
 				DE30E19A2E8E0B6238C15119 /* DiagnosticRow.swift in Sources */,
 				8060BC074F5E3E68019D2E66 /* FixResult.swift in Sources */,
 				87BD2F55D0C1EAB9C9C338CD /* GeneralSettingsView.swift in Sources */,
+				1D2BD3FB8AD829E38903092D /* GitHubIssueURLBuilder.swift in Sources */,
 				BEFBC41988D06E7A44EBB581 /* HelperInstaller.swift in Sources */,
+				75CC93A1A5F68D57CEDD1467 /* LogCollector.swift in Sources */,
 				882A990049193E7528882CDE /* LogViewModel.swift in Sources */,
 				D46895BD95A57DAECCD5EA4F /* LogViewerView.swift in Sources */,
 				34BCE29FA73F841B519AF1F2 /* MainWindowView.swift in Sources */,
@@ -616,6 +627,7 @@
 				ADCA4AE2C225681A82A05C8C /* SidebarItem.swift in Sources */,
 				39DB754CCB841E86CC8097E7 /* SidebarView.swift in Sources */,
 				1ECB06DACC392EA2AD36107A /* SparkleUpdater.swift in Sources */,
+				126FC32A5E070D7AEC497C00 /* SystemInfoCollector.swift in Sources */,
 				C0425E8A77B01841B7384AAE /* VPNClientCard.swift in Sources */,
 				6995AAF93065AC692EB886A2 /* VPNClientSection.swift in Sources */,
 				A08E611A20C0AABF4371F5F5 /* VPNClientStatus.swift in Sources */,

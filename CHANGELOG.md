@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- "Send Feedback" and "Report Issue" buttons in About view — opens pre-filled GitHub issues with device info and recent logs
+- GitHub issue templates (bug report, feature request, feedback) with structured YAML forms
+- Pull request template, CODEOWNERS, CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md
+- GitHub Sponsors funding configuration
+- Stale issues workflow and Dependabot configuration for Swift and GitHub Actions dependencies
+
 ## [4.0.2] - 2026-03-23
 
 ### Changed

@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 struct AboutView: View {
     var body: some View {
@@ -32,6 +33,35 @@ struct AboutView: View {
 
             Link("GitHub Repository", destination: URL(string: "https://github.com/miguel50flowers/openvpn-mac-fix")!)
                 .font(.caption)
+
+            HStack(spacing: 12) {
+                Button {
+                    let info = SystemInfoCollector.collect()
+                    let url = GitHubIssueURLBuilder.feedbackURL(systemInfo: info)
+                    NSWorkspace.shared.open(url)
+                } label: {
+                    Label("Send Feedback", systemImage: "bubble.left.and.text.bubble.right")
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.blue)
+                .accessibilityHint("Opens GitHub to submit feedback with your device information")
+
+                Button {
+                    let info = SystemInfoCollector.collect()
+                    let logs = LogCollector.recentLines(count: 30)
+                    let url = GitHubIssueURLBuilder.bugReportURL(systemInfo: info, recentLogs: logs)
+                    NSWorkspace.shared.open(url)
+                } label: {
+                    Label("Report Issue", systemImage: "ladybug")
+                }
+                .buttonStyle(.bordered)
+                .tint(.orange)
+                .accessibilityHint("Opens GitHub to report a bug with device information and recent logs")
+            }
+
+            Text("Reports include device info and recent logs visible on GitHub.")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
 
             Spacer()
 

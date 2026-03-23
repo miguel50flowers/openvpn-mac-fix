@@ -1,0 +1,76 @@
+name: Bug Report
+description: Report a bug or unexpected behavior in VPN Fix
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug! If you used the **Report Issue** button in the app, device info and logs are pre-filled below.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: A clear description of what happened and what you expected.
+      placeholder: "When I disconnect from NordVPN, VPN Fix shows..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: How can we reproduce this?
+      placeholder: |
+        1. Connect to VPN using...
+        2. Disconnect...
+        3. Click Fix All...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: vpn-client
+    attributes:
+      label: VPN Client
+      description: Which VPN client were you using?
+      options:
+        - OpenVPN
+        - WireGuard
+        - NordVPN
+        - ExpressVPN
+        - Surfshark
+        - CyberGhost
+        - Proton VPN
+        - Mullvad
+        - PIA
+        - IPVanish
+        - Windscribe
+        - TunnelBear
+        - Cisco AnyConnect
+        - GlobalProtect
+        - Pulse Secure / Ivanti
+        - Zscaler
+        - FortiClient
+        - Other
+        - Not applicable
+    validations:
+      required: true
+
+  - type: textarea
+    id: device-info
+    attributes:
+      label: Device Information
+      description: Auto-filled if you used "Report Issue" from the app. Otherwise, include your macOS version, chip, and app version.
+      placeholder: "macOS 15.3, Apple M2, VPN Fix 4.0.1 (42)"
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Recent Logs
+      description: Auto-filled if you used "Report Issue" from the app. Otherwise, check ~/Library/Logs/VPNFix/
+      render: shell
+    validations:
+      required: false

@@ -1,0 +1,40 @@
+name: Feedback
+description: Share general feedback about VPN Fix
+title: "[Feedback]: "
+labels: ["feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for sharing your feedback! If you used the **Send Feedback** button in the app, device info is pre-filled below.
+
+  - type: dropdown
+    id: feedback-type
+    attributes:
+      label: Feedback type
+      description: What kind of feedback is this?
+      options:
+        - Suggestion
+        - Praise
+        - Question
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: message
+    attributes:
+      label: Your feedback
+      description: Share your thoughts, suggestions, or questions.
+      placeholder: "I think VPN Fix could..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: device-info
+    attributes:
+      label: Device Information
+      description: Auto-filled if you used "Send Feedback" from the app. Optional otherwise.
+      placeholder: "macOS 15.3, Apple M2, VPN Fix 4.0.1 (42)"
+    validations:
+      required: false
