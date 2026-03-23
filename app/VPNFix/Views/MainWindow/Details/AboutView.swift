@@ -27,6 +27,9 @@ struct AboutView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 40)
 
+            Link("Website", destination: URL(string: "https://vpn-fix.maecly.com/")!)
+                .font(.caption)
+
             Link("GitHub Repository", destination: URL(string: "https://github.com/miguel50flowers/openvpn-mac-fix")!)
                 .font(.caption)
 

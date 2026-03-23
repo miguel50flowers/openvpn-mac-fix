@@ -5,7 +5,7 @@ cask "vpn-fix" do
   url "https://github.com/miguel50flowers/openvpn-mac-fix/releases/latest/download/VPNFix-#{version}.dmg"
   name "VPN Fix"
   desc "macOS menu bar app that fixes internet connectivity after OpenVPN disconnects"
-  homepage "https://github.com/miguel50flowers/openvpn-mac-fix"
+  homepage "https://vpn-fix.maecly.com/"
 
   depends_on macos: ">= :ventura"
 

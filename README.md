@@ -12,6 +12,7 @@
   <a href="https://github.com/miguel50flowers/openvpn-mac-fix/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/miguel50flowers/openvpn-mac-fix/ci.yml?style=flat-square&label=CI" alt="CI"></a>
   <a href="https://github.com/miguel50flowers/openvpn-mac-fix/actions/workflows/release.yml"><img src="https://img.shields.io/github/actions/workflow/status/miguel50flowers/openvpn-mac-fix/release.yml?style=flat-square&label=Release" alt="Release"></a>
   <a href="https://github.com/miguel50flowers/openvpn-mac-fix/releases"><img src="https://img.shields.io/github/downloads/miguel50flowers/openvpn-mac-fix/total?style=flat-square" alt="Downloads"></a>
+  <a href="https://vpn-fix.maecly.com/"><img src="https://img.shields.io/badge/Website-vpn--fix.maecly.com-blue?style=flat-square" alt="Website"></a>
 </p>
 
 ---

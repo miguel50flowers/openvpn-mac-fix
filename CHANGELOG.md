@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 
 - README updated to reflect v4.0 unified single-window UI, corrected keyboard shortcuts, and updated architecture diagram
+- Added landing page URL (vpn-fix.maecly.com) to README badge, AboutView, Homebrew Cask and Formula homepages
 
 ## [4.0.1] - 2026-03-23
 
