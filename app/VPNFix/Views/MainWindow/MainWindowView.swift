@@ -11,6 +11,7 @@ struct MainWindowView: View {
         } detail: {
             detailView
         }
+        .navigationSplitViewStyle(.prominentDetail)
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
                 Button {

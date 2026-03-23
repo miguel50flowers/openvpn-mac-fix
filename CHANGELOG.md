@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [4.0.1] - 2026-03-23
+
+### Fixed
+
+- Helper status icon in menu bar now shows green/red color (was overridden by parent style)
+- Sidebar no longer shows colored banner bleed-through from detail views
+- General Settings organized into sections: Monitoring, App, Updates, Helper
+
 ## [4.0.0] - 2026-03-23
 
 ### Changed

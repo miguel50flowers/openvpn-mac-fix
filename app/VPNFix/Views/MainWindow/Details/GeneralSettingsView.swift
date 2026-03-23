@@ -7,55 +7,63 @@ struct GeneralSettingsView: View {
 
     var body: some View {
         Form {
-            Toggle("Enable VPN monitoring", isOn: $prefs.monitoringEnabled)
-
-            Toggle("Launch at login", isOn: Binding(
-                get: { prefs.launchAtLogin },
-                set: { newValue in
-                    prefs.launchAtLogin = newValue
-                    setLaunchAtLogin(newValue)
-                }
-            ))
-
-            Toggle("Show in Dock", isOn: Binding(
-                get: { prefs.showDockIcon },
-                set: { newValue in
-                    prefs.showDockIcon = newValue
-                    NSApp.setActivationPolicy(newValue ? .regular : .accessory)
-                }
-            ))
-
-            Toggle("Show Dashboard on launch", isOn: $prefs.showDashboardOnLaunch)
-
-            Picker("Update Check Frequency", selection: Binding(
-                get: { prefs.updateCheckFrequency },
-                set: { newValue in
-                    prefs.updateCheckFrequency = newValue
-                    SparkleUpdater.shared.applyCheckFrequency(newValue)
-                }
-            )) {
-                Text("Automatic").tag("automatic")
-                Text("Daily").tag("daily")
-                Text("Weekly").tag("weekly")
-                Text("Monthly").tag("monthly")
-                Text("Manual").tag("manual")
+            Section("Monitoring") {
+                Toggle("Enable VPN monitoring", isOn: $prefs.monitoringEnabled)
             }
 
-            Button("Check for Updates...") {
-                SparkleUpdater.shared.checkForUpdates()
+            Section("App") {
+                Toggle("Launch at login", isOn: Binding(
+                    get: { prefs.launchAtLogin },
+                    set: { newValue in
+                        prefs.launchAtLogin = newValue
+                        setLaunchAtLogin(newValue)
+                    }
+                ))
+
+                Toggle("Show in Dock", isOn: Binding(
+                    get: { prefs.showDockIcon },
+                    set: { newValue in
+                        prefs.showDockIcon = newValue
+                        NSApp.setActivationPolicy(newValue ? .regular : .accessory)
+                    }
+                ))
+
+                Toggle("Show Dashboard on launch", isOn: $prefs.showDashboardOnLaunch)
             }
 
-            LabeledContent("Helper Status") {
-                HStack {
-                    Circle()
-                        .fill(helperActive ? .green : .orange)
-                        .frame(width: 8, height: 8)
-                    Text(helperStatus)
+            Section("Updates") {
+                Picker("Check Frequency", selection: Binding(
+                    get: { prefs.updateCheckFrequency },
+                    set: { newValue in
+                        prefs.updateCheckFrequency = newValue
+                        SparkleUpdater.shared.applyCheckFrequency(newValue)
+                    }
+                )) {
+                    Text("Automatic").tag("automatic")
+                    Text("Daily").tag("daily")
+                    Text("Weekly").tag("weekly")
+                    Text("Monthly").tag("monthly")
+                    Text("Manual").tag("manual")
+                }
+
+                Button("Check for Updates...") {
+                    SparkleUpdater.shared.checkForUpdates()
                 }
             }
 
-            Button("Reinstall Helper") {
-                reinstallHelper()
+            Section("Helper") {
+                LabeledContent("Status") {
+                    HStack {
+                        Circle()
+                            .fill(helperActive ? .green : .orange)
+                            .frame(width: 8, height: 8)
+                        Text(helperStatus)
+                    }
+                }
+
+                Button("Reinstall Helper") {
+                    reinstallHelper()
+                }
             }
         }
         .formStyle(.grouped)

@@ -60,12 +60,12 @@ struct MenuBarView: View {
             // Helper status
             Label {
                 Text(viewModel.helperConnected ? "Helper Active" : "Helper Offline")
+                    .foregroundStyle(.secondary)
             } icon: {
                 Image(systemName: "circle.fill")
                     .foregroundStyle(viewModel.helperConnected ? .green : .red)
             }
             .font(.caption)
-            .foregroundStyle(.secondary)
             .padding(.horizontal, 8)
 
             Divider()
