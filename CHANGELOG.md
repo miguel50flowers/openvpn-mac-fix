@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [4.2.0] - 2026-03-23
+
 ### Fixed
 
 - OpenVPN detection now recognizes OpenVPN Connect (`ovpnagent`, `ovpnhelper`) and Tunnelblick (`tunnelblickd`) processes — fixes menu bar showing "Connected" while dashboard showed "Disconnected"
