@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- **Unified single-window UI**: Replaced 3 separate windows (Dashboard, Settings, Log Viewer) with a single NavigationSplitView window featuring a collapsible sidebar
+- Sidebar organized into Monitor (Dashboard, VPN Clients, Network, Logs) and Settings (General, Notifications, Advanced, About) sections with SF Symbol icons
+- Fix All and Scan actions moved to unified toolbar, accessible from all sections
+- Menu bar simplified — "Open Dashboard" now opens the unified window
+- Removed standalone Preferences and Log Viewer windows
+
 ## [3.1.3] - 2026-03-23
 
 ### Added

@@ -15,9 +15,9 @@ struct MenuBarView: View {
 
             Divider()
 
-            // Open Dashboard
+            // Open main window
             Button {
-                openWindow(id: "dashboard")
+                openWindow(id: "main")
                 NSApp.activate(ignoringOtherApps: true)
             } label: {
                 Label("Open Dashboard", systemImage: "rectangle.3.group")
@@ -46,31 +46,6 @@ struct MenuBarView: View {
             .toggleStyle(.automatic)
 
             Divider()
-
-            // Log Viewer
-            Button {
-                openWindow(id: "log-viewer")
-                NSApp.activate(ignoringOtherApps: true)
-            } label: {
-                Label("View Logs", systemImage: "doc.text.magnifyingglass")
-            }
-            .keyboardShortcut("l")
-
-            // Preferences
-            if #available(macOS 14.0, *) {
-                SettingsLink {
-                    Label("Preferences...", systemImage: "gearshape")
-                }
-                .keyboardShortcut(",")
-            } else {
-                Button {
-                    NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
-                    NSApp.activate(ignoringOtherApps: true)
-                } label: {
-                    Label("Preferences...", systemImage: "gearshape")
-                }
-                .keyboardShortcut(",")
-            }
 
             // Check for Updates
             Button {

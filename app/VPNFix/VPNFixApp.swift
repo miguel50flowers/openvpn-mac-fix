@@ -10,19 +10,11 @@ struct VPNFixApp: App {
             MenuBarView(viewModel: vpnStatus)
         }
 
-        Window("VPN Fix", id: "dashboard") {
-            DashboardView()
+        Window("VPN Fix", id: "main") {
+            MainWindowView()
         }
         .defaultSize(width: 800, height: 600)
-
-        Window("Log Viewer", id: "log-viewer") {
-            LogViewerView()
-        }
-        .defaultSize(width: 700, height: 500)
-
-        Settings {
-            PreferencesView()
-        }
+        .windowToolbarStyle(.unified)
     }
 }
 
@@ -48,14 +40,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             // Retry until SwiftUI creates it (typically ~1-2s).
             func tryOpen(_ attempt: Int = 0) {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    if let window = NSApp.windows.first(where: { $0.title == "VPN Fix" }) {
+                    if let window = NSApp.windows.first(where: {
+                        $0.title == "VPN Fix" && !($0.className.contains("StatusBar"))
+                    }) {
                         window.makeKeyAndOrderFront(nil)
                         NSApp.activate(ignoringOtherApps: true)
-                        AppLogger.shared.info("Dashboard opened on launch (attempt \(attempt + 1))")
+                        AppLogger.shared.info("Main window opened on launch (attempt \(attempt + 1))")
                     } else if attempt < 10 {
                         tryOpen(attempt + 1)
                     } else {
-                        AppLogger.shared.warn("Dashboard window not found after 10 attempts")
+                        AppLogger.shared.warn("Main window not found after 10 attempts")
                     }
                 }
             }
