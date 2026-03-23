@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Settings window growing unbounded — reverted to fixed 450x320 frame
+- "Show in Dock" toggle not applying — replaced `onChange(of:)` with custom `Binding` setter (`@AppStorage` doesn't trigger `objectWillChange` in `ObservableObject`)
+- Same `onChange` fix applied to "Launch at Login" and "Update Check Frequency" controls
+- Helper status text wrapping to 2 lines in menu bar — added `.lineLimit(1)`
+- "Check for Updates" window not appearing — added `NSApp.activate()` before Sparkle call
+- Copyright updated to 2026 with link to maecly.com
+
 ## [3.1.0] - 2026-03-21
 
 ### Added

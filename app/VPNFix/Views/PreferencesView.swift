@@ -28,7 +28,7 @@ struct PreferencesView: View {
                     Label("About", systemImage: "info.circle")
                 }
         }
-        .frame(minWidth: 450, minHeight: 320)
+        .frame(width: 450, height: 320)
         .onAppear {
             updateHelperStatus()
             syncLaunchAtLoginToggle()
@@ -41,25 +41,34 @@ struct PreferencesView: View {
         Form {
             Toggle("Enable VPN monitoring", isOn: $prefs.monitoringEnabled)
 
-            Toggle("Launch at login", isOn: $prefs.launchAtLogin)
-                .onChange(of: prefs.launchAtLogin) { newValue in
+            Toggle("Launch at login", isOn: Binding(
+                get: { prefs.launchAtLogin },
+                set: { newValue in
+                    prefs.launchAtLogin = newValue
                     setLaunchAtLogin(newValue)
                 }
+            ))
 
-            Toggle("Show in Dock", isOn: $prefs.showDockIcon)
-                .onChange(of: prefs.showDockIcon) { newValue in
+            Toggle("Show in Dock", isOn: Binding(
+                get: { prefs.showDockIcon },
+                set: { newValue in
+                    prefs.showDockIcon = newValue
                     NSApp.setActivationPolicy(newValue ? .regular : .accessory)
                 }
+            ))
 
-            Picker("Update Check Frequency", selection: $prefs.updateCheckFrequency) {
+            Picker("Update Check Frequency", selection: Binding(
+                get: { prefs.updateCheckFrequency },
+                set: { newValue in
+                    prefs.updateCheckFrequency = newValue
+                    SparkleUpdater.shared.applyCheckFrequency(newValue)
+                }
+            )) {
                 Text("Automatic").tag("automatic")
                 Text("Daily").tag("daily")
                 Text("Weekly").tag("weekly")
                 Text("Monthly").tag("monthly")
                 Text("Manual").tag("manual")
-            }
-            .onChange(of: prefs.updateCheckFrequency) { newValue in
-                SparkleUpdater.shared.applyCheckFrequency(newValue)
             }
 
             LabeledContent("Helper Status") {
@@ -152,7 +161,7 @@ struct PreferencesView: View {
 
             Spacer()
 
-            Text("\u{00A9} 2025 miguel50flowers")
+            Link("\u{00A9} 2026 maecly.com", destination: URL(string: "https://www.maecly.com/")!)
                 .font(.caption2)
                 .foregroundStyle(.tertiary)
                 .padding(.bottom, 8)

@@ -74,6 +74,7 @@ struct MenuBarView: View {
 
             // Check for Updates
             Button {
+                NSApp.activate(ignoringOtherApps: true)
                 SparkleUpdater.shared.checkForUpdates()
             } label: {
                 Label("Check for Updates...", systemImage: "arrow.triangle.2.circlepath")
@@ -90,6 +91,7 @@ struct MenuBarView: View {
                 Text(viewModel.helperConnected ? "Helper Active" : "Helper Offline")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .lineLimit(1)
 
                 Spacer()
 
