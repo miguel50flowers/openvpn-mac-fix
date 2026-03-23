@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [4.1.0] - 2026-03-23
+
 ### Added
 
 - "Send Feedback" and "Report Issue" buttons in About view — opens pre-filled GitHub issues with device info and recent logs
