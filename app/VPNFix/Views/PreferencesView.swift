@@ -57,6 +57,8 @@ struct PreferencesView: View {
                 }
             ))
 
+            Toggle("Show Dashboard on launch", isOn: $prefs.showDashboardOnLaunch)
+
             Picker("Update Check Frequency", selection: Binding(
                 get: { prefs.updateCheckFrequency },
                 set: { newValue in

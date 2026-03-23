@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.1.3] - 2026-03-23
+
+### Added
+
+- "Show Dashboard on launch" toggle in Settings General tab
+
 ## [3.1.2] - 2026-03-23
 
 ### Fixed
