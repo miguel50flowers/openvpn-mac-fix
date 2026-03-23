@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- README updated to reflect v4.0 unified single-window UI, corrected keyboard shortcuts, and updated architecture diagram
+
 ## [4.0.1] - 2026-03-23
 
 ### Fixed

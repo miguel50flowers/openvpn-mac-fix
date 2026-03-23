@@ -33,6 +33,7 @@ This affects OpenVPN, WireGuard, NordVPN, Cisco AnyConnect, GlobalProtect, and m
 
 - **Menu bar app** -- Lives in your menu bar with real-time VPN status indicator
 - **Multi-VPN support** -- Detects and fixes 17 VPN clients automatically
+- **Unified window** -- Single window with sidebar navigation: Monitor (Dashboard, VPN Clients, Network, Logs) and Settings (General, Notifications, Advanced, About)
 - **Dashboard** -- Per-client status cards with issues, severity badges, and one-click fixes
 - **Network diagnostics** -- DNS servers, default gateway, active interfaces, PF rules, proxy settings
 - **7 issue types detected** -- Stale routes, kill switch rules, DNS leaks, orphaned interfaces, stale proxies, daemon persistence
@@ -107,14 +108,14 @@ VPN Fix uses a two-tier architecture to safely perform privileged network operat
 │    (user space)      │   code-signed IPC    │    (runs as root)    │
 │                      │                      │                      │
 │  SwiftUI menu bar    │                      │  17 VPN detectors    │
-│  Dashboard window    │                      │  8 fix modules       │
-│  Preferences         │                      │  File watcher        │
+│  Unified window      │                      │  8 fix modules       │
+│  Sidebar navigation  │                      │  File watcher        │
 │  Notifications       │                      │  Script runner       │
-│  Log viewer          │                      │  Network diagnostics │
+│                      │                      │  Network diagnostics │
 └─────────────────────┘                      └─────────────────────┘
 ```
 
-- **VPN Fix.app** -- The SwiftUI menu bar app you interact with. Shows VPN status, hosts the dashboard, and sends notifications. Runs as your regular user.
+- **VPN Fix.app** -- The SwiftUI menu bar app you interact with. Shows VPN status in the menu bar and provides a unified window with sidebar navigation for Dashboard, VPN Clients, Network diagnostics, Logs, and Settings. Runs as your regular user.
 - **VPNFixHelper** -- A privileged daemon installed as a LaunchDaemon (`/Library/PrivilegedHelperTools/VPNFixHelper`). Runs as root to perform operations that require elevated privileges: removing routes, flushing DNS, cleaning firewall rules, renewing DHCP.
 - **XPC** -- Secure inter-process communication between app and helper. Every connection is verified via code signature to prevent unauthorized access.
 - **Detection** -- 17 pluggable detectors (one per VPN client) scan for client-specific issues: stale routes, kill switch rules, DNS leaks, orphaned interfaces, and more.
@@ -126,8 +127,6 @@ VPN Fix uses a two-tier architecture to safely perform privileged network operat
 |----------|--------|
 | `Cmd + D` | Open Dashboard |
 | `Cmd + F` | Fix Now |
-| `Cmd + L` | View Logs |
-| `Cmd + ,` | Preferences |
 | `Cmd + Q` | Quit |
 
 ## Uninstall
