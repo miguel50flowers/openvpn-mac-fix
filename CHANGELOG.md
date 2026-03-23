@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [3.1.1] - 2026-03-23
+
 ### Fixed
 
 - Settings window growing unbounded — reverted to fixed 450x320 frame
