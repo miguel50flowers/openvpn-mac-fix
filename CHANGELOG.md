@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Helper status in menu bar rendering as empty space — replaced `Circle()` shape with SF Symbol `circle.fill` Label (shapes don't render in NSMenu)
+- "Check for Updates" not working — Sparkle framework was not linked to VPNFix target in project.yml
+- Added "Check for Updates..." button to Settings General tab
+
 ## [3.1.1] - 2026-03-23
 
 ### Fixed

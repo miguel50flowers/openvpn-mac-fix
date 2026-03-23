@@ -82,32 +82,16 @@ struct MenuBarView: View {
 
             Divider()
 
-            // Helper status + issue count
-            HStack {
-                Circle()
-                    .fill(viewModel.helperConnected ? .green : .red)
-                    .frame(width: 8, height: 8)
-                    .accessibilityHidden(true)
+            // Helper status
+            Label {
                 Text(viewModel.helperConnected ? "Helper Active" : "Helper Offline")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-
-                Spacer()
-
-                if viewModel.clientsWithIssues > 0 {
-                    Text("\(viewModel.clientsWithIssues) issue\(viewModel.clientsWithIssues == 1 ? "" : "s")")
-                        .font(.caption2)
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
-                        .background(.orange, in: Capsule())
-                        .accessibilityLabel("\(viewModel.clientsWithIssues) \(viewModel.clientsWithIssues == 1 ? "issue" : "issues") detected")
-                }
+            } icon: {
+                Image(systemName: "circle.fill")
+                    .foregroundStyle(viewModel.helperConnected ? .green : .red)
             }
+            .font(.caption)
+            .foregroundStyle(.secondary)
             .padding(.horizontal, 8)
-            .accessibilityElement(children: .combine)
-            .accessibilityLabel("Helper status: \(viewModel.helperConnected ? "Active" : "Offline")\(viewModel.clientsWithIssues > 0 ? ", \(viewModel.clientsWithIssues) \(viewModel.clientsWithIssues == 1 ? "issue" : "issues") detected" : "")")
 
             Divider()
 

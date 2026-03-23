@@ -71,6 +71,10 @@ struct PreferencesView: View {
                 Text("Manual").tag("manual")
             }
 
+            Button("Check for Updates...") {
+                SparkleUpdater.shared.checkForUpdates()
+            }
+
             LabeledContent("Helper Status") {
                 HStack {
                     Circle()

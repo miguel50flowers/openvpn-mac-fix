@@ -80,6 +80,7 @@
 		BFDA7EA6EEE2D18A9F1CC9FD /* PulseSecureDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA9CDAF8FE751D87358331FA /* PulseSecureDetector.swift */; };
 		BFE33F129229B4617199FF8C /* VPNFixModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 104C739A0F29600A56223BB2 /* VPNFixModule.swift */; };
 		C0425E8A77B01841B7384AAE /* VPNClientCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25DAA4AD0D7AE7C567FD0E7E /* VPNClientCard.swift */; };
+		C694824E5FF15B6C7D4C1B04 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 1232976BDD89B33274F424A2 /* Sparkle */; };
 		C777DC3AA7CE6385E22E28E9 /* VPNStatusViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17A74F7200163893BB9E160E /* VPNStatusViewModel.swift */; };
 		C8E7C93E46B5FB03B53E1A68 /* GlobalProtectFixModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504672A9127A427C4B0DD143 /* GlobalProtectFixModule.swift */; };
 		CC6C6453471731C1D9D60232 /* ExpressVPNDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDF8849C36D246B2D5EB978A /* ExpressVPNDetector.swift */; };
@@ -204,6 +205,17 @@
 		F57DA9BF2B84DC9B2AEF3A5D /* PIADetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PIADetector.swift; sourceTree = "<group>"; };
 		FB3192FAB7EEE4AE8C8E1A38 /* XPCClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XPCClient.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		88437EC843A49327616531C3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C694824E5FF15B6C7D4C1B04 /* Sparkle in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		28130B0C5DB2B2276FFD6B66 /* VPNFixTests */ = {
@@ -437,6 +449,7 @@
 				852210A7D0F2422D3E077FF9 /* Copy Scripts & Resources */,
 				2ED56CFEC31376CC844B2F32 /* Sources */,
 				541098438E4EDD2E2B1362C5 /* Resources */,
+				88437EC843A49327616531C3 /* Frameworks */,
 				533D0BAE7FA7C5F48DC807D5 /* Embed Dependencies */,
 			);
 			buildRules = (
@@ -446,6 +459,7 @@
 			);
 			name = VPNFix;
 			packageProductDependencies = (
+				1232976BDD89B33274F424A2 /* Sparkle */,
 			);
 			productName = VPNFix;
 			productReference = 7DA81DA0156F699B3115B039 /* VPNFix.app */;
@@ -922,6 +936,14 @@
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		1232976BDD89B33274F424A2 /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7EF1395BFE9176952319AD21 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E4815F409CCB73F3A99FA9D9 /* Project object */;
 }
