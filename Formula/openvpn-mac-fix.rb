@@ -1,7 +1,7 @@
 class OpenvpnMacFix < Formula
   desc "Automatic fix for internet loss after disconnecting OpenVPN on macOS"
   homepage "https://vpn-fix.maecly.com/"
-  url "https://github.com/miguel50flowers/openvpn-mac-fix/archive/refs/tags/v4.0.2.tar.gz"
+  url "https://github.com/miguel50flowers/openvpn-mac-fix/archive/refs/tags/v4.1.0.tar.gz"
   sha256 ""
   license "MIT"
 
