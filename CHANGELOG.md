@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [4.0.0] - 2026-03-23
+
 ### Changed
 
 - **Unified single-window UI**: Replaced 3 separate windows (Dashboard, Settings, Log Viewer) with a single NavigationSplitView window featuring a collapsible sidebar
