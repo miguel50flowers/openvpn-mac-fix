@@ -46,6 +46,8 @@
 - [x] Orphaned interface cleanup (detect and destroy stale utun/ipsec interfaces) — v3.0.0
 - [x] Stale proxy settings fix (clean SOCKS/HTTP/PAC proxy configs left by VPN disconnect) — v3.0.0
 - [x] Network diagnostics dashboard (DNS servers, default gateway, active interfaces, PF rules, proxy settings) — v3.0.0
+- [ ] Hide/remove VPN from Dashboard (per-client visibility toggle, persisted in UserDefaults, "Manage VPNs" panel to restore hidden clients) — see `docs/VPN-DASHBOARD-MANAGEMENT.md`
+- [ ] Manually add VPN client (app picker via `NSWorkspace`/Launch Services, or select from known list; custom entries stored in UserDefaults with bundle ID + app path + interface type) — see `docs/VPN-DASHBOARD-MANAGEMENT.md`
 - [ ] CLI companion tool (`vpnfix status`, `vpnfix diagnose`, `vpnfix fix --all`)
 
 ## Phase 4 — Network Repair Toolkit (non-VPN)
@@ -83,3 +85,4 @@
 - **Re-branding**: As the tool expands beyond OpenVPN, consider renaming from "openvpn-mac-fix" to something broader like **"NetFix"**, **"VPN Fix Pro"**, or **"MacNetRepair"**. The current name limits discoverability for users with non-OpenVPN issues.
 - **Market gap**: As of March 2026, there is **no direct competitor** in the "VPN fixer" category on macOS. See `docs/COMPETITIVE-ANALYSIS.md` for details. Existing tools are VPN clients, network monitors, or general utilities — none specialize in repairing VPN-caused network damage.
 - **Localization**: Moved from Phase 2.5 to Phase 5 to consolidate all localization work after features stabilize.
+- **VPN Dashboard Management**: Research on hiding/adding VPN clients, macOS detection APIs, and UI patterns documented in `docs/VPN-DASHBOARD-MANAGEMENT.md`.
