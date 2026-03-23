@@ -4,11 +4,12 @@ final class PIADetector: VPNClientDetector {
     let clientType: VPNClientType = .pia
 
     private let appPath = "/Applications/Private Internet Access.app"
-    private let processName = "pia-daemon"
+    private let processNames = ["pia-daemon", "pia-wireguard-go"]
 
     func detect(using cache: DetectionCache) -> VPNClientStatus {
         let installed = DetectionUtilities.isAppInstalled(at: appPath)
-        let running = cache.runningProcesses.contains(processName)
+        let running = DetectionUtilities.isAnyProcessRunning(processNames, in: cache.runningProcesses)
+        let matchedProcess = DetectionUtilities.firstRunningProcess(processNames, in: cache.runningProcesses)
         var issues: [VPNIssue] = []
 
         let routes = cache.routingTable
@@ -50,7 +51,7 @@ final class PIADetector: VPNClientDetector {
         return VPNClientStatus(
             clientType: clientType, installed: installed, running: running,
             connectionState: state, detectedIssues: issues,
-            interfaceName: hasRoutes ? "utun" : nil, processName: processName, appPath: appPath
+            interfaceName: hasRoutes ? "utun" : nil, processName: matchedProcess ?? processNames[0], appPath: appPath
         )
     }
 }

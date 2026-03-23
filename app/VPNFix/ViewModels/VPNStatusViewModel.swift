@@ -20,6 +20,7 @@ final class VPNStatusViewModel: ObservableObject {
     private var startupTimer: Timer?
     private var startupRetryCount = 0
     private var fixTimeoutWork: DispatchWorkItem?
+    private var lastClientRefresh: Date = .distantPast
 
     init() {
         self.monitoringEnabled = AppPreferences.shared.monitoringEnabled
@@ -90,6 +91,13 @@ final class VPNStatusViewModel: ObservableObject {
                     default:
                         break
                     }
+                }
+
+                // Throttled full client detection for accurate menu bar counts
+                if let self = self,
+                   Date().timeIntervalSince(self.lastClientRefresh) >= TimeInterval(AppPreferences.shared.scanInterval) {
+                    self.refreshClientCounts()
+                    self.lastClientRefresh = Date()
                 }
             }
         }

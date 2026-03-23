@@ -11,6 +11,27 @@ struct GeneralSettingsView: View {
                 Toggle("Enable VPN monitoring", isOn: $prefs.monitoringEnabled)
             }
 
+            Section("Scanning") {
+                Picker("Scan Interval", selection: Binding(
+                    get: { prefs.scanInterval },
+                    set: { newValue in
+                        prefs.scanInterval = newValue
+                        NotificationCenter.default.post(name: .scanIntervalChanged, object: nil)
+                    }
+                )) {
+                    Text("10 seconds").tag(10)
+                    Text("30 seconds").tag(30)
+                    Text("60 seconds").tag(60)
+                    Text("2 minutes").tag(120)
+                    Text("5 minutes").tag(300)
+                }
+                .pickerStyle(.menu)
+
+                Text("How often the dashboard rescans for VPN status changes.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
             Section("App") {
                 Toggle("Launch at login", isOn: Binding(
                     get: { prefs.launchAtLogin },

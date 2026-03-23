@@ -4,11 +4,12 @@ final class CiscoAnyConnectDetector: VPNClientDetector {
     let clientType: VPNClientType = .ciscoAnyConnect
 
     private let appPath = "/Applications/Cisco/Cisco AnyConnect Secure Mobility Client.app"
-    private let processName = "vpnagentd"
+    private let processNames = ["vpnagentd", "vpnui", "aciseagent"]
 
     func detect(using cache: DetectionCache) -> VPNClientStatus {
         let installed = DetectionUtilities.isAppInstalled(at: appPath)
-        let running = cache.runningProcesses.contains(processName)
+        let running = DetectionUtilities.isAnyProcessRunning(processNames, in: cache.runningProcesses)
+        let matchedProcess = DetectionUtilities.firstRunningProcess(processNames, in: cache.runningProcesses)
         var issues: [VPNIssue] = []
 
         let routes = cache.routingTable
@@ -43,7 +44,7 @@ final class CiscoAnyConnectDetector: VPNClientDetector {
         return VPNClientStatus(
             clientType: clientType, installed: installed, running: running,
             connectionState: state, detectedIssues: issues,
-            interfaceName: hasUtunRoutes ? "utun" : nil, processName: processName, appPath: appPath
+            interfaceName: hasUtunRoutes ? "utun" : nil, processName: matchedProcess ?? processNames[0], appPath: appPath
         )
     }
 }

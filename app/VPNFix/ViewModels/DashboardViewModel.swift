@@ -23,6 +23,7 @@ final class DashboardViewModel: ObservableObject {
     private let xpcClient: XPCClientProtocol
     private let notificationService: NotificationServiceProtocol
     private var scanTimer: Timer?
+    private var scanIntervalObserver: Any?
 
     init(xpcClient: XPCClientProtocol = XPCClient.shared, notificationService: NotificationServiceProtocol = NotificationService.shared) {
         self.xpcClient = xpcClient
@@ -31,10 +32,19 @@ final class DashboardViewModel: ObservableObject {
         setupXPCCallbacks()
         scan()
         startPeriodicScan()
+
+        scanIntervalObserver = NotificationCenter.default.addObserver(
+            forName: .scanIntervalChanged, object: nil, queue: .main
+        ) { [weak self] _ in
+            self?.restartPeriodicScan()
+        }
     }
 
     deinit {
         scanTimer?.invalidate()
+        if let observer = scanIntervalObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
     }
 
     // MARK: - Public
@@ -153,6 +163,12 @@ final class DashboardViewModel: ObservableObject {
         scanTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
             self?.scan()
         }
+    }
+
+    private func restartPeriodicScan() {
+        scanTimer?.invalidate()
+        startPeriodicScan()
+        AppLogger.shared.debug("Dashboard scan timer restarted with interval: \(AppPreferences.shared.scanInterval)s")
     }
 
     func dismissIssue(type: VPNIssue.IssueType, client: VPNClientType) {

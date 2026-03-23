@@ -128,6 +128,23 @@ enum DetectionUtilities {
         return nil
     }
 
+    // MARK: - Multi-Process Helpers
+
+    /// Returns true if any of the given process names are running.
+    static func isAnyProcessRunning(_ names: [String], in processes: Set<String>) -> Bool {
+        names.contains { processes.contains($0) }
+    }
+
+    /// Returns the first matching running process name, or nil.
+    static func firstRunningProcess(_ names: [String], in processes: Set<String>) -> String? {
+        names.first { processes.contains($0) }
+    }
+
+    /// Checks if any utun interface has an IPv4 address assigned (active VPN tunnel).
+    static func hasUtunWithIPv4(in interfaces: [NetworkInterface]) -> Bool {
+        interfaces.contains { $0.name.hasPrefix("utun") && $0.address != nil && $0.isUp }
+    }
+
     // MARK: - Route Helpers
 
     static func hasRoute(_ prefix: String, via interfacePattern: String, in routingTable: String) -> Bool {

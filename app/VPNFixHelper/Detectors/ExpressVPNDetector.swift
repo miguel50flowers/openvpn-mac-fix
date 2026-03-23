@@ -4,11 +4,12 @@ final class ExpressVPNDetector: VPNClientDetector {
     let clientType: VPNClientType = .expressVPN
 
     private let appPath = "/Applications/ExpressVPN.app"
-    private let processName = "expressvpnd"
+    private let processNames = ["expressvpnd", "ExpressVPN", "Lightway"]
 
     func detect(using cache: DetectionCache) -> VPNClientStatus {
         let installed = DetectionUtilities.isAppInstalled(at: appPath)
-        let running = cache.runningProcesses.contains(processName)
+        let running = DetectionUtilities.isAnyProcessRunning(processNames, in: cache.runningProcesses)
+        let matchedProcess = DetectionUtilities.firstRunningProcess(processNames, in: cache.runningProcesses)
         var issues: [VPNIssue] = []
 
         let routes = cache.routingTable
@@ -28,7 +29,7 @@ final class ExpressVPNDetector: VPNClientDetector {
         return VPNClientStatus(
             clientType: clientType, installed: installed, running: running,
             connectionState: state, detectedIssues: issues,
-            interfaceName: hasRoutes ? "utun" : nil, processName: processName, appPath: appPath
+            interfaceName: hasRoutes ? "utun" : nil, processName: matchedProcess ?? processNames[0], appPath: appPath
         )
     }
 }

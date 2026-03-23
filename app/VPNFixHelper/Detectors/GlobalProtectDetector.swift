@@ -4,11 +4,12 @@ final class GlobalProtectDetector: VPNClientDetector {
     let clientType: VPNClientType = .globalProtect
 
     private let appPath = "/Applications/GlobalProtect.app"
-    private let processName = "PanGPS"
+    private let processNames = ["PanGPS", "PanGPA", "GlobalProtect"]
 
     func detect(using cache: DetectionCache) -> VPNClientStatus {
         let installed = DetectionUtilities.isAppInstalled(at: appPath)
-        let running = cache.runningProcesses.contains(processName)
+        let running = DetectionUtilities.isAnyProcessRunning(processNames, in: cache.runningProcesses)
+        let matchedProcess = DetectionUtilities.firstRunningProcess(processNames, in: cache.runningProcesses)
         var issues: [VPNIssue] = []
 
         let routes = cache.routingTable
@@ -50,7 +51,7 @@ final class GlobalProtectDetector: VPNClientDetector {
             clientType: clientType, installed: installed, running: running,
             connectionState: state, detectedIssues: issues,
             interfaceName: hasGPD ? "gpd0" : (hasUtun ? "utun" : nil),
-            processName: processName, appPath: appPath
+            processName: matchedProcess ?? processNames[0], appPath: appPath
         )
     }
 }

@@ -4,11 +4,12 @@ final class WindscribeDetector: VPNClientDetector {
     let clientType: VPNClientType = .windscribe
 
     private let appPath = "/Applications/Windscribe.app"
-    private let processName = "Windscribe"
+    private let processNames = ["Windscribe", "WindscribeEngine"]
 
     func detect(using cache: DetectionCache) -> VPNClientStatus {
         let installed = DetectionUtilities.isAppInstalled(at: appPath)
-        let running = cache.runningProcesses.contains(processName)
+        let running = DetectionUtilities.isAnyProcessRunning(processNames, in: cache.runningProcesses)
+        let matchedProcess = DetectionUtilities.firstRunningProcess(processNames, in: cache.runningProcesses)
         var issues: [VPNIssue] = []
 
         let routes = cache.routingTable
@@ -39,7 +40,7 @@ final class WindscribeDetector: VPNClientDetector {
         return VPNClientStatus(
             clientType: clientType, installed: installed, running: running,
             connectionState: state, detectedIssues: issues,
-            interfaceName: hasRoutes ? "utun" : nil, processName: processName, appPath: appPath
+            interfaceName: hasRoutes ? "utun" : nil, processName: matchedProcess ?? processNames[0], appPath: appPath
         )
     }
 }

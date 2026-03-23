@@ -6,6 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- OpenVPN detection now recognizes OpenVPN Connect (`ovpnagent`, `ovpnhelper`) and Tunnelblick (`tunnelblickd`) processes — fixes menu bar showing "Connected" while dashboard showed "Disconnected"
+- Menu bar VPN state now detects all VPN types (WireGuard, FortiClient, GlobalProtect, IKEv2/IPSec) — previously only detected OpenVPN routing signature
+- Menu bar now shows accurate multi-VPN connected count and issue count (`refreshClientCounts()` was defined but never called)
+
+### Changed
+
+- All VPN detectors updated with expanded process name lists for more reliable detection (WireGuard, FortiClient, GlobalProtect, CiscoAnyConnect, ExpressVPN, Surfshark, PIA, PulseSecure, Zscaler, Windscribe, ProtonVPN, CyberGhost)
+- FortiClient detector now checks both `ppp0` and `utun` interfaces (modern versions use Network Extension)
+- WireGuard detector adds utun+IPv4 fallback for App Store NE-based tunnels
+
+### Added
+
+- Scan interval picker in General Settings (10s, 30s, 60s, 2min, 5min) with dynamic timer restart
+- Multi-process detection helpers (`isAnyProcessRunning`, `firstRunningProcess`, `hasUtunWithIPv4`) in DetectionUtilities
+
 ## [4.1.0] - 2026-03-23
 
 ### Added

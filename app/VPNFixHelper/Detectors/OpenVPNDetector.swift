@@ -1,15 +1,17 @@
 import Foundation
 
-/// Detects OpenVPN Connect — checks for signature routes 0/1 + 128.0/1 via utun.
+/// Detects OpenVPN — checks for signature routes 0/1 + 128.0/1 via utun.
+/// Supports OpenVPN Connect (ovpnagent/ovpnhelper), Tunnelblick (tunnelblickd), and CLI openvpn.
 final class OpenVPNDetector: VPNClientDetector {
     let clientType: VPNClientType = .openVPN
 
-    private let appPath = "/Applications/OpenVPN Connect.app"
-    private let processName = "openvpn"
+    private let appPaths = ["/Applications/OpenVPN Connect.app", "/Applications/Tunnelblick.app"]
+    private let processNames = ["openvpn", "ovpnagent", "ovpnhelper", "tunnelblickd"]
 
     func detect(using cache: DetectionCache) -> VPNClientStatus {
-        let installed = DetectionUtilities.isAppInstalled(at: appPath)
-        let running = cache.runningProcesses.contains(processName)
+        let installed = appPaths.contains { DetectionUtilities.isAppInstalled(at: $0) }
+        let running = DetectionUtilities.isAnyProcessRunning(processNames, in: cache.runningProcesses)
+        let matchedProcess = DetectionUtilities.firstRunningProcess(processNames, in: cache.runningProcesses)
 
         var issues: [VPNIssue] = []
         var interfaceName: String?
@@ -23,12 +25,12 @@ final class OpenVPNDetector: VPNClientDetector {
             interfaceName = findUtunInterface(in: routes)
         }
 
-        // Detect stale routes: OpenVPN routes exist but process not running
+        // Detect stale routes: OpenVPN routes exist but no OpenVPN process running
         if hasOpenVPNRoutes && !running {
             issues.append(VPNIssue(
                 type: .staleRoutes,
                 severity: .critical,
-                description: "OpenVPN routes (0/1, 128.0/1) still active but openvpn process not running"
+                description: "OpenVPN routes (0/1, 128.0/1) still active but no OpenVPN process running"
             ))
         }
 
@@ -50,8 +52,8 @@ final class OpenVPNDetector: VPNClientDetector {
             connectionState: state,
             detectedIssues: issues,
             interfaceName: interfaceName,
-            processName: processName,
-            appPath: appPath
+            processName: matchedProcess ?? processNames[0],
+            appPath: appPaths[0]
         )
     }
 

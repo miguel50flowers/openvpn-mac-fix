@@ -4,16 +4,19 @@ final class FortiClientDetector: VPNClientDetector {
     let clientType: VPNClientType = .fortiClient
 
     private let appPath = "/Applications/FortiClient.app"
-    private let processName = "fct_launcher"
+    private let processNames = ["fct_launcher", "fctservctl", "fctservctl2", "sslvpnd", "FortiClient", "FortiClientAgent"]
 
     func detect(using cache: DetectionCache) -> VPNClientStatus {
         let installed = DetectionUtilities.isAppInstalled(at: appPath)
-        let running = cache.runningProcesses.contains(processName)
+        let running = DetectionUtilities.isAnyProcessRunning(processNames, in: cache.runningProcesses)
+        let matchedProcess = DetectionUtilities.firstRunningProcess(processNames, in: cache.runningProcesses)
         var issues: [VPNIssue] = []
 
         let routes = cache.routingTable
-        // FortiClient SSLVPN uses ppp0 — generic utun interfaces belong to iCloud Private Relay, WireGuard, etc.
-        let hasRoutes = routes.contains("ppp0")
+        // FortiClient SSLVPN uses ppp0 (legacy) or utun (modern NE-based)
+        let hasPPP0 = routes.contains("ppp0")
+        let hasUtunTunnel = running && DetectionUtilities.hasUtunWithIPv4(in: cache.activeInterfaces)
+        let hasRoutes = hasPPP0 || hasUtunTunnel
 
         // Check for DNS forwarder on 127.0.0.1:53
         let dns = cache.dnsServers
@@ -27,11 +30,11 @@ final class FortiClientDetector: VPNClientDetector {
             ))
         }
 
-        if hasRoutes && !running {
+        if hasPPP0 && !running {
             issues.append(VPNIssue(
                 type: .staleRoutes,
                 severity: .critical,
-                description: "FortiClient routes still active but launcher not running"
+                description: "FortiClient routes still active but no FortiClient process running"
             ))
         }
 
@@ -40,8 +43,8 @@ final class FortiClientDetector: VPNClientDetector {
         return VPNClientStatus(
             clientType: clientType, installed: installed, running: running,
             connectionState: state, detectedIssues: issues,
-            interfaceName: hasRoutes ? "ppp0" : nil,
-            processName: processName, appPath: appPath
+            interfaceName: hasPPP0 ? "ppp0" : (hasUtunTunnel ? "utun" : nil),
+            processName: matchedProcess ?? processNames[0], appPath: appPath
         )
     }
 }

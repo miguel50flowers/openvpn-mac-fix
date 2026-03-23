@@ -4,11 +4,12 @@ final class ZscalerDetector: VPNClientDetector {
     let clientType: VPNClientType = .zscaler
 
     private let appPath = "/Applications/Zscaler/Zscaler.app"
-    private let processName = "ZscalerService"
+    private let processNames = ["ZscalerService", "ZscalerTunnel", "zscaler"]
 
     func detect(using cache: DetectionCache) -> VPNClientStatus {
         let installed = DetectionUtilities.isAppInstalled(at: appPath)
-        let running = cache.runningProcesses.contains(processName)
+        let running = DetectionUtilities.isAnyProcessRunning(processNames, in: cache.runningProcesses)
+        let matchedProcess = DetectionUtilities.firstRunningProcess(processNames, in: cache.runningProcesses)
         var issues: [VPNIssue] = []
 
         // Zscaler uses localhost:9000 proxy model rather than routes
@@ -41,7 +42,7 @@ final class ZscalerDetector: VPNClientDetector {
         return VPNClientStatus(
             clientType: clientType, installed: installed, running: running,
             connectionState: state, detectedIssues: issues,
-            interfaceName: hasUtunRoutes ? "utun" : nil, processName: processName, appPath: appPath
+            interfaceName: hasUtunRoutes ? "utun" : nil, processName: matchedProcess ?? processNames[0], appPath: appPath
         )
     }
 }

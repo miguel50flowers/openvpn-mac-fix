@@ -4,13 +4,14 @@ final class PulseSecureDetector: VPNClientDetector {
     let clientType: VPNClientType = .pulseSecure
 
     private let appPath = "/Applications/Pulse Secure.app"
-    private let processName = "dsAccessService"
+    private let processNames = ["dsAccessService", "dsHostChecker", "dsLogService"]
 
     func detect(using cache: DetectionCache) -> VPNClientStatus {
         // Also check for Ivanti Secure Access (rebrand)
         let installed = DetectionUtilities.isAppInstalled(at: appPath) ||
                         DetectionUtilities.isAppInstalled(at: "/Applications/Ivanti Secure Access.app")
-        let running = cache.runningProcesses.contains(processName)
+        let running = DetectionUtilities.isAnyProcessRunning(processNames, in: cache.runningProcesses)
+        let matchedProcess = DetectionUtilities.firstRunningProcess(processNames, in: cache.runningProcesses)
         var issues: [VPNIssue] = []
 
         let routes = cache.routingTable
@@ -42,7 +43,7 @@ final class PulseSecureDetector: VPNClientDetector {
         return VPNClientStatus(
             clientType: clientType, installed: installed, running: running,
             connectionState: state, detectedIssues: issues,
-            interfaceName: hasUtunRoutes ? "utun" : nil, processName: processName, appPath: appPath
+            interfaceName: hasUtunRoutes ? "utun" : nil, processName: matchedProcess ?? processNames[0], appPath: appPath
         )
     }
 }

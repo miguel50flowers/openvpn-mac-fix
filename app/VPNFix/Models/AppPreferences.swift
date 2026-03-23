@@ -1,5 +1,9 @@
 import SwiftUI
 
+extension Notification.Name {
+    static let scanIntervalChanged = Notification.Name("scanIntervalChanged")
+}
+
 /// User preferences stored via @AppStorage (UserDefaults).
 final class AppPreferences: ObservableObject {
     static let shared = AppPreferences()
