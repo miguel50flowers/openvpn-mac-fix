@@ -4,6 +4,7 @@ import Foundation
 /// Backward compatible: `currentState()` still returns a single VPNState for the menu bar.
 final class VPNDetector {
     private let detectors: [VPNClientDetector]
+    private let customDetector = CustomVPNDetector()
 
     init() {
         self.detectors = [
@@ -68,8 +69,11 @@ final class VPNDetector {
             }
             return status
         }
+        // Append custom VPN detections
+        let customStatuses = customDetector.detectAll(using: cache)
+
         // Return only clients that are installed or running
-        return allStatuses.filter { $0.installed || $0.running }
+        return (allStatuses + customStatuses).filter { $0.installed || $0.running }
     }
 
     /// Computes the aggregate state for the menu bar.

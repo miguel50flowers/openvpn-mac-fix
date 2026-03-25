@@ -54,4 +54,67 @@ final class AppPreferences: ObservableObject {
     func isIssueDismissed(type: String, client: String) -> Bool {
         dismissedIssues.contains("\(client):\(type)")
     }
+
+    // Hidden VPN clients (stored as JSON-encoded [String] of VPNClientType rawValues)
+    @AppStorage("hiddenClients") var hiddenClientsData: String = "[]"
+
+    var hiddenClients: Set<String> {
+        get {
+            guard let data = hiddenClientsData.data(using: .utf8),
+                  let array = try? JSONDecoder().decode([String].self, from: data) else { return [] }
+            return Set(array)
+        }
+        set {
+            if let data = try? JSONEncoder().encode(Array(newValue)),
+               let string = String(data: data, encoding: .utf8) {
+                hiddenClientsData = string
+            }
+        }
+    }
+
+    func hideClient(_ rawValue: String) {
+        var current = hiddenClients
+        current.insert(rawValue)
+        hiddenClients = current
+    }
+
+    func unhideClient(_ rawValue: String) {
+        var current = hiddenClients
+        current.remove(rawValue)
+        hiddenClients = current
+    }
+
+    func isClientHidden(_ rawValue: String) -> Bool {
+        hiddenClients.contains(rawValue)
+    }
+
+    func unhideAllClients() {
+        hiddenClients = []
+    }
+
+    // Custom VPN entries (stored as JSON-encoded [CustomVPNEntry])
+    @AppStorage("customVPNEntries") var customVPNEntriesData: String = "[]"
+
+    var customVPNEntries: [CustomVPNEntry] {
+        get {
+            guard let data = customVPNEntriesData.data(using: .utf8) else { return [] }
+            return (try? JSONDecoder().decode([CustomVPNEntry].self, from: data)) ?? []
+        }
+        set {
+            if let data = try? JSONEncoder().encode(newValue),
+               let string = String(data: data, encoding: .utf8) {
+                customVPNEntriesData = string
+            }
+        }
+    }
+
+    func addCustomVPN(_ entry: CustomVPNEntry) {
+        var entries = customVPNEntries
+        entries.append(entry)
+        customVPNEntries = entries
+    }
+
+    func removeCustomVPN(id: UUID) {
+        customVPNEntries = customVPNEntries.filter { $0.id != id }
+    }
 }

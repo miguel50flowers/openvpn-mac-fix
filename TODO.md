@@ -55,9 +55,9 @@
 - [x] Network diagnostics dashboard (DNS servers, default gateway, active interfaces, PF rules, proxy settings) — v3.0.0
 - [x] Dashboard UI overhaul: severity badges, per-issue fix descriptions, dismiss/undismiss, collapsible diagnostics — v3.0.3
 - [x] Show Dashboard on launch toggle — v3.1.3
-- [ ] Hide/remove VPN from Dashboard (per-client visibility toggle, persisted in UserDefaults, "Manage VPNs" panel to restore hidden clients) — see `docs/VPN-DASHBOARD-MANAGEMENT.md`
-- [ ] Manually add VPN client (app picker via `NSWorkspace`/Launch Services, or select from known list; custom entries stored in UserDefaults with bundle ID + app path + interface type) — see `docs/VPN-DASHBOARD-MANAGEMENT.md`
-- [ ] CLI companion tool (`vpnfix status`, `vpnfix diagnose`, `vpnfix fix --all`)
+- [x] Hide/remove VPN from Dashboard (per-client visibility toggle, persisted in UserDefaults, "Manage VPNs" panel to restore hidden clients) — v4.4.0
+- [x] Manually add VPN client (app picker via `NSWorkspace`/Launch Services, or select from known list; custom entries stored in UserDefaults with bundle ID + app path + interface type) — v4.4.0
+- [x] CLI companion tool (`vpnfix status`, `vpnfix diagnose`, `vpnfix fix --all`) — v4.4.0
 
 ## Phase 3.5 — Unified UI & Community
 

@@ -10,6 +10,7 @@ struct VPNClientCard: View {
     let onFix: () -> Void
     let onFixIssue: (VPNIssue) -> Void
     let onDismiss: (VPNIssue) -> Void
+    var onHide: (() -> Void)?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -154,6 +155,15 @@ struct VPNClientCard: View {
                 .strokeBorder(headerColor.opacity(0.3), lineWidth: 1)
         )
         .shadow(color: .black.opacity(0.05), radius: 2, y: 1)
+        .contextMenu {
+            if let onHide {
+                Button {
+                    onHide()
+                } label: {
+                    Label("Hide from Dashboard", systemImage: "eye.slash")
+                }
+            }
+        }
     }
 
     private var headerColor: Color {

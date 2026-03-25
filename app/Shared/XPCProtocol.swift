@@ -33,6 +33,9 @@ import Foundation
 
     /// Returns JSON-encoded NetworkDiagnostics snapshot.
     func getNetworkDiagnostics(reply: @escaping (String) -> Void)
+
+    /// Stores custom VPN entries (JSON-encoded [CustomVPNEntry]) for detection.
+    func setCustomVPNEntries(_ json: String, reply: @escaping (Bool) -> Void)
 }
 
 /// Protocol for helper → app communication (state updates).

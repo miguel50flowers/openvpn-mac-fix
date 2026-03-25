@@ -107,6 +107,15 @@ final class XPCClient: XPCClientProtocol {
         }
     }
 
+    func setCustomVPNEntries(_ json: String, reply: @escaping (Bool) -> Void) {
+        AppLogger.shared.debug("XPC: setCustomVPNEntries requested")
+        proxy { helper in
+            helper.setCustomVPNEntries(json, reply: reply)
+        } errorHandler: {
+            reply(false)
+        }
+    }
+
     // MARK: - Typed Convenience API
 
     /// Decodes VPN client statuses from JSON, returning a typed Result.

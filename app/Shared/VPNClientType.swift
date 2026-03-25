@@ -23,6 +23,9 @@ enum VPNClientType: String, Codable, Sendable, CaseIterable {
     case zscaler
     case fortiClient
 
+    // User-defined
+    case custom
+
     // Generic
     case unknown
 
@@ -50,11 +53,13 @@ enum VPNClientType: String, Codable, Sendable, CaseIterable {
         case .pulseSecure: return "Pulse Secure"
         case .zscaler: return "Zscaler"
         case .fortiClient: return "FortiClient"
+        case .custom: return "Custom VPN"
         case .unknown: return "Unknown VPN"
         }
     }
 
     var sfSymbol: String {
+        if self == .custom { return "puzzlepiece.extension" }
         switch category {
         case .consumer: return "shield.checkered"
         case .enterprise: return "building.2.crop.circle"
@@ -65,7 +70,7 @@ enum VPNClientType: String, Codable, Sendable, CaseIterable {
         switch self {
         case .openVPN, .wireGuard, .nordVPN, .expressVPN, .surfshark,
              .cyberGhost, .protonVPN, .mullvad, .pia, .ipVanish,
-             .windscribe, .tunnelBear, .unknown:
+             .windscribe, .tunnelBear, .custom, .unknown:
             return .consumer
         case .ciscoAnyConnect, .globalProtect, .pulseSecure, .zscaler, .fortiClient:
             return .enterprise

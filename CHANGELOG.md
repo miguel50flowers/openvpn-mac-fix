@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Hide/remove VPN from Dashboard — right-click context menu to hide, "Manage" button to toggle visibility, hidden count badge
+- Manually add custom VPN client — app picker, process name, interface type; synced to helper via XPC for detection
+- CLI companion tool (`vpnfix`) — `status`, `diagnose`, `fix --all`, `fix <type>`, `version` commands via XPC to helper daemon
+
 ## [4.3.0] - 2026-03-25
 
 ### Added

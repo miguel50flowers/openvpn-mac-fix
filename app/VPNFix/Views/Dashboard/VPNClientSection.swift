@@ -2,12 +2,22 @@ import SwiftUI
 
 struct VPNClientSection: View {
     @ObservedObject var viewModel: DashboardViewModel
+    @State private var showManageSheet = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text("Detected VPN Clients")
                     .font(.title3.weight(.semibold))
+
+                if viewModel.hiddenClientCount > 0 {
+                    Text("\(viewModel.hiddenClientCount) hidden")
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 2)
+                        .background(Color.gray.opacity(0.15), in: Capsule())
+                }
 
                 Spacer()
 
@@ -24,9 +34,18 @@ struct VPNClientSection: View {
                     .controlSize(.small)
                     .buttonStyle(.bordered)
                 }
+
+                Button {
+                    showManageSheet = true
+                } label: {
+                    Label("Manage", systemImage: "slider.horizontal.3")
+                        .font(.caption)
+                }
+                .controlSize(.small)
+                .buttonStyle(.bordered)
             }
 
-            if viewModel.clients.isEmpty {
+            if viewModel.visibleClients.isEmpty {
                 if viewModel.isScanning {
                     HStack {
                         ProgressView()
@@ -42,12 +61,17 @@ struct VPNClientSection: View {
                             .foregroundStyle(.secondary)
                         Text("No VPN clients detected")
                             .foregroundStyle(.secondary)
+                        if viewModel.hiddenClientCount > 0 {
+                            Text("\(viewModel.hiddenClientCount) client\(viewModel.hiddenClientCount == 1 ? "" : "s") hidden")
+                                .font(.caption)
+                                .foregroundStyle(.tertiary)
+                        }
                     }
                     .frame(maxWidth: .infinity, minHeight: 100)
                 }
             } else {
                 VStack(spacing: 12) {
-                    ForEach(viewModel.clients) { client in
+                    ForEach(viewModel.visibleClients) { client in
                         let active = viewModel.showDismissed
                             ? client.detectedIssues
                             : viewModel.activeIssues(for: client)
@@ -64,11 +88,15 @@ struct VPNClientSection: View {
                             onFixIssue: { _ in viewModel.fixClient(client.clientType) },
                             onDismiss: { issue in
                                 viewModel.dismissIssue(type: issue.type, client: client.clientType)
-                            }
+                            },
+                            onHide: { viewModel.hideClient(client.clientType) }
                         )
                     }
                 }
             }
+        }
+        .sheet(isPresented: $showManageSheet) {
+            ManageVPNsSheet(viewModel: viewModel)
         }
     }
 }

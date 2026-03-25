@@ -211,6 +211,19 @@ final class HelperTool: NSObject, VPNHelperProtocol {
         }
     }
 
+    func setCustomVPNEntries(_ json: String, reply: @escaping (Bool) -> Void) {
+        HelperLogger.shared.debug("[VPNFixHelper] setCustomVPNEntries requested")
+        let path = "/Library/PrivilegedHelperTools/VPNFixResources/custom-vpns.json"
+        do {
+            try json.write(toFile: path, atomically: true, encoding: .utf8)
+            HelperLogger.shared.info("[VPNFixHelper] Custom VPN entries saved to \(path)")
+            reply(true)
+        } catch {
+            HelperLogger.shared.error("[VPNFixHelper] Failed to save custom VPN entries: \(error)")
+            reply(false)
+        }
+    }
+
     // MARK: - Private
 
     private func handleResolvConfChange() {

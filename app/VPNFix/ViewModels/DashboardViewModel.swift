@@ -191,16 +191,41 @@ final class DashboardViewModel: ObservableObject {
         client.detectedIssues.count - activeIssues(for: client).count
     }
 
+    // MARK: - Client Visibility
+
+    var visibleClients: [VPNClientStatus] {
+        clients.filter { !AppPreferences.shared.isClientHidden($0.clientType.rawValue) }
+    }
+
+    var hiddenClientCount: Int {
+        clients.count - visibleClients.count
+    }
+
+    func hideClient(_ type: VPNClientType) {
+        AppPreferences.shared.hideClient(type.rawValue)
+        objectWillChange.send()
+    }
+
+    func unhideClient(_ type: VPNClientType) {
+        AppPreferences.shared.unhideClient(type.rawValue)
+        objectWillChange.send()
+    }
+
+    func unhideAllClients() {
+        AppPreferences.shared.unhideAllClients()
+        objectWillChange.send()
+    }
+
     var hasDismissedIssues: Bool {
-        clients.contains { dismissedIssueCount(for: $0) > 0 }
+        visibleClients.contains { dismissedIssueCount(for: $0) > 0 }
     }
 
     var totalIssueCount: Int {
-        clients.reduce(0) { $0 + activeIssues(for: $1).count }
+        visibleClients.reduce(0) { $0 + activeIssues(for: $1).count }
     }
 
     var activeVPNCount: Int {
-        clients.filter { $0.connectionState == .connected }.count
+        visibleClients.filter { $0.connectionState == .connected }.count
     }
 
     var overallHealth: OverallHealth {
