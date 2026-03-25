@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [5.0.2] - 2026-03-25
+
 ### Fixed
 
 - Autofix no longer triggers during VPN connection — added 3s debounce on resolv.conf watcher and VPN process check before applying fixes
