@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [5.0.0] - 2026-03-25
+
 ### Added
 
 - Network Repair Toolkit: 9 new repair modules — DNS flush, DHCP renew, Wi-Fi reset, interface reset, ARP cache flush, IPv6 reset, MTU fix, mDNS restart, speed test (networkQuality)
