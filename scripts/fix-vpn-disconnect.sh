@@ -14,15 +14,21 @@ debug() { [ "$LOG_LEVEL" = "DEBUG" ] && echo "$(date '+%Y-%m-%d %H:%M:%S') [DEBU
 
 log "Starting network recovery (v${VERSION})..."
 
-# 1. Remove residual VPN routes (0/1 and 128.0/1 via utun)
-for route in "0/1" "128.0/1"; do
-    debug "Checking route: $route"
-    if netstat -rn | grep -q "^${route}.*utun"; then
-        gw=$(netstat -rn | grep "^${route}.*utun" | awk '{print $2}')
-        iface=$(netstat -rn | grep "^${route}.*utun" | awk '{print $NF}')
-        route -n delete -net "$route" "$gw" 2>/dev/null && log "Route removed: $route via $gw ($iface)" || true
-    fi
-done
+# 1. Remove residual VPN routes (only if no active VPN tunnel process is running)
+# Only check tunnel-specific processes, NOT background daemons (fct_launcher, vpnagentd, etc.)
+VPN_PROCS="openvpn|wireguard-go|pia-wireguard-go"
+if pgrep -x "$VPN_PROCS" > /dev/null 2>&1; then
+    log "VPN process still running — skipping route removal (routes are intentional)"
+else
+    for route in "0/1" "128.0/1"; do
+        debug "Checking route: $route"
+        if netstat -rn | grep -q "^${route}.*utun"; then
+            gw=$(netstat -rn | grep "^${route}.*utun" | awk '{print $2}')
+            iface=$(netstat -rn | grep "^${route}.*utun" | awk '{print $NF}')
+            route -n delete -net "$route" "$gw" 2>/dev/null && log "Route removed: $route via $gw ($iface)" || true
+        fi
+    done
+fi
 
 # 2. Flush DNS
 dscacheutil -flushcache 2>/dev/null || true
