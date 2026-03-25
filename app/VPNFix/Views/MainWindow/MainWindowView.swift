@@ -59,6 +59,8 @@ struct MainWindowView: View {
             NotificationsSettingsView()
         case .advanced:
             AdvancedSettingsView()
+        case .feedback:
+            FeedbackView()
         case .about:
             AboutView()
         case nil:

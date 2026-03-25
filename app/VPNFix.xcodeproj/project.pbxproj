@@ -141,6 +141,7 @@
 		F26F95ADC0E449C09234E04D /* SystemConfigResetModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E359A42DB8C43CB8209F4B7; };
 		96723DD6240F405BAC634CB9 /* SpeedTestModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33FE408EC512497084DD951A; };
 		67F51375EAF84C0B9B718527 /* NetworkToolsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4504EB38183B40FB89BBB213; };
+		B96B2B17F5F44F0DAFDB79F5 /* FeedbackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 551D48672FE940418524E5AF; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -279,6 +280,7 @@
 		4E359A42DB8C43CB8209F4B7 /* SystemConfigResetModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemConfigResetModule.swift; sourceTree = "<group>"; };
 		33FE408EC512497084DD951A /* SpeedTestModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeedTestModule.swift; sourceTree = "<group>"; };
 		4504EB38183B40FB89BBB213 /* NetworkToolsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkToolsSection.swift; sourceTree = "<group>"; };
+		551D48672FE940418524E5AF /* FeedbackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -371,6 +373,7 @@
 			isa = PBXGroup;
 			children = (
 				96C0DDED13E689B6DADF09AA /* AboutView.swift */,
+				551D48672FE940418524E5AF /* FeedbackView.swift */,
 				E9FC54F927E31FFF45A15721 /* AdvancedSettingsView.swift */,
 				618E835DA19E58A051E0640C /* DashboardDetailView.swift */,
 				C48B5F4A2E193DB6158EDAC3 /* GeneralSettingsView.swift */,
@@ -758,6 +761,7 @@
 				89194A5DF0721CC75DA590F5 /* VPNClientType.swift in Sources */,
 				9A0C0E4F762C23F375CE16D7 /* VPNClientsDetailView.swift in Sources */,
 				D4886733DC05A2CDE41E01B5 /* VPNFixApp.swift in Sources */,
+				B96B2B17F5F44F0DAFDB79F5 /* FeedbackView.swift in Sources */,
 				67F51375EAF84C0B9B718527 /* NetworkToolsSection.swift in Sources */,
 				FCBCFAC6895A465ABC244D39 /* in Sources */,
 				1C3E16FA8B9E4F79A0BACBC3 /* in Sources */,

@@ -13,6 +13,7 @@ enum SidebarItem: String, Hashable, Identifiable, CaseIterable {
     case general
     case notifications
     case advanced
+    case feedback
     case about
 
     var id: String { rawValue }
@@ -26,6 +27,7 @@ enum SidebarItem: String, Hashable, Identifiable, CaseIterable {
         case .general: return "General"
         case .notifications: return "Notifications"
         case .advanced: return "Advanced"
+        case .feedback: return "Feedback"
         case .about: return "About"
         }
     }
@@ -39,6 +41,7 @@ enum SidebarItem: String, Hashable, Identifiable, CaseIterable {
         case .general: return "gearshape"
         case .notifications: return "bell"
         case .advanced: return "wrench.and.screwdriver"
+        case .feedback: return "bubble.left.and.text.bubble.right"
         case .about: return "info.circle"
         }
     }
@@ -47,7 +50,7 @@ enum SidebarItem: String, Hashable, Identifiable, CaseIterable {
         switch self {
         case .dashboard, .vpnClients, .network, .logs:
             return .monitor
-        case .general, .notifications, .advanced, .about:
+        case .general, .notifications, .advanced, .feedback, .about:
             return .settings
         }
     }

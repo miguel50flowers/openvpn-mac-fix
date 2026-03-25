@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Feedback sidebar tab with GitHub, Report Issue, Send Feedback, and Website links
+- CLI install/uninstall wizard in Advanced settings with admin prompt
+
+### Changed
+
+- About view simplified: updated tagline to "The macOS Network & VPN Repair Tool", shows helper version, removed duplicate links
+- Advanced settings: removed duplicate Documentation section, CLI status now detects installed path at /usr/local/bin/vpnfix
+
 ## [5.0.0] - 2026-03-25
 
 ### Added

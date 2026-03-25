@@ -2,66 +2,36 @@ import SwiftUI
 import AppKit
 
 struct AboutView: View {
+    @State private var helperVersion = "..."
+
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 14) {
             Spacer()
 
             if let appIcon = NSApp.applicationIconImage {
                 Image(nsImage: appIcon)
                     .resizable()
-                    .frame(width: 64, height: 64)
+                    .frame(width: 80, height: 80)
+                    .shadow(color: .black.opacity(0.1), radius: 6, y: 3)
             }
 
             Text("VPN Fix")
-                .font(.title2)
+                .font(.largeTitle)
                 .fontWeight(.bold)
 
-            let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "Unknown"
-            let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "Unknown"
-            Text("Version \(version) (\(build))")
+            Text("The macOS Network & VPN Repair Tool")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
 
-            Text("Detects and fixes network issues after OpenVPN disconnects on macOS.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 40)
+            let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "Unknown"
+            let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "Unknown"
 
-            Link("Website", destination: URL(string: "https://vpn-fix.maecly.com/")!)
-                .font(.caption)
-
-            Link("GitHub Repository", destination: URL(string: "https://github.com/miguel50flowers/openvpn-mac-fix")!)
-                .font(.caption)
-
-            HStack(spacing: 12) {
-                Button {
-                    let info = SystemInfoCollector.collect()
-                    let url = GitHubIssueURLBuilder.feedbackURL(systemInfo: info)
-                    NSWorkspace.shared.open(url)
-                } label: {
-                    Label("Send Feedback", systemImage: "bubble.left.and.text.bubble.right")
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(.blue)
-                .accessibilityHint("Opens GitHub to submit feedback with your device information")
-
-                Button {
-                    let info = SystemInfoCollector.collect()
-                    let logs = LogCollector.recentLines(count: 30)
-                    let url = GitHubIssueURLBuilder.bugReportURL(systemInfo: info, recentLogs: logs)
-                    NSWorkspace.shared.open(url)
-                } label: {
-                    Label("Report Issue", systemImage: "ladybug")
-                }
-                .buttonStyle(.bordered)
-                .tint(.orange)
-                .accessibilityHint("Opens GitHub to report a bug with device information and recent logs")
+            HStack(spacing: 16) {
+                LabeledValue(label: "App Version", value: "\(version) (\(build))")
+                LabeledValue(label: "Helper", value: helperVersion)
             }
-
-            Text("Reports include device info and recent logs visible on GitHub.")
-                .font(.caption2)
-                .foregroundStyle(.tertiary)
+            .font(.caption)
+            .foregroundStyle(.secondary)
 
             Spacer()
 
@@ -71,5 +41,25 @@ struct AboutView: View {
                 .padding(.bottom, 8)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onAppear {
+            XPCClient.shared.getVersion { v in
+                DispatchQueue.main.async { helperVersion = v }
+            }
+        }
+    }
+}
+
+private struct LabeledValue: View {
+    let label: String
+    let value: String
+
+    var body: some View {
+        VStack(spacing: 2) {
+            Text(label)
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+            Text(value)
+                .font(.caption.monospaced())
+        }
     }
 }
