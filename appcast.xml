@@ -6,6 +6,30 @@
         <language>en</language>
         <!-- APPCAST_ITEMS -->
         <item>
+            <title>Version 5.0.0</title>
+            <description><![CDATA[
+                <h3>Added</h3>
+<ul>
+<li>Network Repair Toolkit: 9 new repair modules — DNS flush, DHCP renew, Wi-Fi reset, interface reset, ARP cache flush, IPv6 reset, MTU fix, mDNS restart, speed test (networkQuality)</li>
+<li>Network Location Reset and System Configuration Reset (nuclear options with backup)</li>
+<li>"Fix Everything" one-click button chains all network repairs</li>
+<li>Network Tools grid in Network view with quick-action buttons</li>
+<li>New issue types: MTU mismatch, self-assigned IP, stuck interface</li>
+<li>CLI `repair` command (11 actions) and `speedtest` command</li>
+</ul>
+            ]]></description>
+            <pubDate>Wed, 25 Mar 2026 20:01:26 +0000</pubDate>
+            <sparkle:version>__BUILD_NUMBER__</sparkle:version>
+            <sparkle:shortVersionString>5.0.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <enclosure
+                url="https://github.com/miguel50flowers/openvpn-mac-fix/releases/download/v5.0.0/VPNFix-5.0.0.dmg"
+                type="application/octet-stream"
+                sparkle:edSignature="__ED_SIGNATURE__"
+                length="__DMG_LENGTH__"
+            />
+        </item>
+        <item>
             <title>Version 4.4.1</title>
             <description><![CDATA[
                 <h3>Added</h3>
