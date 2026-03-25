@@ -6,6 +6,31 @@
         <language>en</language>
         <!-- APPCAST_ITEMS -->
         <item>
+            <title>Version 5.0.1</title>
+            <description><![CDATA[
+                <h3>Added</h3>
+<ul>
+<li>Feedback sidebar tab with GitHub, Report Issue, Send Feedback, and Website links</li>
+<li>CLI install/uninstall wizard in Advanced settings with admin prompt</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li>About view simplified: updated tagline to "The macOS Network & VPN Repair Tool", shows helper version, removed duplicate links</li>
+<li>Advanced settings: removed duplicate Documentation section, CLI status now detects installed path at /usr/local/bin/vpnfix</li>
+</ul>
+            ]]></description>
+            <pubDate>Wed, 25 Mar 2026 20:18:11 +0000</pubDate>
+            <sparkle:version>__BUILD_NUMBER__</sparkle:version>
+            <sparkle:shortVersionString>5.0.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <enclosure
+                url="https://github.com/miguel50flowers/openvpn-mac-fix/releases/download/v5.0.1/VPNFix-5.0.1.dmg"
+                type="application/octet-stream"
+                sparkle:edSignature="__ED_SIGNATURE__"
+                length="__DMG_LENGTH__"
+            />
+        </item>
+        <item>
             <title>Version 5.0.0</title>
             <description><![CDATA[
                 <h3>Added</h3>
