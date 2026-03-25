@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Advanced settings: CLI tool status, path with copy button, usage reference, helper version, and documentation links
+
 ## [4.4.0] - 2026-03-25
 
 ### Added
