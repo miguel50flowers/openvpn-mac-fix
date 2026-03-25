@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [4.3.0] - 2026-03-25
+
 ### Added
 
 - Onboarding flow for first launch — 4-step guided setup explaining app features, helper installation with context, and quick preferences (notifications, launch at login)
