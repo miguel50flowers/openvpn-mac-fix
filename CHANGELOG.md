@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- FortiClient detector no longer falsely reports "Connected" when FortiClient is open but not tunneling — was matching generic utun interfaces created by other VPNs (e.g. OpenVPN)
+
 ## [4.2.0] - 2026-03-23
 
 ### Fixed
