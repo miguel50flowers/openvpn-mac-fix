@@ -6,6 +6,29 @@
         <language>en</language>
         <!-- APPCAST_ITEMS -->
         <item>
+            <title>Version 5.0.2</title>
+            <description><![CDATA[
+                <h3>Fixed</h3>
+<ul>
+<li>Autofix no longer triggers during VPN connection — added 3s debounce on resolv.conf watcher and VPN process check before applying fixes</li>
+<li>Autofix now verifies no active VPN tunnel process is running before removing routes (checks only tunnel binaries like openvpn/wireguard-go, not background daemons like fct_launcher/vpnagentd that would block legitimate fixes)</li>
+<li>Added 30-second cooldown between autofix attempts to prevent rapid-fire fix loops</li>
+<li>Fix Everything no longer resets network interfaces when VPN is connected (preserves active tunnel)</li>
+<li>Shell script fix-vpn-disconnect.sh now skips route removal if VPN process is still running</li>
+</ul>
+            ]]></description>
+            <pubDate>Wed, 25 Mar 2026 23:53:59 +0000</pubDate>
+            <sparkle:version>__BUILD_NUMBER__</sparkle:version>
+            <sparkle:shortVersionString>5.0.2</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <enclosure
+                url="https://github.com/miguel50flowers/openvpn-mac-fix/releases/download/v5.0.2/VPNFix-5.0.2.dmg"
+                type="application/octet-stream"
+                sparkle:edSignature="__ED_SIGNATURE__"
+                length="__DMG_LENGTH__"
+            />
+        </item>
+        <item>
             <title>Version 5.0.1</title>
             <description><![CDATA[
                 <h3>Added</h3>
