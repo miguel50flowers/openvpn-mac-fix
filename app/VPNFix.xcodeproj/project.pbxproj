@@ -111,6 +111,11 @@
 		FA1A64EE341ED69C73D7E3B0 /* LogParsingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD62F8EDE3FCBA0FBBCD751 /* LogParsingTests.swift */; };
 		FB377D2652D2ECA29BD14178 /* SurfsharkDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FF6C387E5D9C00C449925F8 /* SurfsharkDetector.swift */; };
 		FE4DFD170087ADD66AF3E648 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = C995B943E0BD9FA2EADBFDB1 /* AppLogger.swift */; };
+		061228243FC38D761C79E38D /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7785734440417F942AF5C69 /* OnboardingView.swift */; };
+		B81AFBDFF8347FF2AEDA57A2 /* OnboardingWelcomeStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F1A459F7D8AF8A1FF8FC12B /* OnboardingWelcomeStep.swift */; };
+		9507E8C0C151E04EDC202836 /* OnboardingHowItWorksStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04417FA34E9AECED9913921E /* OnboardingHowItWorksStep.swift */; };
+		29805BBD853858BFBD387762 /* OnboardingHelperStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AECB152953F78D3C989C959 /* OnboardingHelperStep.swift */; };
+		153A44C636A8DAADC45170B9 /* OnboardingReadyStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17A8B018C409DBCB9105A61C /* OnboardingReadyStep.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -226,6 +231,11 @@
 		F51504D67741832F47E387A2 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
 		F57DA9BF2B84DC9B2AEF3A5D /* PIADetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PIADetector.swift; sourceTree = "<group>"; };
 		FB3192FAB7EEE4AE8C8E1A38 /* XPCClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XPCClient.swift; sourceTree = "<group>"; };
+		E7785734440417F942AF5C69 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		4F1A459F7D8AF8A1FF8FC12B /* OnboardingWelcomeStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingWelcomeStep.swift; sourceTree = "<group>"; };
+		04417FA34E9AECED9913921E /* OnboardingHowItWorksStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingHowItWorksStep.swift; sourceTree = "<group>"; };
+		4AECB152953F78D3C989C959 /* OnboardingHelperStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingHelperStep.swift; sourceTree = "<group>"; };
+		17A8B018C409DBCB9105A61C /* OnboardingReadyStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingReadyStep.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -357,6 +367,7 @@
 				A717F0F3C17400F70569F917 /* LogViewerView.swift */,
 				F51504D67741832F47E387A2 /* MenuBarView.swift */,
 				D4D3B9C0E28F797DE6276047 /* Dashboard */,
+				D541007453F27E7B89F11B8F /* Onboarding */,
 				CAA0C51F1C52D3709A68851C /* MainWindow */,
 			);
 			path = Views;
@@ -452,6 +463,18 @@
 				8963E5ADA31AD5EDDB3CACEE /* VPNFixTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		D541007453F27E7B89F11B8F /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				E7785734440417F942AF5C69 /* OnboardingView.swift */,
+				4F1A459F7D8AF8A1FF8FC12B /* OnboardingWelcomeStep.swift */,
+				04417FA34E9AECED9913921E /* OnboardingHowItWorksStep.swift */,
+				4AECB152953F78D3C989C959 /* OnboardingHelperStep.swift */,
+				17A8B018C409DBCB9105A61C /* OnboardingReadyStep.swift */,
+			);
+			path = Onboarding;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -634,6 +657,11 @@
 				89194A5DF0721CC75DA590F5 /* VPNClientType.swift in Sources */,
 				9A0C0E4F762C23F375CE16D7 /* VPNClientsDetailView.swift in Sources */,
 				D4886733DC05A2CDE41E01B5 /* VPNFixApp.swift in Sources */,
+				061228243FC38D761C79E38D /* OnboardingView.swift in Sources */,
+				B81AFBDFF8347FF2AEDA57A2 /* OnboardingWelcomeStep.swift in Sources */,
+				9507E8C0C151E04EDC202836 /* OnboardingHowItWorksStep.swift in Sources */,
+				29805BBD853858BFBD387762 /* OnboardingHelperStep.swift in Sources */,
+				153A44C636A8DAADC45170B9 /* OnboardingReadyStep.swift in Sources */,
 				CCB296BEAC5AB4F3ABB29413 /* VPNIssue.swift in Sources */,
 				E5D018E1E99DE0B0EE646E92 /* VPNState.swift in Sources */,
 				C777DC3AA7CE6385E22E28E9 /* VPNStatusViewModel.swift in Sources */,

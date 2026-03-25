@@ -42,7 +42,7 @@
 - [x] Security hardening: log moved from `/tmp` to `/var/log/VPNFix/` (0o644), XPC signature verification always active, shell injection hardening — v3.1.0
 - [x] Shared `RoutingTableParser` eliminating duplicated VPN detection logic — v3.1.0
 - [x] UI state machine for Dashboard (`ViewState` enum: loading/loaded/error/empty) — v3.1.0
-- [ ] Onboarding flow for first launch (permission requests, helper install explanation)
+- [x] Onboarding flow for first launch (permission requests, helper install explanation) — v4.3.0
 
 ## Phase 3 — Multi-VPN Support & Network Diagnostics
 

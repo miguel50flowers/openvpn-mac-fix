@@ -23,19 +23,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         AppLogger.shared.info("VPN Fix app launched")
-        let showDock = AppPreferences.shared.showDockIcon
+        let prefs = AppPreferences.shared
+        let showDock = prefs.showDockIcon
         AppLogger.shared.debug("Dock icon policy: \(showDock ? "regular (visible)" : "accessory (hidden)")")
         if showDock {
             NSApp.setActivationPolicy(.regular)
         }
-        AppLogger.shared.debug("Requesting notification permission...")
-        notificationService.requestPermission()
-        AppLogger.shared.debug("Checking helper install status...")
-        HelperInstaller.shared.installIfNeeded()
-        AppLogger.shared.debug("Checking for Phase 1 migration...")
-        checkForPhase1Migration()
 
-        if AppPreferences.shared.showDashboardOnLaunch {
+        if prefs.hasCompletedOnboarding {
+            // Normal launch: request permissions and install helper
+            AppLogger.shared.debug("Requesting notification permission...")
+            notificationService.requestPermission()
+            AppLogger.shared.debug("Checking helper install status...")
+            HelperInstaller.shared.installIfNeeded()
+            AppLogger.shared.debug("Checking for Phase 1 migration...")
+            checkForPhase1Migration()
+        } else {
+            AppLogger.shared.info("Onboarding not completed, deferring helper install and permissions")
+        }
+
+        let showWindow = !prefs.hasCompletedOnboarding || prefs.showDashboardOnLaunch
+        if showWindow {
             // SwiftUI creates Window scenes lazily — NSWindow doesn't exist yet at launch.
             // Retry until SwiftUI creates it (typically ~1-2s).
             func tryOpen(_ attempt: Int = 0) {

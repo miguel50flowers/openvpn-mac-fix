@@ -50,6 +50,11 @@ struct GeneralSettingsView: View {
                 ))
 
                 Toggle("Show Dashboard on launch", isOn: $prefs.showDashboardOnLaunch)
+
+                Button("Reset Onboarding") {
+                    prefs.hasCompletedOnboarding = false
+                }
+                .foregroundStyle(.secondary)
             }
 
             Section("Updates") {

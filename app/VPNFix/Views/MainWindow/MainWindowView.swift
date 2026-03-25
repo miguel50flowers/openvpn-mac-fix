@@ -1,10 +1,20 @@
 import SwiftUI
 
 struct MainWindowView: View {
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var selection: SidebarItem? = .dashboard
     @StateObject private var dashboardVM = DashboardViewModel()
 
     var body: some View {
+        if hasCompletedOnboarding {
+            mainContent
+        } else {
+            OnboardingView()
+                .frame(minWidth: 700, minHeight: 500)
+        }
+    }
+
+    private var mainContent: some View {
         NavigationSplitView {
             SidebarView(selection: $selection)
                 .navigationSplitViewColumnWidth(min: 160, ideal: 190, max: 250)

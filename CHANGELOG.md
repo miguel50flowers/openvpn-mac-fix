@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Onboarding flow for first launch — 4-step guided setup explaining app features, helper installation with context, and quick preferences (notifications, launch at login)
+- "Reset Onboarding" button in Settings > General
+
 ## [4.2.1] - 2026-03-25
 
 ### Fixed
