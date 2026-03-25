@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [4.4.0] - 2026-03-25
+
 ### Added
 
 - Hide/remove VPN from Dashboard — right-click context menu to hide, "Manage" button to toggle visibility, hidden count badge
