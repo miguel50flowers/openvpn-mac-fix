@@ -6,6 +6,8 @@ final class FileWatcher {
     private let watchPaths = ["/var/run/resolv.conf", "/etc/resolv.conf"]
     private var sources: [DispatchSourceFileSystemObject] = []
     private var retryTimer: DispatchSourceTimer?
+    private var debounceWork: DispatchWorkItem?
+    private let debounceInterval: TimeInterval = 3.0
     private let onChange: () -> Void
     private let queue = DispatchQueue(label: "com.vpnfix.filewatcher")
 
@@ -27,6 +29,8 @@ final class FileWatcher {
         sources.removeAll()
         retryTimer?.cancel()
         retryTimer = nil
+        debounceWork?.cancel()
+        debounceWork = nil
         HelperLogger.shared.info("[VPNFixHelper] FileWatcher stopped")
     }
 
@@ -70,7 +74,13 @@ final class FileWatcher {
                 }
             }
 
-            self.onChange()
+            // Debounce: coalesce rapid resolv.conf changes (e.g. during VPN connection)
+            self.debounceWork?.cancel()
+            let work = DispatchWorkItem { [weak self] in
+                self?.onChange()
+            }
+            self.debounceWork = work
+            self.queue.asyncAfter(deadline: .now() + self.debounceInterval, execute: work)
         }
 
         source.setCancelHandler {

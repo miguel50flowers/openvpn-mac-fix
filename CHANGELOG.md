@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Autofix no longer triggers during VPN connection — added 3s debounce on resolv.conf watcher and VPN process check before applying fixes
+- Autofix now verifies no active VPN tunnel process is running before removing routes (checks only tunnel binaries like openvpn/wireguard-go, not background daemons like fct_launcher/vpnagentd that would block legitimate fixes)
+- Added 30-second cooldown between autofix attempts to prevent rapid-fire fix loops
+- Fix Everything no longer resets network interfaces when VPN is connected (preserves active tunnel)
+- Shell script fix-vpn-disconnect.sh now skips route removal if VPN process is still running
+
 ## [5.0.1] - 2026-03-25
 
 ### Added
