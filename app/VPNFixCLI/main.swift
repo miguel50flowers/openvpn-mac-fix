@@ -21,6 +21,11 @@ case "fix":
     } else {
         Commands.fixClient(subArgs[0], client: client)
     }
+case "repair":
+    let subArgs = Array(args.dropFirst())
+    Commands.repair(subArgs.first ?? "all", client: client)
+case "speedtest":
+    Commands.speedtest(client: client)
 case "version":
     Commands.version(client: client)
 case "help", "--help", "-h":

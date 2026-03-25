@@ -211,6 +211,70 @@ final class HelperTool: NSObject, VPNHelperProtocol {
         }
     }
 
+    func runNetworkRepair(_ action: String, reply: @escaping (Bool, String) -> Void) {
+        HelperLogger.shared.info("[VPNFixHelper] runNetworkRepair requested: \(action)")
+        switch action {
+        case "flushDNS":
+            _ = DetectionUtilities.runCommandWithStatus("/usr/bin/dscacheutil", arguments: ["-flushcache"])
+            _ = DetectionUtilities.runCommandWithStatus("/usr/bin/killall", arguments: ["-HUP", "mDNSResponder"])
+            reply(true, "DNS cache flushed")
+        case "renewDHCP":
+            CommonFixModule().fix(issues: []) { s, m in reply(s, m) }
+        case "resetWiFi":
+            WiFiModule().run { s, m in reply(s, m) }
+        case "resetInterface":
+            NetworkInterfaceResetModule().run { s, m in reply(s, m) }
+        case "flushARP":
+            ARPCacheModule().run { s, m in reply(s, m) }
+        case "toggleIPv6":
+            IPv6Module().run { s, m in reply(s, m) }
+        case "fixMTU":
+            MTUFixModule().run { s, m in reply(s, m) }
+        case "restartMDNS":
+            MDNSResponderModule().run { s, m in reply(s, m) }
+        case "speedTest":
+            SpeedTestModule().run { s, m in reply(s, m) }
+        case "resetLocation":
+            NetworkLocationResetModule().run { s, m in reply(s, m) }
+        case "resetNetworkPrefs":
+            SystemConfigResetModule().run { s, m in reply(s, m) }
+        case "fixEverything":
+            runFixEverything { s, m in reply(s, m) }
+        default:
+            reply(false, "Unknown repair action: \(action)")
+        }
+    }
+
+    private func runFixEverything(reply: @escaping (Bool, String) -> Void) {
+        HelperLogger.shared.info("[VPNFixHelper] Running full network repair chain")
+        var results: [String] = []
+
+        // Chain all repairs sequentially
+        let modules: [(String, ((@escaping (Bool, String) -> Void) -> Void))] = [
+            ("DNS", { cb in _ = DetectionUtilities.runCommandWithStatus("/usr/bin/dscacheutil", arguments: ["-flushcache"]); _ = DetectionUtilities.runCommandWithStatus("/usr/bin/killall", arguments: ["-HUP", "mDNSResponder"]); cb(true, "flushed") }),
+            ("DHCP", { CommonFixModule().fix(issues: [], completion: $0) }),
+            ("MTU", { MTUFixModule().run(completion: $0) }),
+            ("ARP", { ARPCacheModule().run(completion: $0) }),
+            ("IPv6", { IPv6Module().run(completion: $0) }),
+            ("Interface", { NetworkInterfaceResetModule().run(completion: $0) }),
+        ]
+
+        let group = DispatchGroup()
+        for (name, action) in modules {
+            group.enter()
+            action { success, message in
+                results.append("\(name): \(success ? "OK" : "FAIL")")
+                group.leave()
+            }
+        }
+
+        group.notify(queue: .global()) {
+            let msg = results.joined(separator: ", ")
+            HelperLogger.shared.info("[VPNFixHelper] Fix everything done: \(msg)")
+            reply(true, msg)
+        }
+    }
+
     func setCustomVPNEntries(_ json: String, reply: @escaping (Bool) -> Void) {
         HelperLogger.shared.debug("[VPNFixHelper] setCustomVPNEntries requested")
         let path = "/Library/PrivilegedHelperTools/VPNFixResources/custom-vpns.json"

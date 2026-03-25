@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+
+- Network Repair Toolkit: 9 new repair modules — DNS flush, DHCP renew, Wi-Fi reset, interface reset, ARP cache flush, IPv6 reset, MTU fix, mDNS restart, speed test (networkQuality)
+- Network Location Reset and System Configuration Reset (nuclear options with backup)
+- "Fix Everything" one-click button chains all network repairs
+- Network Tools grid in Network view with quick-action buttons
+- New issue types: MTU mismatch, self-assigned IP, stuck interface
+- CLI `repair` command (11 actions) and `speedtest` command
+
 ## [4.4.1] - 2026-03-25
 
 ### Added

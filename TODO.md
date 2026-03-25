@@ -76,15 +76,15 @@
 
 ## Phase 4 — Network Repair Toolkit (non-VPN)
 
-- [ ] DNS flush one-click (`dscacheutil -flushcache` + `killall -HUP mDNSResponder`)
-- [ ] DHCP release/renew (`ipconfig set en0 BOOTP` → `ipconfig set en0 DHCP`)
-- [ ] Network interface reset (down/up on stuck interfaces)
-- [ ] mDNSResponder restart (fix Bonjour/local DNS issues)
-- [ ] Network preferences reset (backup + delete SystemConfiguration plists)
-- [ ] IPv6 toggle (enable/disable per interface)
-- [ ] MTU auto-detection and fix (detect MTU issues, reset to 1500 or optimal value)
-- [ ] Firewall rules audit (show active pf rules, identify stale VPN anchors)
-- [ ] "Fix Everything" one-click button (run full repair chain: routes → DNS → pf → interfaces → proxy → DHCP)
+- [x] DNS flush one-click (`dscacheutil -flushcache` + `killall -HUP mDNSResponder`) — v5.0.0
+- [x] DHCP release/renew (`ipconfig set en0 BOOTP` → `ipconfig set en0 DHCP`) — v5.0.0
+- [x] Network interface reset (down/up on stuck interfaces) — v5.0.0
+- [x] mDNSResponder restart (fix Bonjour/local DNS issues) — v5.0.0
+- [x] Network preferences reset (backup + delete SystemConfiguration plists) — v5.0.0
+- [x] IPv6 toggle (enable/disable per interface) — v5.0.0
+- [x] MTU auto-detection and fix (detect MTU issues, reset to 1500 or optimal value) — v5.0.0
+- [x] Firewall rules audit (show active pf rules, identify stale VPN anchors) — v3.0.0 (KillSwitchFixModule)
+- [x] "Fix Everything" one-click button (run full repair chain: routes → DNS → pf → interfaces → proxy → DHCP) — v5.0.0
 - [ ] Automatic reconnection option
 
 ## Phase 5 — Advanced Features & Polish

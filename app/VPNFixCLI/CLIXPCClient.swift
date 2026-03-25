@@ -78,6 +78,21 @@ final class CLIXPCClient {
         return (success, message)
     }
 
+    func runNetworkRepair(_ action: String) -> (success: Bool, message: String) {
+        let semaphore = DispatchSemaphore(value: 0)
+        var success = false
+        var message = ""
+
+        proxy()?.runNetworkRepair(action) { s, m in
+            success = s
+            message = m
+            semaphore.signal()
+        }
+
+        _ = semaphore.wait(timeout: .now() + 30)
+        return (success, message)
+    }
+
     func getVersion() -> String {
         let semaphore = DispatchSemaphore(value: 0)
         var version = "Unknown"

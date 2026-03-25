@@ -11,6 +11,7 @@ struct NetworkDetailView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
                         NetworkDiagnosticsSection(viewModel: viewModel)
+                        NetworkToolsSection()
                     }
                     .padding()
                 }

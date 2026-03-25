@@ -36,6 +36,10 @@ import Foundation
 
     /// Stores custom VPN entries (JSON-encoded [CustomVPNEntry]) for detection.
     func setCustomVPNEntries(_ json: String, reply: @escaping (Bool) -> Void)
+
+    /// Runs a network repair action. Action: flushDNS, renewDHCP, resetWiFi, resetInterface,
+    /// flushARP, toggleIPv6, fixMTU, speedTest, resetNetworkPrefs, fixEverything.
+    func runNetworkRepair(_ action: String, reply: @escaping (Bool, String) -> Void)
 }
 
 /// Protocol for helper → app communication (state updates).

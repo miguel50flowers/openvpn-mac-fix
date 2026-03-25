@@ -131,6 +131,16 @@
 		37C107BC85AD41369BAAE3B3 /* VPNState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C77DE7EC7D3B914C63981B5; };
 		D8E299FEC6EB488EAF8B3A51 /* VPNIssue.swift in Sources */ = {isa = PBXBuildFile; fileRef = C44985F3FF697373C9336F3E; };
 		44CD9ED417A045499F5108F4 /* NetworkDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61A531CB9DA1B66CABEF5558; };
+		BC66C25120C5444186A569C5 /* NetworkInterfaceResetModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EF670F4C90F467B867363B2; };
+		5E5B2C93FFBC4E16AA919CAD /* MDNSResponderModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D9D60D84A584A54B3AE8BA5; };
+		F2A6A490690F4EFC8E9608D4 /* IPv6Module.swift in Sources */ = {isa = PBXBuildFile; fileRef = 605405A02D334735A4D60CA3; };
+		1AF3D610608E43F589D23697 /* MTUFixModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7526EA2687AA4F77B4477877; };
+		A2EF676F6285438EB50B2265 /* ARPCacheModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC77954BD66E4FEA9D3ACEEE; };
+		59715C4FFB3341F1A45F1613 /* NetworkLocationResetModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C3ABB80AA48422296F61A68; };
+		A892E90BEFCA487DADA2A6C1 /* WiFiModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 010267901F4F45178A262D71; };
+		F26F95ADC0E449C09234E04D /* SystemConfigResetModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E359A42DB8C43CB8209F4B7; };
+		96723DD6240F405BAC634CB9 /* SpeedTestModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33FE408EC512497084DD951A; };
+		67F51375EAF84C0B9B718527 /* NetworkToolsSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4504EB38183B40FB89BBB213; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -259,6 +269,16 @@
 		5545BEF619B14402A3A8FC30 /* Commands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Commands.swift; sourceTree = "<group>"; };
 		FFA05969B1CE4B5DB853AD9E /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		7DABEEF7D75D462EAD89CD5C /* vpnfix */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = vpnfix; sourceTree = BUILT_PRODUCTS_DIR; };
+		4EF670F4C90F467B867363B2 /* NetworkInterfaceResetModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkInterfaceResetModule.swift; sourceTree = "<group>"; };
+		0D9D60D84A584A54B3AE8BA5 /* MDNSResponderModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDNSResponderModule.swift; sourceTree = "<group>"; };
+		605405A02D334735A4D60CA3 /* IPv6Module.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPv6Module.swift; sourceTree = "<group>"; };
+		7526EA2687AA4F77B4477877 /* MTUFixModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MTUFixModule.swift; sourceTree = "<group>"; };
+		AC77954BD66E4FEA9D3ACEEE /* ARPCacheModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARPCacheModule.swift; sourceTree = "<group>"; };
+		8C3ABB80AA48422296F61A68 /* NetworkLocationResetModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkLocationResetModule.swift; sourceTree = "<group>"; };
+		010267901F4F45178A262D71 /* WiFiModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiFiModule.swift; sourceTree = "<group>"; };
+		4E359A42DB8C43CB8209F4B7 /* SystemConfigResetModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemConfigResetModule.swift; sourceTree = "<group>"; };
+		33FE408EC512497084DD951A /* SpeedTestModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeedTestModule.swift; sourceTree = "<group>"; };
+		4504EB38183B40FB89BBB213 /* NetworkToolsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkToolsSection.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -316,6 +336,15 @@
 			children = (
 				E8D96D665B4B86AEDABCA139 /* AnyConnectFixModule.swift */,
 				34C1BBDE56A9ADD1B6868F62 /* CommonFixModule.swift */,
+				33FE408EC512497084DD951A /* SpeedTestModule.swift */,
+				4E359A42DB8C43CB8209F4B7 /* SystemConfigResetModule.swift */,
+				010267901F4F45178A262D71 /* WiFiModule.swift */,
+				8C3ABB80AA48422296F61A68 /* NetworkLocationResetModule.swift */,
+				AC77954BD66E4FEA9D3ACEEE /* ARPCacheModule.swift */,
+				7526EA2687AA4F77B4477877 /* MTUFixModule.swift */,
+				605405A02D334735A4D60CA3 /* IPv6Module.swift */,
+				0D9D60D84A584A54B3AE8BA5 /* MDNSResponderModule.swift */,
+				4EF670F4C90F467B867363B2 /* NetworkInterfaceResetModule.swift */,
 				2EE4F12D1D0AD627F1ACC79C /* FixEngine.swift */,
 				018A5A9CF1BC9A2B44A714A4 /* FortiClientFixModule.swift */,
 				504672A9127A427C4B0DD143 /* GlobalProtectFixModule.swift */,
@@ -399,6 +428,7 @@
 				A717F0F3C17400F70569F917 /* LogViewerView.swift */,
 				F51504D67741832F47E387A2 /* MenuBarView.swift */,
 				D4D3B9C0E28F797DE6276047 /* Dashboard */,
+				877BDBDD35424B3B82336C62 /* Network */,
 				D541007453F27E7B89F11B8F /* Onboarding */,
 				CAA0C51F1C52D3709A68851C /* MainWindow */,
 			);
@@ -521,6 +551,14 @@
 				5545BEF619B14402A3A8FC30 /* Commands.swift */,
 			);
 			path = VPNFixCLI;
+			sourceTree = "<group>";
+		};
+		877BDBDD35424B3B82336C62 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				4504EB38183B40FB89BBB213 /* NetworkToolsSection.swift */,
+			);
+			path = Network;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -720,6 +758,7 @@
 				89194A5DF0721CC75DA590F5 /* VPNClientType.swift in Sources */,
 				9A0C0E4F762C23F375CE16D7 /* VPNClientsDetailView.swift in Sources */,
 				D4886733DC05A2CDE41E01B5 /* VPNFixApp.swift in Sources */,
+				67F51375EAF84C0B9B718527 /* NetworkToolsSection.swift in Sources */,
 				FCBCFAC6895A465ABC244D39 /* in Sources */,
 				1C3E16FA8B9E4F79A0BACBC3 /* in Sources */,
 				1DD10EE009D347DE8CB38F2D /* in Sources */,
@@ -773,6 +812,15 @@
 				4F24268CD4D02653C4F9C5BD /* GlobalProtectDetector.swift in Sources */,
 				C8E7C93E46B5FB03B53E1A68 /* GlobalProtectFixModule.swift in Sources */,
 				3302189686A84EF2AC2F10D9 /* HelperTool.swift in Sources */,
+				BC66C25120C5444186A569C5 /* NetworkInterfaceResetModule.swift in Sources */,
+				5E5B2C93FFBC4E16AA919CAD /* MDNSResponderModule.swift in Sources */,
+				F2A6A490690F4EFC8E9608D4 /* IPv6Module.swift in Sources */,
+				1AF3D610608E43F589D23697 /* MTUFixModule.swift in Sources */,
+				A2EF676F6285438EB50B2265 /* ARPCacheModule.swift in Sources */,
+				59715C4FFB3341F1A45F1613 /* NetworkLocationResetModule.swift in Sources */,
+				A892E90BEFCA487DADA2A6C1 /* WiFiModule.swift in Sources */,
+				F26F95ADC0E449C09234E04D /* SystemConfigResetModule.swift in Sources */,
+				96723DD6240F405BAC634CB9 /* SpeedTestModule.swift in Sources */,
 				B3EF8F724E794E6F9D4E17AF /* in Sources */,
 				130DDD7B92E641DFA2B4960E /* in Sources */,
 				478A9E4599F5C3F040419A1C /* IPVanishDetector.swift in Sources */,

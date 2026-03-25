@@ -23,6 +23,11 @@ struct VPNIssue: Codable, Sendable, Identifiable {
         case killSwitchActive
         case daemonPersistence
 
+        // Phase 4: Network health issues
+        case mtuMismatch
+        case selfAssignedIP
+        case stuckInterface
+
         var fixDescription: String {
             switch self {
             case .staleRoutes: return "Remove leftover routes and flush DNS"
@@ -32,6 +37,9 @@ struct VPNIssue: Codable, Sendable, Identifiable {
             case .staleProxy: return "Remove stale proxy settings"
             case .stalePfRules: return "Remove leftover packet filter rules"
             case .daemonPersistence: return "Background process running (informational)"
+            case .mtuMismatch: return "Reset interface MTU to default 1500"
+            case .selfAssignedIP: return "Renew DHCP lease to obtain valid IP"
+            case .stuckInterface: return "Reset network interface (down/up cycle)"
             }
         }
     }

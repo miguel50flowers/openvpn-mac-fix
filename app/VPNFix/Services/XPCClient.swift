@@ -107,6 +107,15 @@ final class XPCClient: XPCClientProtocol {
         }
     }
 
+    func runNetworkRepair(_ action: String, reply: @escaping (Bool, String) -> Void) {
+        AppLogger.shared.debug("XPC: runNetworkRepair requested: \(action)")
+        proxy { helper in
+            helper.runNetworkRepair(action, reply: reply)
+        } errorHandler: {
+            reply(false, "Helper not connected")
+        }
+    }
+
     func setCustomVPNEntries(_ json: String, reply: @escaping (Bool) -> Void) {
         AppLogger.shared.debug("XPC: setCustomVPNEntries requested")
         proxy { helper in
