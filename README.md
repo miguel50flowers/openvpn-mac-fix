@@ -70,7 +70,24 @@ This affects OpenVPN, WireGuard, NordVPN, Cisco AnyConnect, GlobalProtect, and m
 
 Download the latest `.dmg` from [Releases](https://github.com/miguel50flowers/openvpn-mac-fix/releases/latest), open it, and drag **VPN Fix** to your Applications folder.
 
-> **Note:** Since the app is not yet notarized, macOS Gatekeeper will block it on first launch. Right-click the app and select **Open**, then click **Open** in the dialog.
+> **Note:** Since the app is not yet signed with a paid Apple Developer certificate, macOS Gatekeeper will block it on first launch. See [Xcode / Gatekeeper Blocked?](#xcode--gatekeeper-blocked) below.
+
+### Xcode / Gatekeeper Blocked?
+
+Because VPN Fix hasn't been signed with a paid Apple Developer certificate, macOS Gatekeeper may block it from running the first time ("app is damaged" or "cannot be opened").
+
+To bypass Gatekeeper securely:
+
+1. Open the **Terminal** app — press `Cmd + Space`, type `Terminal`, and hit `Enter`.
+2. Run the following command:
+
+```bash
+xattr -rd com.apple.quarantine /Applications/VPN\ Fix.app
+```
+
+3. You can now launch **VPN Fix** normally.
+
+> Alternatively, right-click the app in Finder and select **Open**, then click **Open** in the dialog. You only need to do this once.
 
 ### Option 2: Homebrew Cask
 
@@ -165,7 +182,17 @@ rm -f ~/Library/LaunchAgents/com.miguel50flowers.VPNFix.plist
 
 ### Gatekeeper blocks the app
 
-The app is currently ad-hoc signed (Apple Developer ID pending). On first launch, right-click the app and select **Open**, then confirm in the dialog. This only needs to be done once.
+The app is currently ad-hoc signed (Apple Developer ID pending). You have two options:
+
+**Option A — Terminal (recommended):**
+
+```bash
+xattr -rd com.apple.quarantine /Applications/VPN\ Fix.app
+```
+
+**Option B — Finder:** right-click the app and select **Open**, then confirm in the dialog.
+
+Either option only needs to be done once.
 
 ### Helper daemon not installed
 

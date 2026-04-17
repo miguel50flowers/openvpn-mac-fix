@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- README: added explicit "Xcode / Gatekeeper Blocked?" section with `xattr -rd com.apple.quarantine` command to bypass Gatekeeper on first launch, and updated Troubleshooting with the same command as the recommended option
+
 ## [5.0.2] - 2026-03-25
 
 ### Fixed
