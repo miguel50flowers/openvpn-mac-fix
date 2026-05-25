@@ -28,6 +28,11 @@ struct VPNIssue: Codable, Sendable, Identifiable {
         case selfAssignedIP
         case stuckInterface
 
+        // Phase 5: Active network-health issues (detected by probing, not just artifacts)
+        case noDefaultRoute
+        case dnsFailure
+        case noConnectivity
+
         var fixDescription: String {
             switch self {
             case .staleRoutes: return "Remove leftover routes and flush DNS"
@@ -40,6 +45,9 @@ struct VPNIssue: Codable, Sendable, Identifiable {
             case .mtuMismatch: return "Reset interface MTU to default 1500"
             case .selfAssignedIP: return "Renew DHCP lease to obtain valid IP"
             case .stuckInterface: return "Reset network interface (down/up cycle)"
+            case .noDefaultRoute: return "Restore the default route to the local gateway"
+            case .dnsFailure: return "Flush DNS and restore working resolvers"
+            case .noConnectivity: return "Restore connectivity (default route + DNS)"
             }
         }
     }

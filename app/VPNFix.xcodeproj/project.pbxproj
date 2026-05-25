@@ -12,6 +12,7 @@
 		068295E661962B2AF167BA9A /* FortiClientDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9278C59D23E091A5956B32A /* FortiClientDetector.swift */; };
 		0A1F175FE75329E424F1013B /* BottomToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3B68BD110B2C9B0971F79E8 /* BottomToolbar.swift */; };
 		0A9B3BAD9E4EA7EC2E9F608C /* VPNStateClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D0182F64439EB6685B991F /* VPNStateClassifier.swift */; };
+		0AA6F9FC0057380BB503AEA1 /* SafeFixExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D13F812AD7DF682B5CBC2DD /* SafeFixExecutor.swift */; };
 		0F4EFF501406C517B9BB48F7 /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BB39128402B91CA2DFBFE02 /* DashboardViewModel.swift */; };
 		0F59F89654C4F97C665EBBFD /* PIADetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F57DA9BF2B84DC9B2AEF3A5D /* PIADetector.swift */; };
 		0F7218D8C82871D45360D6A7 /* ARPCacheModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A7760BF14D6AC20C72524C /* ARPCacheModule.swift */; };
@@ -21,6 +22,7 @@
 		125581338871DF06E258C063 /* FixResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = E323ED89724D33C9C281CD0C /* FixResult.swift */; };
 		126FC32A5E070D7AEC497C00 /* SystemInfoCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2A385A92F3E242F2427692A /* SystemInfoCollector.swift */; };
 		12E8D095107C11DB8F920261 /* VPNDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EFBCD075AED23F6412C8F7A /* VPNDetector.swift */; };
+		135EEC472D6BAC12DA996155 /* NetworkHealth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CDA7645980072B98657AC1F /* NetworkHealth.swift */; };
 		14344FAA0C85F32D7A1705EE /* DashboardDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 618E835DA19E58A051E0640C /* DashboardDetailView.swift */; };
 		14C73DAD0987A0DE717B6EE7 /* NetworkDiagnostics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61A531CB9DA1B66CABEF5558 /* NetworkDiagnostics.swift */; };
 		18093A501A646C4F7062D3CB /* KillSwitchFixModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EFCA5F1042A8F3DDB4D86FD /* KillSwitchFixModule.swift */; };
@@ -32,6 +34,7 @@
 		1ECB06DACC392EA2AD36107A /* SparkleUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C5E62E09FCF57B20ADCC7A /* SparkleUpdater.swift */; };
 		220330799AFDD33B41E11E0B /* AggregateVPNState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A5E3547A27CAF9A41AAD8DA /* AggregateVPNState.swift */; };
 		2247EAED9A86EF135EFA557F /* SpeedTestModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22AB3710989F8B0AE22AC4AC /* SpeedTestModule.swift */; };
+		22C583E88F5EEDE2669B00E7 /* SafeFixExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D13F812AD7DF682B5CBC2DD /* SafeFixExecutor.swift */; };
 		231EE6D34FF0968DB4014957 /* WindscribeDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ACB2D4C670FBEFB4DFA4895 /* WindscribeDetector.swift */; };
 		23954B04C06F9B27430ACB0E /* CustomVPNEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B95D4652617359AF826252A /* CustomVPNEntry.swift */; };
 		23CC81386748F968EECE8CBB /* Phase1Migrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D78256F4B68208124E112D06 /* Phase1Migrator.swift */; };
@@ -51,6 +54,7 @@
 		3A377C22F4E8AF59CFAC8BD6 /* TunnelBearDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B6750B7C913C196C2320DA7 /* TunnelBearDetector.swift */; };
 		3A418CD3DC9593DBC70D731A /* RoutingTableParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22CE7F51DA19F8EE645A8D0D /* RoutingTableParser.swift */; };
 		3ADB94D069BC22100697208F /* NordVPNDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9934B23DCBE8A220A6109BC /* NordVPNDetector.swift */; };
+		3D599504D6A0BD5F5FED56D4 /* NetworkFixPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F171977E12402E056EF0920 /* NetworkFixPlanner.swift */; };
 		3D6D8A63D49F5DA01B4682D2 /* OpenVPNDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E4F90768A85074775D2D61B /* OpenVPNDetector.swift */; };
 		3E2BFD14BAF892DDC84F2066 /* CommonFixModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34C1BBDE56A9ADD1B6868F62 /* CommonFixModule.swift */; };
 		3EC49E9F9C855F1B8AFDA90E /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96C0DDED13E689B6DADF09AA /* AboutView.swift */; };
@@ -59,10 +63,12 @@
 		4554C27C11B04B3FC3996F0B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A78CE8F83C00990E086F1CC6 /* Assets.xcassets */; };
 		478A9E4599F5C3F040419A1C /* IPVanishDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A08A71F62C79D53C4F9E9FB /* IPVanishDetector.swift */; };
 		4AFD4F1733120FC34BE8C80F /* OnboardingHowItWorksStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0349F354BB6A24D41C217446 /* OnboardingHowItWorksStep.swift */; };
+		4D1DF191C3C828E10F2D5D51 /* NetworkHealth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CDA7645980072B98657AC1F /* NetworkHealth.swift */; };
 		4DF968CF4572E67DB6CD210B /* WireGuardDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA1EF58EF6F7C323D1349BA4 /* WireGuardDetector.swift */; };
 		4F24268CD4D02653C4F9C5BD /* GlobalProtectDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D1508C454653E7B72F67187 /* GlobalProtectDetector.swift */; };
 		50A984B2DDD07AC64FEF384A /* FortiClientFixModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 018A5A9CF1BC9A2B44A714A4 /* FortiClientFixModule.swift */; };
 		51B2A4F293F2EB299B6EF6CD /* AutoFixCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54E204737D32B8965968562F /* AutoFixCoordinator.swift */; };
+		526F66686D066C5EA580FDE3 /* NetworkHealth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CDA7645980072B98657AC1F /* NetworkHealth.swift */; };
 		5624862B6CA27DAE498D20B2 /* AutoFixCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5389A9B3CE91A3032295D3D2 /* AutoFixCoordinatorTests.swift */; };
 		5AE06E8A9C22049048F1E9BD /* NetworkInterfaceResetModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5564F9C4F9C1A74F669CBF13 /* NetworkInterfaceResetModule.swift */; };
 		5C3D1B4743A6585711568D18 /* SharedModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19820D93F640C36FFB903A60 /* SharedModelTests.swift */; };
@@ -93,6 +99,7 @@
 		92A2465597A86B5308684479 /* CustomVPNDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = D48EAB80DA239A8FB05A733A /* CustomVPNDetector.swift */; };
 		94B0C6C1EE3CF7E5FF166D76 /* AutoFixPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67643D7F80CE2892EC6BE245 /* AutoFixPolicyTests.swift */; };
 		968BE8DD16791743E054EFD5 /* VPNStateClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D0182F64439EB6685B991F /* VPNStateClassifier.swift */; };
+		98FCB858826D0B72ACA1F000 /* NetworkFixPlannerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 961E7F90BB84B542FB97E4AC /* NetworkFixPlannerTests.swift */; };
 		9A0C0E4F762C23F375CE16D7 /* VPNClientsDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CB074480E8F147C9CB52AFA /* VPNClientsDetailView.swift */; };
 		9A2E86D54124B9C29038312B /* AnyConnectFixModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8D96D665B4B86AEDABCA139 /* AnyConnectFixModule.swift */; };
 		9A62E6C4555066B8DACFDDAE /* VPNStateClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D0182F64439EB6685B991F /* VPNStateClassifier.swift */; };
@@ -118,6 +125,7 @@
 		C0425E8A77B01841B7384AAE /* VPNClientCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25DAA4AD0D7AE7C567FD0E7E /* VPNClientCard.swift */; };
 		C3860309A723AC99E5D778F0 /* IPv6Module.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38412CFA7E20E100B319CE5C /* IPv6Module.swift */; };
 		C4837C47BDC1655FED852185 /* AutoFixPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = B37B3BB057A03FA995C8A11C /* AutoFixPolicy.swift */; };
+		C54752B8FA0D8A3A3D091491 /* SafeFixExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D13F812AD7DF682B5CBC2DD /* SafeFixExecutor.swift */; };
 		C687552B6AA5151047E85170 /* WiFiModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A4A6B076A4237321D2F5EF5 /* WiFiModule.swift */; };
 		C694824E5FF15B6C7D4C1B04 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 1232976BDD89B33274F424A2 /* Sparkle */; };
 		C777DC3AA7CE6385E22E28E9 /* VPNStatusViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17A74F7200163893BB9E160E /* VPNStatusViewModel.swift */; };
@@ -129,9 +137,13 @@
 		D46895BD95A57DAECCD5EA4F /* LogViewerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A717F0F3C17400F70569F917 /* LogViewerView.swift */; };
 		D4886733DC05A2CDE41E01B5 /* VPNFixApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A7BD152FF47732F902E5DC3 /* VPNFixApp.swift */; };
 		D74654E16D9C9F2A03F1A955 /* SeverityBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA6A33559CE79EC7B5AD4367 /* SeverityBadge.swift */; };
+		D87E73BFD2C8DCBF8A3624BD /* NetworkFixPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F171977E12402E056EF0920 /* NetworkFixPlanner.swift */; };
+		D8C0A84E10F47326294F61F1 /* SafeFixExecutorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B825ECEAC3104DF6789E090 /* SafeFixExecutorTests.swift */; };
 		DA366ED942ED983D9302F554 /* OpenVPNFixModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36698FF61207B7C60ED34225 /* OpenVPNFixModule.swift */; };
 		DC26DBC871ADE92A4D9B4A34 /* FileWatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3DF386CA20735AB10DBE6C5 /* FileWatcher.swift */; };
+		DC8BBC03A31B42813B779C73 /* NetworkHealthTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E456BAFE9E04A4FBA79D7F8F /* NetworkHealthTests.swift */; };
 		DE30E19A2E8E0B6238C15119 /* DiagnosticRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642EF027145ACA6D0B47F14A /* DiagnosticRow.swift */; };
+		DE4087D9610561DFE0B50412 /* NetworkFixPlanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F171977E12402E056EF0920 /* NetworkFixPlanner.swift */; };
 		DF058DFF278C16D217941D6F /* AppPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C414DDEE6350F3E53B3C453 /* AppPreferences.swift */; };
 		DF6BB8FEB0CA032E5292B75F /* XPCClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB3192FAB7EEE4AE8C8E1A38 /* XPCClient.swift */; };
 		E0FA91B65C709F89BD4CD0A3 /* VPNState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C77DE7EC7D3B914C63981B5 /* VPNState.swift */; };
@@ -186,6 +198,7 @@
 		17A74F7200163893BB9E160E /* VPNStatusViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNStatusViewModel.swift; sourceTree = "<group>"; };
 		1843B2232AA9463581B6CE95 /* CiscoAnyConnectDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CiscoAnyConnectDetector.swift; sourceTree = "<group>"; };
 		19820D93F640C36FFB903A60 /* SharedModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedModelTests.swift; sourceTree = "<group>"; };
+		1B825ECEAC3104DF6789E090 /* SafeFixExecutorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafeFixExecutorTests.swift; sourceTree = "<group>"; };
 		1CB074480E8F147C9CB52AFA /* VPNClientsDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNClientsDetailView.swift; sourceTree = "<group>"; };
 		1EFCA5F1042A8F3DDB4D86FD /* KillSwitchFixModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KillSwitchFixModule.swift; sourceTree = "<group>"; };
 		213A35BFC3083B73F1BFED7D /* NetworkToolsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkToolsSection.swift; sourceTree = "<group>"; };
@@ -204,6 +217,7 @@
 		3DC5CF805CC0F78F10CE60DF /* VPNClientStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNClientStatus.swift; sourceTree = "<group>"; };
 		4171E9A412F07CEE911F0D78 /* WireGuardFixModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireGuardFixModule.swift; sourceTree = "<group>"; };
 		4A08A71F62C79D53C4F9E9FB /* IPVanishDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPVanishDetector.swift; sourceTree = "<group>"; };
+		4D13F812AD7DF682B5CBC2DD /* SafeFixExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafeFixExecutor.swift; sourceTree = "<group>"; };
 		504672A9127A427C4B0DD143 /* GlobalProtectFixModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalProtectFixModule.swift; sourceTree = "<group>"; };
 		508EE859AB35F5DF12B14ED1 /* NetworkDiagnosticsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkDiagnosticsSection.swift; sourceTree = "<group>"; };
 		51A7760BF14D6AC20C72524C /* ARPCacheModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ARPCacheModule.swift; sourceTree = "<group>"; };
@@ -215,6 +229,7 @@
 		5B6750B7C913C196C2320DA7 /* TunnelBearDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelBearDetector.swift; sourceTree = "<group>"; };
 		5B9E7964121E49FA87C0AAC7 /* SidebarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarItem.swift; sourceTree = "<group>"; };
 		5BDD052586957F180929648F /* OnboardingHelperStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingHelperStep.swift; sourceTree = "<group>"; };
+		5CDA7645980072B98657AC1F /* NetworkHealth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkHealth.swift; sourceTree = "<group>"; };
 		5E4F90768A85074775D2D61B /* OpenVPNDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenVPNDetector.swift; sourceTree = "<group>"; };
 		5FF6C387E5D9C00C449925F8 /* SurfsharkDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurfsharkDetector.swift; sourceTree = "<group>"; };
 		615B033360FEBC9889E0CB35 /* GitHubIssueURLBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubIssueURLBuilder.swift; sourceTree = "<group>"; };
@@ -237,6 +252,8 @@
 		8A7BD152FF47732F902E5DC3 /* VPNFixApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNFixApp.swift; sourceTree = "<group>"; };
 		8D0874FE30DD9E3F6256B08B /* VPNClientDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNClientDetector.swift; sourceTree = "<group>"; };
 		8D1508C454653E7B72F67187 /* GlobalProtectDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalProtectDetector.swift; sourceTree = "<group>"; };
+		8F171977E12402E056EF0920 /* NetworkFixPlanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkFixPlanner.swift; sourceTree = "<group>"; };
+		961E7F90BB84B542FB97E4AC /* NetworkFixPlannerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkFixPlannerTests.swift; sourceTree = "<group>"; };
 		96C0DDED13E689B6DADF09AA /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 		9A60C6D848D879B78DC3EAA0 /* Protocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
 		9BBD50E53F93D5550D36FC35 /* NotificationsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsSettingsView.swift; sourceTree = "<group>"; };
@@ -278,6 +295,7 @@
 		DDF8849C36D246B2D5EB978A /* ExpressVPNDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressVPNDetector.swift; sourceTree = "<group>"; };
 		DFC775D2271471F4D5DAB1D1 /* DetectionUtilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetectionUtilities.swift; sourceTree = "<group>"; };
 		E323ED89724D33C9C281CD0C /* FixResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FixResult.swift; sourceTree = "<group>"; };
+		E456BAFE9E04A4FBA79D7F8F /* NetworkHealthTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkHealthTests.swift; sourceTree = "<group>"; };
 		E67DFC201D77B05E558D53E7 /* AppIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = AppIcon.icns; sourceTree = "<group>"; };
 		E8D96D665B4B86AEDABCA139 /* AnyConnectFixModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyConnectFixModule.swift; sourceTree = "<group>"; };
 		E9934B23DCBE8A220A6109BC /* NordVPNDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NordVPNDetector.swift; sourceTree = "<group>"; };
@@ -314,6 +332,9 @@
 				5389A9B3CE91A3032295D3D2 /* AutoFixCoordinatorTests.swift */,
 				67643D7F80CE2892EC6BE245 /* AutoFixPolicyTests.swift */,
 				CAD62F8EDE3FCBA0FBBCD751 /* LogParsingTests.swift */,
+				961E7F90BB84B542FB97E4AC /* NetworkFixPlannerTests.swift */,
+				E456BAFE9E04A4FBA79D7F8F /* NetworkHealthTests.swift */,
+				1B825ECEAC3104DF6789E090 /* SafeFixExecutorTests.swift */,
 				19820D93F640C36FFB903A60 /* SharedModelTests.swift */,
 				D363B4DF996834501F0FD852 /* VPNStateClassifierTests.swift */,
 			);
@@ -467,7 +488,10 @@
 				6B95D4652617359AF826252A /* CustomVPNEntry.swift */,
 				E323ED89724D33C9C281CD0C /* FixResult.swift */,
 				61A531CB9DA1B66CABEF5558 /* NetworkDiagnostics.swift */,
+				8F171977E12402E056EF0920 /* NetworkFixPlanner.swift */,
+				5CDA7645980072B98657AC1F /* NetworkHealth.swift */,
 				22CE7F51DA19F8EE645A8D0D /* RoutingTableParser.swift */,
+				4D13F812AD7DF682B5CBC2DD /* SafeFixExecutor.swift */,
 				3DC5CF805CC0F78F10CE60DF /* VPNClientStatus.swift */,
 				C899B1C8D279572C5A4E8AC3 /* VPNClientType.swift */,
 				C44985F3FF697373C9336F3E /* VPNIssue.swift */,
@@ -726,6 +750,8 @@
 				A70CC91B742BEEDFC150A9BD /* NetworkDetailView.swift in Sources */,
 				91D182EF91D534948CA51104 /* NetworkDiagnostics.swift in Sources */,
 				A278BB35B3F63CA871C06D62 /* NetworkDiagnosticsSection.swift in Sources */,
+				D87E73BFD2C8DCBF8A3624BD /* NetworkFixPlanner.swift in Sources */,
+				4D1DF191C3C828E10F2D5D51 /* NetworkHealth.swift in Sources */,
 				BF78E01DF1A1B6E9670DCCFA /* NetworkStatusBanner.swift in Sources */,
 				6B71858642060EEA2EA7A41E /* NetworkToolsSection.swift in Sources */,
 				A1DD8CB0B5B977DDB59C0FAC /* NotificationService.swift in Sources */,
@@ -737,6 +763,7 @@
 				42E51EB4BD062C1A8A60B7CB /* OnboardingWelcomeStep.swift in Sources */,
 				242C4A4EDB408884190627D5 /* Protocols.swift in Sources */,
 				F0FF6D08CB277F853D0BBA7A /* RoutingTableParser.swift in Sources */,
+				22C583E88F5EEDE2669B00E7 /* SafeFixExecutor.swift in Sources */,
 				D74654E16D9C9F2A03F1A955 /* SeverityBadge.swift in Sources */,
 				ADCA4AE2C225681A82A05C8C /* SidebarItem.swift in Sources */,
 				39DB754CCB841E86CC8097E7 /* SidebarView.swift in Sources */,
@@ -770,7 +797,13 @@
 				125581338871DF06E258C063 /* FixResult.swift in Sources */,
 				FA1A64EE341ED69C73D7E3B0 /* LogParsingTests.swift in Sources */,
 				88CE98AD38EEC31EFA04216F /* NetworkDiagnostics.swift in Sources */,
+				DE4087D9610561DFE0B50412 /* NetworkFixPlanner.swift in Sources */,
+				98FCB858826D0B72ACA1F000 /* NetworkFixPlannerTests.swift in Sources */,
+				526F66686D066C5EA580FDE3 /* NetworkHealth.swift in Sources */,
+				DC8BBC03A31B42813B779C73 /* NetworkHealthTests.swift in Sources */,
 				6DF01C3BF06BBBA1B1A72D6E /* RoutingTableParser.swift in Sources */,
+				0AA6F9FC0057380BB503AEA1 /* SafeFixExecutor.swift in Sources */,
+				D8C0A84E10F47326294F61F1 /* SafeFixExecutorTests.swift in Sources */,
 				5C3D1B4743A6585711568D18 /* SharedModelTests.swift in Sources */,
 				1875FD4EA291E3556D50F051 /* VPNClientStatus.swift in Sources */,
 				391AF1B6DD500DEA42DCA3FC /* VPNClientType.swift in Sources */,
@@ -814,6 +847,8 @@
 				BB3C8828D92F351145ED0176 /* MTUFixModule.swift in Sources */,
 				9D952C0D08FBF3055E050A53 /* MullvadDetector.swift in Sources */,
 				14C73DAD0987A0DE717B6EE7 /* NetworkDiagnostics.swift in Sources */,
+				3D599504D6A0BD5F5FED56D4 /* NetworkFixPlanner.swift in Sources */,
+				135EEC472D6BAC12DA996155 /* NetworkHealth.swift in Sources */,
 				5AE06E8A9C22049048F1E9BD /* NetworkInterfaceResetModule.swift in Sources */,
 				D2E6F2B195D36E235BF52DF9 /* NetworkLocationResetModule.swift in Sources */,
 				3ADB94D069BC22100697208F /* NordVPNDetector.swift in Sources */,
@@ -825,6 +860,7 @@
 				762D4F92397E1FB4ACDE7478 /* ProxyFixModule.swift in Sources */,
 				BFDA7EA6EEE2D18A9F1CC9FD /* PulseSecureDetector.swift in Sources */,
 				3A418CD3DC9593DBC70D731A /* RoutingTableParser.swift in Sources */,
+				C54752B8FA0D8A3A3D091491 /* SafeFixExecutor.swift in Sources */,
 				264F9F3C198B1E76C86F984F /* ScriptRunner.swift in Sources */,
 				2247EAED9A86EF135EFA557F /* SpeedTestModule.swift in Sources */,
 				0606FD75B6BBC35A6F32E423 /* StateNotifier.swift in Sources */,

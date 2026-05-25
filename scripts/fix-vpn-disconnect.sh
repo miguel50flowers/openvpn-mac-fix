@@ -2,7 +2,10 @@
 # fix-vpn-disconnect.sh — Restores network connectivity after OpenVPN disconnect
 # Usage: sudo __USER_HOME__/fix-vpn-disconnect.sh
 
-set -euo pipefail
+# NOTE: deliberately NOT using `set -e`. This is a recovery script — if one step fails we must
+# still reach the default-route restoration below, never abort half-way and leave the machine
+# offline. Individual commands are guarded with `|| true`; `-u`/pipefail stay on for safety.
+set -uo pipefail
 
 VERSION="__VERSION__"
 
@@ -50,15 +53,35 @@ for iface in $ACTIVE_IFACES; do
     fi
 done
 
-# 5. Restore default route to local gateway (if missing)
-if ! netstat -rn | grep -q "^default.*en"; then
+# 5. Restore default route to local gateway — SAFETY-CRITICAL step.
+# Try EVERY active interface (not just the first), parse the gateway cleanly (avoid the brace-
+# wrapped form ipconfig sometimes prints), VERIFY the route actually installed, and only stop once
+# a physical default route is present. Never stop early on a single failure, never leave offline.
+has_physical_default() {
+    netstat -rn 2>/dev/null | grep -E '^default' | grep -Eq '(en|bridge)[0-9]'
+}
+
+if has_physical_default; then
+    debug "Physical default route already present — leaving routing untouched"
+else
+    log "No physical default route — attempting restore across active interfaces"
     for iface in $ACTIVE_IFACES; do
-        GW=$(ipconfig getpacket "$iface" 2>/dev/null | grep "router" | awk '{print $NF}' | head -1)
-        if [ -n "$GW" ]; then
-            route -n add default "$GW" 2>/dev/null && log "Default route restored: $GW via $iface" || true
+        # Only interfaces that actually have an IPv4 address can carry a default route.
+        ifconfig "$iface" 2>/dev/null | grep -q "inet " || continue
+        # Prefer the DHCP router option (returns a bare IP); fall back to parsing the packet.
+        GW=$(ipconfig getoption "$iface" router 2>/dev/null | grep -Eo '([0-9]{1,3}\.){3}[0-9]{1,3}' | head -1)
+        [ -n "$GW" ] || GW=$(ipconfig getpacket "$iface" 2>/dev/null | grep -i "router" | grep -Eo '([0-9]{1,3}\.){3}[0-9]{1,3}' | head -1)
+        [ -n "$GW" ] || continue
+        route -n add default "$GW" 2>/dev/null || route -n change default "$GW" 2>/dev/null || true
+        if has_physical_default; then
+            log "Default route restored: $GW via $iface"
             break
         fi
+        debug "Route via $iface ($GW) did not take — trying next interface"
     done
+    if ! has_physical_default; then
+        log "WARNING: could not restore a physical default route — manual check may be needed"
+    fi
 fi
 
 log "Network recovery completed"

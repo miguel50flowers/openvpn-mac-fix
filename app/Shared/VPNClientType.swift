@@ -29,6 +29,12 @@ enum VPNClientType: String, Codable, Sendable, CaseIterable {
     // Generic
     case unknown
 
+    /// Synthetic: not a VPN client, but the machine's overall network health surfaced as an entry
+    /// so broken connectivity (no default route / DNS failure / orphaned tunnel) shows up in the
+    /// same list and issue count as the VPN clients — this is the detection gap users hit where the
+    /// VPN read "disconnected, no issues" while the internet was actually broken.
+    case network
+
     enum Category: String, Codable, Sendable {
         case consumer
         case enterprise
@@ -55,11 +61,13 @@ enum VPNClientType: String, Codable, Sendable, CaseIterable {
         case .fortiClient: return "FortiClient"
         case .custom: return "Custom VPN"
         case .unknown: return "Unknown VPN"
+        case .network: return "Network"
         }
     }
 
     var sfSymbol: String {
         if self == .custom { return "puzzlepiece.extension" }
+        if self == .network { return "network" }
         switch category {
         case .consumer: return "shield.checkered"
         case .enterprise: return "building.2.crop.circle"
@@ -70,7 +78,7 @@ enum VPNClientType: String, Codable, Sendable, CaseIterable {
         switch self {
         case .openVPN, .wireGuard, .nordVPN, .expressVPN, .surfshark,
              .cyberGhost, .protonVPN, .mullvad, .pia, .ipVanish,
-             .windscribe, .tunnelBear, .custom, .unknown:
+             .windscribe, .tunnelBear, .custom, .unknown, .network:
             return .consumer
         case .ciscoAnyConnect, .globalProtect, .pulseSecure, .zscaler, .fortiClient:
             return .enterprise

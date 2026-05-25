@@ -33,20 +33,28 @@ final class CommonFixModule: VPNFixModule {
             }
         }
 
-        // Restore default route if missing
-        let routes = DetectionUtilities.getRoutingTable()
-        let gateway = DetectionUtilities.getDefaultGateway(from: routes)
-        if gateway == nil, let iface = primaryInterface {
-            let dhcpInfo = DetectionUtilities.runCommand("/usr/sbin/ipconfig", arguments: ["getpacket", iface])
-            if let gw = parseGateway(from: dhcpInfo) {
-                let routeResult = DetectionUtilities.runCommandWithStatus("/sbin/route", arguments: ["-n", "add", "default", gw])
-                if routeResult.succeeded {
-                    steps.append("Default route restored via \(gw)")
-                    HelperLogger.shared.info("[CommonFix] Default route restored: \(gw)")
-                } else {
-                    failures.append("Route restore failed (exit \(routeResult.exitCode))")
+        // Restore default route ONLY if it is actually missing — try every active physical
+        // interface (not just the first), and VERIFY the route took before claiming success.
+        let routeReading = DetectionUtilities.routingTableReading()
+        if routeReading.available && !DetectionUtilities.hasPhysicalDefaultRoute(in: routeReading.value) {
+            var restored = false
+            for iface in candidateInterfaces() {
+                let dhcpInfo = DetectionUtilities.runCommandWithStatus("/usr/sbin/ipconfig", arguments: ["getpacket", iface], timeout: 6)
+                guard !dhcpInfo.timedOut, let gw = parseGateway(from: dhcpInfo.output) else { continue }
+                let add = DetectionUtilities.runCommandWithStatus("/sbin/route", arguments: ["-n", "add", "default", gw], timeout: 6)
+                let after = DetectionUtilities.routingTableReading()
+                if add.succeeded && after.available && DetectionUtilities.hasPhysicalDefaultRoute(in: after.value) {
+                    steps.append("Default route restored via \(gw) (\(iface))")
+                    HelperLogger.shared.info("[CommonFix] Default route restored: \(gw) via \(iface)")
+                    restored = true
+                    break
                 }
             }
+            if !restored {
+                failures.append("Could not restore default route")
+            }
+        } else if !routeReading.available {
+            HelperLogger.shared.warn("[CommonFix] Routing table unavailable — skipping route restore (won't guess)")
         }
 
         let allSuccess = failures.isEmpty
@@ -65,6 +73,15 @@ final class CommonFixModule: VPNFixModule {
             }
         }
         return "en0" // Fallback
+    }
+
+    /// Active physical interfaces to try for default-route restoration (excludes loopback,
+    /// tunnels and link-local helpers).
+    private func candidateInterfaces() -> [String] {
+        let excluded = ["lo", "utun", "awdl", "llw", "anpi", "bridge", "ap", "ipsec", "gif", "stf", "XHC", "ppp", "gpd"]
+        return DetectionUtilities.getActiveInterfaces()
+            .map { $0.name }
+            .filter { name in !excluded.contains { name.hasPrefix($0) } }
     }
 
     private func parseGateway(from dhcpInfo: String) -> String? {

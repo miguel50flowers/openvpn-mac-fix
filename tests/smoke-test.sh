@@ -51,6 +51,41 @@ else
         fail "core logic did not compile"
         cat "$TMP/logic_compile.log"
     fi
+
+    # Network detection + planner logic (Phase 5)
+    if swiftc -parse-as-library \
+        "$ROOT/app/Shared/VPNIssue.swift" \
+        "$ROOT/app/Shared/NetworkHealth.swift" \
+        "$ROOT/app/Shared/NetworkFixPlanner.swift" \
+        "$ROOT/tests/network-logic-check.swift" \
+        -o "$TMP/netlogiccheck" 2>"$TMP/netlogic_compile.log"; then
+        if "$TMP/netlogiccheck"; then
+            pass "network detection + planner checks passed"
+        else
+            fail "network detection + planner checks failed (see output above)"
+        fi
+    else
+        fail "network logic did not compile"
+        cat "$TMP/netlogic_compile.log"
+    fi
+
+    # Safe-fix executor sequencing (stops the moment connectivity returns; never over-fixes)
+    if swiftc -parse-as-library \
+        "$ROOT/app/Shared/VPNIssue.swift" \
+        "$ROOT/app/Shared/NetworkHealth.swift" \
+        "$ROOT/app/Shared/NetworkFixPlanner.swift" \
+        "$ROOT/app/Shared/SafeFixExecutor.swift" \
+        "$ROOT/tests/safe-executor-check.swift" \
+        -o "$TMP/safeexec" 2>"$TMP/safeexec_compile.log"; then
+        if "$TMP/safeexec"; then
+            pass "safe-fix executor checks passed"
+        else
+            fail "safe-fix executor checks failed (see output above)"
+        fi
+    else
+        fail "safe-fix executor did not compile"
+        cat "$TMP/safeexec_compile.log"
+    fi
 fi
 
 # ---------------------------------------------------------------------------

@@ -199,6 +199,14 @@ final class HelperTool: NSObject, VPNHelperProtocol {
             return
         }
 
+        // The synthetic "Network" entry isn't a VPN client — its Fix routes to the safe,
+        // planner-driven repair (do-nothing-if-healthy, sequential, stop-when-restored) rather
+        // than the per-client fix engine.
+        if type == .network {
+            runSafeFixEverything(reply: reply)
+            return
+        }
+
         // Detect current issues for this client
         let statuses = vpnDetector.detectAll()
         guard let status = statuses.first(where: { $0.clientType == type }) else {
@@ -274,47 +282,115 @@ final class HelperTool: NSObject, VPNHelperProtocol {
         case "resetNetworkPrefs":
             SystemConfigResetModule().run { s, m in reply(s, m) }
         case "fixEverything":
-            runFixEverything { s, m in reply(s, m) }
+            runSafeFixEverything { s, m in reply(s, m) }
         default:
             reply(false, "Unknown repair action: \(action)")
         }
     }
 
-    private func runFixEverything(reply: @escaping (Bool, String) -> Void) {
-        HelperLogger.shared.info("[VPNFixHelper] Running full network repair chain")
-        var results: [String] = []
+    /// Planner-driven, sequential, verified network repair.
+    ///
+    /// This replaces the old "run a fixed batch of changes in parallel, never check whether they
+    /// were needed or whether they helped, and report success regardless" chain — the exact code
+    /// that left the user with no internet. Guarantees:
+    ///  1. Does **nothing** if connectivity is already healthy (never "fixes" a working network).
+    ///  2. Runs only the minimal, ordered, never-destructive steps the pure planner emits.
+    ///  3. Re-checks connectivity between steps and **stops the moment it returns**.
+    ///  4. Reports success **honestly** — true only when connectivity is actually restored.
+    private func runSafeFixEverything(reply: @escaping (Bool, String) -> Void) {
+        // Run off any caller thread; the per-step bridge below blocks on each module.
+        DispatchQueue.global(qos: .userInitiated).async {
+            let before = self.connectivityProbe()
+            HelperLogger.shared.info("[VPNFixHelper] [SafeFix] pre-probe: route=\(before.hasDefaultRoute) dns=\(before.dnsResolves) healthy=\(before.healthy)")
 
-        let vpnState = vpnDetector.currentState()
+            // #1 — never touch a working network.
+            guard !before.healthy else {
+                HelperLogger.shared.info("[VPNFixHelper] [SafeFix] already healthy — no changes made")
+                reply(true, "Network already healthy — no changes made")
+                return
+            }
 
-        // Build module chain — exclude interface reset when VPN is connected (it kills the tunnel)
-        var modules: [(String, ((@escaping (Bool, String) -> Void) -> Void))] = [
-            ("DNS", { cb in _ = DetectionUtilities.runCommandWithStatus("/usr/bin/dscacheutil", arguments: ["-flushcache"]); _ = DetectionUtilities.runCommandWithStatus("/usr/bin/killall", arguments: ["-HUP", "mDNSResponder"]); cb(true, "flushed") }),
-            ("DHCP", { CommonFixModule().fix(issues: [], completion: $0) }),
-            ("MTU", { MTUFixModule().run(completion: $0) }),
-            ("ARP", { ARPCacheModule().run(completion: $0) }),
-            ("IPv6", { IPv6Module().run(completion: $0) }),
-        ]
+            let snapshot = self.vpnDetector.networkHealthSnapshot()
+            // Never cycle the primary service while a real tunnel is up — it would tear down the VPN.
+            let allowEscalation = !snapshot.tunnelProcessRunning && self.vpnDetector.currentState() != .connected
+            let plan = NetworkFixPlanner.plan(probe: before, snapshot: snapshot, allowEscalation: allowEscalation)
 
-        if vpnState == .connected {
-            HelperLogger.shared.info("[VPNFixHelper] VPN connected — skipping interface reset to preserve tunnel")
-        } else {
-            modules.append(("Interface", { NetworkInterfaceResetModule().run(completion: $0) }))
-        }
+            guard !plan.isEmpty else {
+                HelperLogger.shared.info("[VPNFixHelper] [SafeFix] no safe step applies")
+                reply(true, "No safe remediation applicable")
+                return
+            }
+            HelperLogger.shared.info("[VPNFixHelper] [SafeFix] plan: \(plan.map { "\($0)" }.joined(separator: " → "))")
 
-        let group = DispatchGroup()
-        for (name, action) in modules {
-            group.enter()
-            action { success, message in
-                results.append("\(name): \(success ? "OK" : "FAIL")")
-                group.leave()
+            let outcome = SafeFixExecutor.run(
+                plan: plan,
+                probe: { self.connectivityProbe() },
+                runStep: { _ = self.runStepSync($0) })
+
+            let after = self.connectivityProbe()
+            self.stateNotifier.notifyStateChange()
+            self.stateNotifier.notifyClientsChanged()
+
+            let ranList = outcome.ranSteps.map { "\($0)" }.joined(separator: ", ")
+            if after.healthy {
+                let msg = ranList.isEmpty ? "Connectivity OK" : "Connectivity restored (\(ranList))"
+                HelperLogger.shared.info("[VPNFixHelper] [SafeFix] done: \(msg)")
+                reply(true, msg)
+            } else {
+                let msg = "Ran safe steps (\(ranList.isEmpty ? "none" : ranList)) but connectivity is still degraded — route=\(after.hasDefaultRoute), dns=\(after.dnsResolves). No destructive change was made; a manual check may be needed."
+                HelperLogger.shared.warn("[VPNFixHelper] [SafeFix] still degraded: \(msg)")
+                reply(false, msg)
             }
         }
+    }
 
-        group.notify(queue: .global()) {
-            let msg = results.joined(separator: ", ")
-            HelperLogger.shared.info("[VPNFixHelper] Fix everything done: \(msg)")
-            reply(true, msg)
+    /// Live connectivity probe: does a physical default route exist and does DNS resolve?
+    ///
+    /// DNS that could not be **measured** (every lookup timed out) is treated as "not resolving"
+    /// here so a user-invoked fix still attempts safe remediation. A wrong guess can't strand the
+    /// machine: every step is reversible and the executor stops as soon as the network is healthy.
+    /// (Background detection, by contrast, keeps unmeasured DNS as "unknown" to avoid crying wolf.)
+    private func connectivityProbe() -> NetworkProbe {
+        let route = DetectionUtilities.routingTableReading()
+        let hasRoute = route.available && DetectionUtilities.hasPhysicalDefaultRoute(in: route.value)
+        let dns = DetectionUtilities.dnsResolves(hosts: ["apple.com", "cloudflare.com"], timeout: 2) ?? false
+        return NetworkProbe(dnsResolves: dns, hasDefaultRoute: hasRoute)
+    }
+
+    /// Performs one planned step's real work and BLOCKS until it finishes (the caller runs this off
+    /// the main thread). Every branch delegates to a module that was rewritten to be safe and
+    /// reversible — there is deliberately no destructive command in this switch.
+    @discardableResult
+    private func runStepSync(_ step: FixStepKind) -> (ok: Bool, message: String) {
+        HelperLogger.shared.info("[VPNFixHelper] [SafeFix] step: \(step) — \(step.summary)")
+        let sema = DispatchSemaphore(value: 0)
+        var result: (ok: Bool, message: String) = (true, "")
+        let done: (Bool, String) -> Void = { ok, msg in result = (ok, msg); sema.signal() }
+
+        switch step {
+        case .flushDNS:
+            _ = DetectionUtilities.runCommandWithStatus("/usr/bin/dscacheutil", arguments: ["-flushcache"])
+            _ = DetectionUtilities.runCommandWithStatus("/usr/bin/killall", arguments: ["-HUP", "mDNSResponder"])
+            done(true, "DNS flushed")
+        case .removeStaleVPNRoutes:
+            // Legacy cleanup removes leftover utun/ppp routes; hardened to never leave the machine
+            // offline. Only reached when an orphaned tunnel exists with no VPN process running.
+            scriptRunner.runFixScript(completion: done)
+        case .restoreDefaultRoute, .renewDHCP:
+            // CommonFixModule restores the default route across active physical interfaces (and
+            // verifies it took) and renews DHCP — both idempotent and safe. The executor re-probes
+            // between the paired steps, so the second run only happens if the first didn't help.
+            CommonFixModule().fix(issues: [], completion: done)
+        case .restoreIPv6Automatic:
+            IPv6Module().run(completion: done)
+        case .flushARP:
+            ARPCacheModule().run(completion: done)
+        case .cyclePrimaryService:
+            NetworkInterfaceResetModule().run(completion: done)
         }
+
+        sema.wait()
+        return result
     }
 
     func setCustomVPNEntries(_ json: String, reply: @escaping (Bool) -> Void) {

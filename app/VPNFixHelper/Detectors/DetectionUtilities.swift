@@ -3,6 +3,29 @@ import Foundation
 /// Shared helpers for VPN detection — runs system commands and parses output.
 enum DetectionUtilities {
 
+    // MARK: - Timeout-aware reads
+
+    /// Longer budget for detection reads. Content-filter VPNs (e.g. FortiClient) can make
+    /// scutil/pfctl/netstat slow; the old 5s budget produced constant false "empty" results that
+    /// were then misread as "no VPN / no issues".
+    static let detectionTimeout: TimeInterval = 12
+
+    /// A parsed system read that also reports whether it actually succeeded. `available == false`
+    /// means the command timed out or failed to launch — an empty value must NOT be trusted as a
+    /// real negative. This is the core guard against silent-failure misclassification.
+    struct Read<Value> {
+        let value: Value
+        let available: Bool
+    }
+
+    private static func runRead(_ path: String, _ arguments: [String], timeout: TimeInterval) -> (output: String, available: Bool) {
+        let r = runCommandWithStatus(path, arguments: arguments, timeout: timeout)
+        // Unavailable on timeout or launch failure (exit -1). Otherwise the output is real, even
+        // if the command exited non-zero.
+        let available = !r.timedOut && r.exitCode != -1
+        return (available ? r.output : "", available)
+    }
+
     // MARK: - Process Checks
 
     static func isProcessRunning(_ name: String) -> Bool {
@@ -15,14 +38,20 @@ enum DetectionUtilities {
     }
 
     static func getRunningProcesses() -> Set<String> {
-        let output = runCommand("/bin/ps", arguments: ["-axo", "comm"])
+        runningProcessesReading().value
+    }
+
+    /// Timeout-aware process list. `available == false` ⇒ `ps` timed out; callers must not treat
+    /// the empty set as "nothing is running".
+    static func runningProcessesReading(timeout: TimeInterval = detectionTimeout) -> Read<Set<String>> {
+        let (output, available) = runRead("/bin/ps", ["-axo", "comm"], timeout: timeout)
         var names = Set<String>()
         for line in output.components(separatedBy: .newlines) {
             let trimmed = line.trimmingCharacters(in: .whitespaces)
             let baseName = (trimmed as NSString).lastPathComponent
             if !baseName.isEmpty { names.insert(baseName) }
         }
-        return names
+        return Read(value: names, available: available)
     }
 
     static func isAppInstalled(at path: String) -> Bool {
@@ -32,20 +61,35 @@ enum DetectionUtilities {
     // MARK: - Routing Table
 
     static func getRoutingTable() -> String {
-        runCommand("/usr/sbin/netstat", arguments: ["-rn"])
+        routingTableReading().value
+    }
+
+    /// Timeout-aware routing table. `available == false` ⇒ `netstat` timed out; an empty string
+    /// then must NOT be classified as "no VPN / disconnected".
+    static func routingTableReading(timeout: TimeInterval = detectionTimeout) -> Read<String> {
+        let (output, available) = runRead("/usr/sbin/netstat", ["-rn"], timeout: timeout)
+        return Read(value: output, available: available)
     }
 
     // MARK: - PF (Packet Filter)
 
     static func getPfAnchors() -> [String] {
-        let output = runCommand("/sbin/pfctl", arguments: ["-sr"])
-        return output.components(separatedBy: .newlines).filter { !$0.isEmpty }
+        pfAnchorsReading().value
+    }
+
+    static func pfAnchorsReading(timeout: TimeInterval = detectionTimeout) -> Read<[String]> {
+        let (output, available) = runRead("/sbin/pfctl", ["-sr"], timeout: timeout)
+        return Read(value: output.components(separatedBy: .newlines).filter { !$0.isEmpty }, available: available)
     }
 
     // MARK: - DNS
 
     static func getDNSServers() -> [String] {
-        let output = runCommand("/usr/sbin/scutil", arguments: ["--dns"])
+        dnsServersReading().value
+    }
+
+    static func dnsServersReading(timeout: TimeInterval = detectionTimeout) -> Read<[String]> {
+        let (output, available) = runRead("/usr/sbin/scutil", ["--dns"], timeout: timeout)
         var servers: [String] = []
         for line in output.components(separatedBy: .newlines) {
             let trimmed = line.trimmingCharacters(in: .whitespaces)
@@ -59,13 +103,17 @@ enum DetectionUtilities {
                 }
             }
         }
-        return servers
+        return Read(value: servers, available: available)
     }
 
     // MARK: - Proxy
 
     static func getProxySettings() -> [String: String] {
-        let output = runCommand("/usr/sbin/scutil", arguments: ["--proxy"])
+        proxySettingsReading().value
+    }
+
+    static func proxySettingsReading(timeout: TimeInterval = detectionTimeout) -> Read<[String: String]> {
+        let (output, available) = runRead("/usr/sbin/scutil", ["--proxy"], timeout: timeout)
         var settings: [String: String] = [:]
         for line in output.components(separatedBy: .newlines) {
             let trimmed = line.trimmingCharacters(in: .whitespaces)
@@ -75,13 +123,17 @@ enum DetectionUtilities {
                 settings[key] = value
             }
         }
-        return settings
+        return Read(value: settings, available: available)
     }
 
     // MARK: - Interfaces
 
     static func getActiveInterfaces() -> [NetworkInterface] {
-        let output = runCommand("/sbin/ifconfig", arguments: ["-a"])
+        activeInterfacesReading().value
+    }
+
+    static func activeInterfacesReading(timeout: TimeInterval = detectionTimeout) -> Read<[NetworkInterface]> {
+        let (output, available) = runRead("/sbin/ifconfig", ["-a"], timeout: timeout)
         var interfaces: [NetworkInterface] = []
         var currentName: String?
         var currentAddress: String?
@@ -111,7 +163,7 @@ enum DetectionUtilities {
             interfaces.append(NetworkInterface(name: name, address: currentAddress, isUp: currentUp))
         }
 
-        return interfaces.filter { $0.isUp }
+        return Read(value: interfaces.filter { $0.isUp }, available: available)
     }
 
     // MARK: - Default Gateway
@@ -158,6 +210,79 @@ enum DetectionUtilities {
 
     static func hasDefaultRouteVia(_ interfacePattern: String, in routingTable: String) -> Bool {
         hasRoute("default", via: interfacePattern, in: routingTable)
+    }
+
+    // MARK: - Connectivity probes (active network health)
+
+    /// Whether DNS can actually resolve a name via macOS's native resolver path.
+    /// Returns `nil` when it could not be determined (all probes timed out / failed to launch) —
+    /// callers must treat `nil` as "unknown", never as "broken".
+    static func dnsResolves(hosts: [String] = ["apple.com", "cloudflare.com", "one.one.one.one"],
+                            timeout: TimeInterval = 4) -> Bool? {
+        var measuredAny = false
+        for host in hosts {
+            let r = runCommandWithStatus("/usr/bin/dscacheutil", arguments: ["-q", "host", "-a", "name", host], timeout: timeout)
+            if r.timedOut || r.exitCode == -1 { continue }
+            measuredAny = true
+            if r.output.contains("ip_address:") || r.output.contains("ipv6_address:") {
+                return true
+            }
+        }
+        return measuredAny ? false : nil
+    }
+
+    /// Whether a default route via a physical interface (en*/bridge*) exists in a routing table
+    /// that was actually available.
+    static func hasPhysicalDefaultRoute(in routingTable: String) -> Bool {
+        for line in routingTable.components(separatedBy: .newlines) where line.hasPrefix("default") {
+            guard let iface = line.split(separator: " ").map(String.init).last else { continue }
+            if iface.hasPrefix("en") || iface.hasPrefix("bridge") { return true }
+        }
+        return false
+    }
+
+    /// Pings a host once with a short deadline. `nil` = couldn't run.
+    static func pingReachable(_ host: String, timeout: TimeInterval = 4) -> Bool? {
+        let r = runCommandWithStatus("/sbin/ping", arguments: ["-c", "1", "-t", "2", host], timeout: timeout)
+        if r.timedOut || r.exitCode == -1 { return nil }
+        return r.exitCode == 0
+    }
+
+    /// The interface backing the current default route (e.g. "en0"), or `nil` if undeterminable.
+    static func defaultRouteInterface(timeout: TimeInterval = 6) -> String? {
+        let r = runCommandWithStatus("/sbin/route", arguments: ["-n", "get", "default"], timeout: timeout)
+        guard !r.timedOut, r.exitCode != -1 else { return nil }
+        for line in r.output.components(separatedBy: .newlines) {
+            let t = line.trimmingCharacters(in: .whitespaces)
+            if t.hasPrefix("interface:") {
+                return t.replacingOccurrences(of: "interface:", with: "").trimmingCharacters(in: .whitespaces)
+            }
+        }
+        return nil
+    }
+
+    /// The network *service* name (e.g. "Wi-Fi") backing a given device (e.g. "en0"), for safe
+    /// service-level operations via `networksetup`. `nil` if undeterminable.
+    static func serviceName(forInterface device: String, timeout: TimeInterval = 8) -> String? {
+        let r = runCommandWithStatus("/usr/sbin/networksetup", arguments: ["-listnetworkserviceorder"], timeout: timeout)
+        guard !r.timedOut, r.exitCode != -1 else { return nil }
+        let lines = r.output.components(separatedBy: .newlines)
+        for (i, line) in lines.enumerated() where line.contains("Device: \(device))") {
+            guard i > 0 else { continue }
+            // Previous line looks like: "(1) Wi-Fi" or "(2) Ethernet"
+            let prev = lines[i - 1]
+            if let sep = prev.range(of: ") ") {
+                let name = String(prev[sep.upperBound...]).trimmingCharacters(in: .whitespaces)
+                if !name.isEmpty { return name }
+            }
+        }
+        return nil
+    }
+
+    /// The primary network service name (service backing the default route).
+    static func primaryServiceName() -> String? {
+        guard let device = defaultRouteInterface() else { return nil }
+        return serviceName(forInterface: device)
     }
 
     // MARK: - Shell Runner
