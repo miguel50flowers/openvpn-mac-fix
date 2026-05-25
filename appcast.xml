@@ -6,6 +6,44 @@
         <language>en</language>
         <!-- APPCAST_ITEMS -->
         <item>
+            <title>Version 5.1.0</title>
+            <description><![CDATA[
+                <h3>Added</h3>
+<ul>
+<li>Active network-health detection. New pure, unit-tested `NetworkHealthSnapshot` + `NetworkHealthClassifier` (in `app/Shared/`) and issue types `noDefaultRoute`, `dnsFailure`, `noConnectivity`. The helper now probes real connectivity — DNS resolution via `dscacheutil`, a physical default route via `netstat -rn`, and orphaned `utun`/`ppp` tunnel interfaces — and surfaces problems as a synthetic **"Network"** entry (new `.network` client type) that rides the same dashboard list and menu-bar issue count as VPN clients. This closes the gap where the VPN read "disconnected, 0 issues" while the internet was actually broken</li>
+<li>Pure, unit-tested repair core: `NetworkFixPlanner` (produces the minimal, ordered, never-destructive list of steps — and an **empty** plan when connectivity is already healthy) and `SafeFixExecutor` (runs steps sequentially, re-probes between them, and stops the instant connectivity returns). New XCTest suites `NetworkHealthTests`, `NetworkFixPlannerTests`, `SafeFixExecutorTests`, plus no-sudo `swiftc` harnesses `tests/network-logic-check.swift` and `tests/safe-executor-check.swift`</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li>**Network repair is now safe by construction.** "Fix Everything" / network repair probes connectivity first and does **nothing** when the network is already healthy, runs only the minimal ordered steps the planner emits, re-checks connectivity between steps and **stops as soon as it is restored**, and reports success only when connectivity actually returns (previously it ran a fixed batch in parallel, never verified, and reported success regardless)</li>
+<li>Detection is now timeout-aware. Reads distinguish success vs. genuinely-empty vs. timed-out/failed, the detection timeout was raised to 12s, and `DetectionCache` runs its reads in parallel so one slow command (e.g. `scutil`/`pfctl` under FortiClient) can no longer serialize into a ~30s stall. `currentState()` returns `.unknown` instead of a false `.disconnected` when the routing-table read is unavailable</li>
+<li>Interface reset rewritten to cycle the **primary network service** via `networksetup -setnetworkserviceenabled off/on` with a guaranteed, retried, verified re-enable — never raw `ifconfig down/up` (which could leave the interface down). It skips VPN services and never runs while a tunnel is active</li>
+<li>IPv6 module now only **restores** `-setv6automatic` on physical services; it never runs `-setv6off` (which previously, if the follow-up failed, could leave IPv6 permanently disabled) and never touches VPN services</li>
+<li>Default-route restoration (helper `CommonFixModule` and `scripts/fix-vpn-disconnect.sh`) now tries **every** active physical interface, parses the gateway cleanly, and **verifies** the route installed before claiming success</li>
+<li>`scripts/fix-vpn-disconnect.sh` no longer aborts mid-recovery on a single failed step (dropped `set -e`), so it always reaches default-route restoration and never leaves the machine offline</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li>Network repair could leave the machine with **no internet**. The unsafe behaviors behind this were removed: parallel unverified execution, `ifconfig down` with no guaranteed `up`, global IPv6 disable with no guaranteed restore, and success reported regardless of the real outcome</li>
+<li>Broken connectivity after a VPN disconnect went **undetected** (`issues=0`) because a detection command that failed or timed out was silently treated as "no routes / no VPN process / no issues". Timed-out probes are now "unknown", never a false "healthy"</li>
+</ul>
+<h3>Security</h3>
+<ul>
+<li>Kill-switch fix no longer runs `pfctl -d` (which disables the global packet filter and can remove unrelated firewall rules); it now only flushes the specific VPN `pf` anchors</li>
+</ul>
+            ]]></description>
+            <pubDate>Mon, 25 May 2026 21:57:15 +0000</pubDate>
+            <sparkle:version>__BUILD_NUMBER__</sparkle:version>
+            <sparkle:shortVersionString>5.1.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <enclosure
+                url="https://github.com/miguel50flowers/openvpn-mac-fix/releases/download/v5.1.0/VPNFix-5.1.0.dmg"
+                type="application/octet-stream"
+                sparkle:edSignature="__ED_SIGNATURE__"
+                length="__DMG_LENGTH__"
+            />
+        </item>
+        <item>
             <title>Version 5.0.3</title>
             <description><![CDATA[
                 <h3>Added</h3>
