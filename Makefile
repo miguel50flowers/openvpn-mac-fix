@@ -1,4 +1,4 @@
-.PHONY: install uninstall status logs test version pkg app dmg clean release
+.PHONY: install uninstall status logs test smoke e2e-watch run-fix version pkg app dmg clean release
 
 VERSION := $(shell cat VERSION)
 XCODE_PROJECT := app/VPNFix.xcodeproj
@@ -41,7 +41,27 @@ logs:
 	done 2>/dev/null; true
 
 test:
-	@echo "Running fix manually..."
+	@echo "=== Running unit tests (VPNFixTests) ==="
+	@command -v xcodegen >/dev/null 2>&1 && xcodegen generate --spec app/project.yml --project app >/dev/null || echo "(xcodegen not found; using existing project)"
+	xcodebuild test \
+		-project "$(XCODE_PROJECT)" \
+		-scheme VPNFix \
+		-destination 'platform=macOS' \
+		-derivedDataPath "$(BUILD_DIR)/DerivedData" \
+		-only-testing:VPNFixTests \
+		CODE_SIGN_IDENTITY="-" \
+		CODE_SIGN_STYLE=Manual
+
+smoke:
+	@chmod +x tests/smoke-test.sh
+	@./tests/smoke-test.sh
+
+e2e-watch:
+	@chmod +x tests/e2e-watch.sh
+	@./tests/e2e-watch.sh $(filter-out $@,$(MAKECMDGOALS))
+
+run-fix:
+	@echo "Running fix manually (requires sudo)..."
 	@sudo ~/fix-vpn-disconnect.sh
 
 pkg:

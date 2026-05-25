@@ -59,12 +59,38 @@ final class HelperTool: NSObject, VPNHelperProtocol {
     private let phase1Migrator = Phase1Migrator()
     private lazy var stateNotifier = StateNotifier(connection: connection, vpnDetector: vpnDetector)
     private var fileWatcher: FileWatcher?
-    private var lastAutoFixTime: Date = .distantPast
-    private let autoFixCooldown: TimeInterval = 30
+    private var autoFixTimer: DispatchSourceTimer?
+
+    /// The brain of the auto-fix: remembers the last known VPN state and decides when to run
+    /// the recovery fix. Lives in Shared (`AutoFixCoordinator`) and is unit-tested; here we
+    /// wire in the real netstat read, tunnel-process check, and fix script. This replaced the
+    /// old logic that compared two readings both taken *after* the disconnect — which never
+    /// observed the connected→disconnected transition, so the fix never ran.
+    private lazy var autoFixCoordinator = AutoFixCoordinator(
+        policy: AutoFixPolicy(cooldown: 30),
+        stateProvider: { [weak self] in self?.vpnDetector.currentState() ?? .unknown },
+        tunnelProcessRunning: {
+            // Only tunnel binaries that exclusively indicate an active tunnel — NOT background
+            // daemons (vpnagentd, nordvpnd, fct_launcher) which persist with no VPN connected.
+            let processes = DetectionUtilities.getRunningProcesses()
+            return DetectionUtilities.isAnyProcessRunning(
+                ["openvpn", "wireguard-go", "pia-wireguard-go"], in: processes)
+        },
+        runFix: { [weak self] completion in
+            guard let self else { completion(false, "helper deallocated"); return }
+            self.scriptRunner.runFixScript(completion: completion)
+        },
+        now: Date.init,
+        log: { HelperLogger.shared.info("[VPNFixHelper] [AutoFix] \($0)") }
+    )
 
     init(connection: NSXPCConnection) {
         self.connection = connection
         super.init()
+    }
+
+    deinit {
+        autoFixTimer?.cancel()
     }
 
     func getVPNState(reply: @escaping (String) -> Void) {
@@ -96,6 +122,12 @@ final class HelperTool: NSObject, VPNHelperProtocol {
             self?.handleResolvConfChange()
         }
         fileWatcher?.start()
+        // Record the current state as the baseline and start the safety-net poll, so the
+        // first real connected→disconnected transition is detected even if the watcher event
+        // is missed. seed() also forces the lazy coordinator to initialize on this thread,
+        // before the watcher/timer can touch it concurrently.
+        autoFixCoordinator.seed()
+        startAutoFixTimer()
         reply(true, "Watcher installed")
         HelperLogger.shared.info("[VPNFixHelper] File watcher installed")
     }
@@ -104,6 +136,7 @@ final class HelperTool: NSObject, VPNHelperProtocol {
         HelperLogger.shared.debug("[VPNFixHelper] uninstallWatcher requested")
         fileWatcher?.stop()
         fileWatcher = nil
+        stopAutoFixTimer()
         reply(true, "Watcher removed")
         HelperLogger.shared.info("[VPNFixHelper] File watcher removed")
     }
@@ -300,55 +333,38 @@ final class HelperTool: NSObject, VPNHelperProtocol {
     // MARK: - Private
 
     private func handleResolvConfChange() {
-        let previousState = vpnDetector.currentState()
-
-        // Delay to let the system settle (VPN connection setup can take several seconds)
+        // The watcher already debounced rapid resolv.conf writes. Give the routing table a
+        // moment to settle (VPN setup/teardown isn't instantaneous), then let the coordinator
+        // compare the fresh state against the LAST KNOWN one and act on a real transition.
+        // The coordinator — not a second reading taken here — is the source of "previous",
+        // which is the fix for the disconnect that previously went undetected.
         DispatchQueue.global().asyncAfter(deadline: .now() + 3.0) { [weak self] in
             guard let self else { return }
-            let newState = self.vpnDetector.currentState()
-
-            HelperLogger.shared.info("[VPNFixHelper] resolv.conf changed: \(previousState.rawValue) -> \(newState.rawValue)")
             self.stateNotifier.notifyStateChange()
-
-            // Only act on connected → disconnected transitions
-            guard previousState == .connected && newState == .disconnected else {
-                HelperLogger.shared.debug("[VPNFixHelper] State transition \(previousState.rawValue) → \(newState.rawValue), no fix needed")
-                return
-            }
-
-            // Cooldown: prevent rapid-fire fixes
-            let timeSinceLastFix = Date().timeIntervalSince(self.lastAutoFixTime)
-            if timeSinceLastFix < self.autoFixCooldown {
-                HelperLogger.shared.info("[VPNFixHelper] Autofix cooldown active (\(Int(self.autoFixCooldown - timeSinceLastFix))s remaining), skipping")
-                return
-            }
-
-            // Safety: don't fix if a VPN tunnel process is actively running.
-            // ONLY check processes that exclusively indicate an active tunnel being established.
-            // Do NOT check background daemons (fct_launcher, vpnagentd, nordvpnd, etc.)
-            // as they persist even when no VPN is connected and would block legitimate fixes.
-            let processes = DetectionUtilities.getRunningProcesses()
-            let vpnTunnelProcesses = [
-                "openvpn",          // OpenVPN tunnel binary — only runs during active connection
-                "wireguard-go",     // WireGuard userspace — only runs during active tunnel
-                "pia-wireguard-go", // PIA WireGuard — only runs during active tunnel
-            ]
-            let anyVPNRunning = vpnTunnelProcesses.contains { name in
-                processes.contains(name)
-            }
-
-            if anyVPNRunning {
-                HelperLogger.shared.info("[VPNFixHelper] VPN process still running, skipping autofix (likely connecting/reconnecting)")
-                return
-            }
-
-            HelperLogger.shared.info("[VPNFixHelper] VPN disconnection confirmed (no VPN process running), running fix...")
-            self.lastAutoFixTime = Date()
-            self.scriptRunner.runFixScript { success, output in
-                HelperLogger.shared.info("[VPNFixHelper] Auto-fix result: success=\(success), output=\(output)")
-                self.stateNotifier.notifyStateChange()
-            }
+            self.autoFixCoordinator.evaluate()
         }
+    }
+
+    // MARK: - Auto-fix safety-net timer
+
+    /// Periodically re-evaluates VPN state so a connected→disconnected transition is caught
+    /// even if the resolv.conf watcher misses an event. The cooldown de-duplicates a
+    /// transition that both this timer and the watcher observe.
+    private func startAutoFixTimer() {
+        guard autoFixTimer == nil else { return }
+        let timer = DispatchSource.makeTimerSource(queue: DispatchQueue.global())
+        timer.schedule(deadline: .now() + 10, repeating: 10)
+        timer.setEventHandler { [weak self] in
+            self?.autoFixCoordinator.evaluate()
+        }
+        timer.resume()
+        autoFixTimer = timer
+        HelperLogger.shared.debug("[VPNFixHelper] Auto-fix safety-net timer started (10s)")
+    }
+
+    private func stopAutoFixTimer() {
+        autoFixTimer?.cancel()
+        autoFixTimer = nil
     }
 
 }

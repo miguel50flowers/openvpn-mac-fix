@@ -30,32 +30,11 @@ final class VPNDetector {
 
     /// Fast VPN state check for 10s menu bar polling — only reads `netstat -rn`.
     /// Detects all VPN routing patterns: OpenVPN, WireGuard, FortiClient, GlobalProtect, IKEv2.
+    /// The routing-table parsing lives in the pure `VPNStateClassifier` (in Shared) so it is
+    /// unit-tested without a live `netstat`.
     func currentState() -> VPNState {
         let output = DetectionUtilities.runCommand("/usr/sbin/netstat", arguments: ["-rn"])
-        let lines = output.components(separatedBy: .newlines)
-
-        var has0slash1 = false
-        var has128slash1 = false
-        var hasDefaultUtun = false
-        var hasPPP0 = false
-        var hasGPD0 = false
-        var hasIpsec = false
-
-        for line in lines {
-            if line.contains("utun") {
-                if line.hasPrefix("0/1") || line.contains(" 0/1 ") { has0slash1 = true }
-                if line.hasPrefix("128.0/1") || line.contains(" 128.0/1 ") { has128slash1 = true }
-                if line.hasPrefix("default") { hasDefaultUtun = true }
-            }
-            if line.contains("ppp0") { hasPPP0 = true }
-            if line.contains("gpd0") { hasGPD0 = true }
-            if line.contains("ipsec") { hasIpsec = true }
-        }
-
-        let openVPNPattern = has0slash1 && has128slash1
-        let anyVPN = openVPNPattern || hasDefaultUtun || hasPPP0 || hasGPD0 || hasIpsec
-
-        return anyVPN ? .connected : .disconnected
+        return VPNStateClassifier.classify(netstatOutput: output)
     }
 
     /// Detects all VPN clients. Returns only installed or running clients.

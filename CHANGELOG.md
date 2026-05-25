@@ -6,9 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [5.0.3] - 2026-05-25
+
+### Added
+
+- Auto-fix decision core extracted into pure, unit-tested types in `app/Shared/`: `VPNStateClassifier` (VPN state from `netstat -rn`), `AutoFixPolicy` (when to run the fix), and `AutoFixCoordinator` (tracks the last known state across observations). Covered by new XCTest suites `VPNStateClassifierTests`, `AutoFixPolicyTests`, and `AutoFixCoordinatorTests`
+- Safety-net timer in the helper that re-evaluates VPN state every 10s, so a connected→disconnected transition is caught even if the resolv.conf watcher misses the event (de-duplicated by the existing 30s cooldown)
+- Test tooling under `tests/`: `smoke-test.sh` (no-sudo smoke — core-logic + shell lint), `logic-check.swift` (portable core-logic verifier run by the smoke test), and `e2e-watch.sh` + `e2e-openvpn-checklist.md` for verifying a real OpenVPN connect/disconnect. New Makefile targets `smoke`, `e2e-watch`, and `run-fix`
+
 ### Changed
 
+- `make test` now runs the XCTest unit suite (`VPNFixTests`); the previous manual "run the fix script" behavior moved to `make run-fix`
 - README: added explicit "Xcode / Gatekeeper Blocked?" section with `xattr -rd com.apple.quarantine` command to bypass Gatekeeper on first launch, and updated Troubleshooting with the same command as the recommended option
+
+### Fixed
+
+- Auto-fix now reliably triggers on a real VPN disconnect. The helper previously read `previousState` *inside* the resolv.conf watcher handler (after its 3s debounce), then compared it to a second reading 3s later — but by then the VPN was already removed from the routing table, so both reads were `disconnected`, the `connected → disconnected` guard never matched, and the recovery fix never ran on an actual disconnect. The helper now remembers the last known VPN state and compares it against a fresh reading, so the transition is detected
 
 ## [5.0.2] - 2026-03-25
 
